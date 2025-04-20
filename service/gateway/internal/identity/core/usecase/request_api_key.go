@@ -1,7 +1,54 @@
 package usecase
 
-type RequestAPIKeyInput struct{}
+import (
+	"context"
+	"time"
 
-func (u *UseCase) RequestAPIKey(in RequestAPIKeyInput) error {
+	"github.com/charmingruby/doris/lib/core"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/core/client"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
+)
+
+type RequestAPIKeyInput struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+func (u *UseCase) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) error {
+	key := core.NewID()
+
+	expirationDate := time.Now().AddDate(0, 0, 1)
+
+	ak := model.NewAPIKey(model.APIKeyInput{
+		FirstName: in.FirstName,
+		LastName:  in.LastName,
+		Email:     in.Email,
+		Key:       key,
+		ExpiresAt: expirationDate,
+	})
+
+	if err := u.apiKeyRepo.Create(ctx, *ak); err != nil {
+		return err
+	}
+
+	// sample, for now
+	envelope := client.Envelope{
+		From:    "noreply@doris.com",
+		To:      in.Email,
+		Subject: "API Key Request",
+		Body:    "Your API Key is: " + key,
+	}
+
+	if err := u.emailClient.Send(ctx, envelope); err != nil {
+		return err
+	}
+
+	ak.Status = model.API_KEY_STATUS_PENDING
+
+	if err := u.apiKeyRepo.Update(ctx, *ak); err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -8,4 +8,5 @@ import (
 
 type APIKeyRepository interface {
 	Create(ctx context.Context, apiKey model.APIKey) error
+	Update(ctx context.Context, apiKey model.APIKey) error
 }
