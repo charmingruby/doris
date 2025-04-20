@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/charmingruby/doris/lib/core"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/core/client"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -32,17 +31,7 @@ func (u *UseCase) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		return err
 	}
 
-	// sample, for now
-	envelope := client.Envelope{
-		From:    "noreply@doris.com",
-		To:      in.Email,
-		Subject: "API Key Request",
-		Body:    "Your API Key is: " + key,
-	}
-
-	if err := u.emailClient.Send(ctx, envelope); err != nil {
-		return err
-	}
+	// publish to the notification queue
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 
