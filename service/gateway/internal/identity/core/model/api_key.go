@@ -28,28 +28,30 @@ type APIKeyInput struct {
 
 func NewAPIKey(in APIKeyInput) *APIKey {
 	return &APIKey{
-		ID:        core.NewID(),
-		FirstName: in.FirstName,
-		LastName:  in.LastName,
-		Email:     in.Email,
-		Key:       in.Key,
-		Plan:      API_KEY_PLAN_TRIAL,
-		Status:    API_KEY_STATUS_NONE,
-		ExpiresAt: in.ExpiresAt,
-		CreatedAt: time.Now(),
-		UpdatedAt: nil,
+		ID:               core.NewID(),
+		FirstName:        in.FirstName,
+		LastName:         in.LastName,
+		Email:            in.Email,
+		Key:              in.Key,
+		ConfirmationCode: core.NewID(),
+		Plan:             API_KEY_PLAN_TRIAL,
+		Status:           API_KEY_STATUS_NONE,
+		ExpiresAt:        in.ExpiresAt,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        nil,
 	}
 }
 
 type APIKey struct {
-	ID        string     `json:"id"`
-	FirstName string     `json:"first_name"`
-	LastName  string     `json:"last_name"`
-	Email     string     `json:"email"`
-	Key       string     `json:"key"`
-	Plan      string     `json:"plan"`
-	Status    string     `json:"status"`
-	ExpiresAt time.Time  `json:"expires_at"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	ID               string     `json:"id"`
+	FirstName        string     `json:"first_name"`
+	LastName         string     `json:"last_name"`
+	Email            string     `json:"email"`
+	Key              string     `json:"key"`
+	ConfirmationCode string     `json:"confirmation_code"`
+	Plan             string     `json:"plan"`
+	Status           string     `json:"status"`
+	ExpiresAt        time.Time  `json:"expires_at"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        *time.Time `json:"updated_at"`
 }

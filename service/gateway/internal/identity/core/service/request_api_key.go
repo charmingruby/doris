@@ -1,7 +1,8 @@
-package usecase
+package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core"
@@ -14,10 +15,22 @@ type RequestAPIKeyInput struct {
 	Email     string `json:"email"`
 }
 
-func (u *UseCase) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) error {
+func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) error {
+	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
+
+	if err != nil {
+		return err
+	}
+
+	if apiKey.ID != "" {
+		return errors.New("api key already exists")
+	}
+
 	key := core.NewID()
 
-	expirationDate := time.Now().AddDate(0, 0, 1)
+	expirationDelay := 10 * time.Minute
+
+	expirationDate := time.Now().Add(expirationDelay)
 
 	ak := model.NewAPIKey(model.APIKeyInput{
 		FirstName: in.FirstName,
@@ -27,7 +40,7 @@ func (u *UseCase) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		ExpiresAt: expirationDate,
 	})
 
-	if err := u.apiKeyRepo.Create(ctx, *ak); err != nil {
+	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
 		return err
 	}
 
@@ -35,7 +48,7 @@ func (u *UseCase) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 
-	if err := u.apiKeyRepo.Update(ctx, *ak); err != nil {
+	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
 		return err
 	}
 
