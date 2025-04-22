@@ -7,9 +7,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/charmingruby/doris/lib/delivery/rest"
+	"github.com/charmingruby/doris/lib/delivery/http/rest"
+	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
-	"github.com/charmingruby/doris/lib/messaging/nats"
 	"github.com/charmingruby/doris/service/gateway/config"
 )
 
