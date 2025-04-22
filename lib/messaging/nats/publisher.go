@@ -1,0 +1,118 @@
+package nats
+
+import (
+	"context"
+	"errors"
+
+	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/nats-io/nats.go"
+)
+
+type Publisher struct {
+	logger    *logger.Logger
+	nc        *nats.Conn
+	js        nats.JetStreamContext
+	stream    string
+	brokerURL string
+}
+
+func NewPublisher(opts ...PublisherOpt) (*Publisher, error) {
+	pub := &Publisher{}
+
+	for _, opt := range opts {
+		opt(pub)
+	}
+
+	if err := pub.validate(); err != nil {
+		return nil, err
+	}
+
+	nc, err := nats.Connect(pub.brokerURL)
+	if err != nil {
+		return nil, err
+	}
+
+	pub.nc = nc
+
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
+	}
+
+	pub.js = js
+
+	created, err := prepareStream(pub.js, pub.stream)
+	if err != nil {
+		return nil, err
+	}
+
+	if !created {
+		pub.logger.Info("stream already exists", "stream", pub.stream)
+	}
+
+	return pub, nil
+}
+
+func (p *Publisher) Publish(ctx context.Context, topic string, message []byte) error {
+	created, err := prepareSubject(p.js, p.stream, topic)
+	if err != nil {
+		return err
+	}
+
+	if !created {
+		p.logger.Info("subject already exists", "subject", topic)
+	}
+
+	if err := p.nc.Publish(topic, message); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return nil
+	}
+}
+
+func (s *Publisher) Close(ctx context.Context) error {
+
+	s.nc.Close()
+
+	return nil
+}
+
+type PublisherOpt func(*Publisher)
+
+func WithLogger(logger *logger.Logger) PublisherOpt {
+	return func(p *Publisher) {
+		p.logger = logger
+	}
+}
+
+func WithBrokerURL(brokerURL string) PublisherOpt {
+	return func(p *Publisher) {
+		p.brokerURL = brokerURL
+	}
+}
+
+func WithStream(stream string) PublisherOpt {
+	return func(p *Publisher) {
+		p.stream = stream
+	}
+}
+
+func (p *Publisher) validate() error {
+	if p.logger == nil {
+		return errors.New("logger is required")
+	}
+
+	if p.brokerURL == "" {
+		p.brokerURL = DEFAULT_BROKER_URL
+	}
+
+	if p.stream == "" {
+		return errors.New("stream is required")
+	}
+
+	return nil
+}

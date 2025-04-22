@@ -5,8 +5,10 @@ import (
 )
 
 type CustomConfig struct {
-	RestServerHost string `env:"REST_SERVER_HOST" envDefault:"localhost"`
-	RestServerPort string `env:"REST_SERVER_PORT" envDefault:"3000"`
+	RestServerHost         string `env:"REST_SERVER_HOST" envDefault:"localhost"`
+	RestServerPort         string `env:"REST_SERVER_PORT" envDefault:"3000"`
+	NatsStream             string `env:"NATS_STREAM"`
+	NotificationsSendTopic string `env:"NOTIFICATIONS_SEND_TOPIC"`
 }
 
 func New() (config.Config[CustomConfig], error) {
