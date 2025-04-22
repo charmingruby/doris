@@ -1,18 +1,21 @@
 package service
 
 import (
+	"github.com/charmingruby/doris/lib/instrumentation/logger"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/repository"
 )
 
 type Service struct {
+	logger     *logger.Logger
 	apiKeyRepo repository.APIKeyRepository
 }
 
 func New(
+	logger *logger.Logger,
 	apiKeyRepo repository.APIKeyRepository,
-
 ) *Service {
 	return &Service{
+		logger:     logger,
 		apiKeyRepo: apiKeyRepo,
 	}
 }

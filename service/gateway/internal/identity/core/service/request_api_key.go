@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core"
+	"github.com/charmingruby/doris/lib/custom_err"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -19,11 +19,13 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
-		return err
+		s.logger.Error("error on find by email", "error", err)
+
+		return custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
 	}
 
 	if apiKey.ID != "" {
-		return errors.New("api key already exists")
+		return custom_err.NewErrResourceAlreadyExists("api key")
 	}
 
 	key := core.NewID()
@@ -41,7 +43,7 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 	})
 
 	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
-		return err
+		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
 	// publish to the notification queue
@@ -49,7 +51,7 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 	ak.Status = model.API_KEY_STATUS_PENDING
 
 	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
-		return err
+		return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 
 	return nil
