@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/charmingruby/doris/lib/core"
-	"github.com/charmingruby/doris/lib/custom_err"
+	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -28,7 +28,7 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		return custom_err.NewErrResourceAlreadyExists("api key")
 	}
 
-	key := core.NewID()
+	key := id.New()
 
 	expirationDelay := 10 * time.Minute
 

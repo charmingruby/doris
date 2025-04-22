@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/charmingruby/doris/lib/core"
+	"github.com/charmingruby/doris/lib/core/id"
 )
 
 const (
@@ -28,12 +28,12 @@ type APIKeyInput struct {
 
 func NewAPIKey(in APIKeyInput) *APIKey {
 	return &APIKey{
-		ID:               core.NewID(),
+		ID:               id.New(),
 		FirstName:        in.FirstName,
 		LastName:         in.LastName,
 		Email:            in.Email,
 		Key:              in.Key,
-		ConfirmationCode: core.NewID(),
+		ConfirmationCode: id.New(),
 		Plan:             API_KEY_PLAN_TRIAL,
 		Status:           API_KEY_STATUS_NONE,
 		ExpiresAt:        in.ExpiresAt,

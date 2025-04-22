@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/charmingruby/doris/lib/core"
-	"github.com/charmingruby/doris/lib/custom_err"
+	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -23,7 +23,7 @@ func (s *Suite) Test_RequestApiKey() {
 		FirstName: validInput.FirstName,
 		LastName:  validInput.LastName,
 		Email:     validInput.Email,
-		Key:       core.NewID(),
+		Key:       id.New(),
 		ExpiresAt: time.Now().Add(expirationDelay),
 	})
 
