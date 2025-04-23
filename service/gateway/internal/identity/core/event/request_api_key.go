@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) PublishRequestAPIKey(ctx context.Context, topic string, ak model.APIKey) error {
+func (h *Handler) PublishRequestAPIKey(ctx context.Context, ak model.APIKey) error {
 	msg := notification.Envelope{
 		Id:     ak.ID,
 		To:     ak.Email,
@@ -28,6 +28,8 @@ func (h *Handler) PublishRequestAPIKey(ctx context.Context, topic string, ak mod
 	if err != nil {
 		return custom_err.NewErrSerializationFailed(err)
 	}
+
+	topic := h.topics[requestAPIKeyIdentifier]
 
 	if err := h.pub.Publish(ctx, topic, msgBytes); err != nil {
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)

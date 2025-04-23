@@ -23,3 +23,9 @@ func New(
 		svc:    svc,
 	}
 }
+
+func (e *Endpoint) Register() {
+	api := e.r.Group("/api")
+
+	api.GET("/api-key/request", e.makeRequestAPIKey)
+}

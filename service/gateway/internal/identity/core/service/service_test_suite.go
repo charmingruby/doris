@@ -24,7 +24,9 @@ func (s *Suite) SetupTest() {
 
 	s.pub = memory.NewPublisher()
 
-	eventHandler := event.NewHandler(s.pub)
+	eventHandler := event.NewHandler(s.pub, event.HandlerInput{
+		RequestAPIKeyTopic: "notifications.send",
+	})
 
 	s.svc = New(logger, s.apiKeyRepo, eventHandler)
 }

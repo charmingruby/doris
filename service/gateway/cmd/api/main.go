@@ -12,7 +12,9 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
 	"github.com/charmingruby/doris/service/gateway/config"
+	"github.com/charmingruby/doris/service/gateway/internal/identity"
 	"github.com/charmingruby/doris/service/gateway/internal/platform"
+	"github.com/charmingruby/doris/service/gateway/test/memory"
 	"github.com/gin-gonic/gin"
 )
 
@@ -60,6 +62,14 @@ func main() {
 }
 
 func initModules(log *logger.Logger, cfg config.Config, pub *nats.Publisher, r *gin.Engine) {
+	apiKeyRepo := memory.NewAPIKeyRepository()
+
+	identityEvtHandler := identity.NewEventHandler(pub, cfg)
+
+	identitySvc := identity.NewService(log, apiKeyRepo, identityEvtHandler)
+
+	identity.NewHTTPHandler(log, r, identitySvc)
+
 	platform.NewHTTPHandler(r)
 }
 

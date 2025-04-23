@@ -46,7 +46,7 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	if err := s.eventHandler.PublishRequestAPIKey(ctx, "notification", *ak); err != nil {
+	if err := s.eventHandler.PublishRequestAPIKey(ctx, *ak); err != nil {
 		return err
 	}
 
