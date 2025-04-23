@@ -6,6 +6,7 @@ replace github.com/charmingruby/doris/lib => ../../lib
 
 require (
 	github.com/charmingruby/doris/lib v0.0.0-00010101000000-000000000000
+	github.com/gin-gonic/gin v1.10.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.1
 )
@@ -19,7 +20,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.10.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.20.0 // indirect

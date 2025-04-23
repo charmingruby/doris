@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,6 +12,8 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
 	"github.com/charmingruby/doris/service/gateway/config"
+	"github.com/charmingruby/doris/service/gateway/internal/platform"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -36,11 +39,17 @@ func main() {
 		return
 	}
 
-	log.Info("message published successfully")
+	log.Info("nats publisher created successfully")
 
-	server, _ := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
+	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
+
+	initModules(log, cfg, pub, router)
+
+	log.Info("modules initialized successfully")
 
 	go func() {
+		log.Info(fmt.Sprintf("rest server is running on %s:%s", cfg.Custom.RestServerHost, cfg.Custom.RestServerPort))
+
 		if err := server.Start(); err != nil {
 			log.Error("failed to start rest server", "error", err)
 			return
@@ -48,6 +57,10 @@ func main() {
 	}()
 
 	gracefulShutdown(log, pub, server)
+}
+
+func initModules(log *logger.Logger, cfg config.Config, pub *nats.Publisher, r *gin.Engine) {
+	platform.NewHTTPHandler(r)
 }
 
 func gracefulShutdown(log *logger.Logger, pub *nats.Publisher, srv *rest.Server) {
