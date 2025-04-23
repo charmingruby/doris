@@ -7,7 +7,9 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
+	"github.com/charmingruby/doris/lib/proto/gen/notification"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
+	"google.golang.org/protobuf/proto"
 )
 
 func (s *Suite) Test_RequestApiKey() {
@@ -39,6 +41,28 @@ func (s *Suite) Test_RequestApiKey() {
 		s.Equal(validInput.Email, apiKey.Email)
 		s.Equal(apiKey.Status, model.API_KEY_STATUS_PENDING)
 		s.Equal(apiKey.ExpiresAt, time.Now().Add(expirationDelay))
+		s.Equal(1, len(s.pub.Messages))
+	})
+
+	s.Run("it should publish a message with api key request protobuf structure", func() {
+		err := s.svc.RequestAPIKey(context.Background(), validInput)
+		s.NoError(err)
+
+		s.Equal(1, len(s.pub.Messages))
+
+		msg := s.pub.Messages[0]
+		envelope := &notification.Envelope{}
+		err = proto.Unmarshal(msg.Content, envelope)
+		s.NoError(err)
+
+		s.NotEmpty(envelope.Id)
+		s.Equal(validInput.Email, envelope.To)
+		s.NotNil(envelope.SentAt)
+		s.Equal(notification.EnvelopeType_API_KEY_REQUEST, envelope.Type)
+
+		apiKeyRequest := envelope.GetApiKeyRequest()
+		s.NotNil(apiKeyRequest)
+		s.NotEmpty(apiKeyRequest.VerificationCode)
 	})
 
 	s.Run("it should return an error if datasource fails", func() {

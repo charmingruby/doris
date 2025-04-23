@@ -46,7 +46,9 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	// publish to the notification queue
+	if err := s.eventHandler.PublishRequestAPIKey(ctx, "notification", *ak); err != nil {
+		return err
+	}
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 

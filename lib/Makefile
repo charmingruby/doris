@@ -1,7 +1,7 @@
 PROTO_DIR := proto/domain
 GEN_DIR := proto/gen
 
-.PHONY: proto
+.PHONY: gen-proto
 gen-proto: clean
 	@echo "Generating protobuf files..."
 	@find $(PROTO_DIR) -name "*.proto" -exec protoc \

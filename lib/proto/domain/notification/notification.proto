@@ -18,12 +18,10 @@ message APIKeyRequestContent {
 message Envelope {
   string id = 1;
   string to = 2;
-  string from = 3;
-  google.protobuf.Timestamp sent_at = 4;
-  
-  EnvelopeType type = 5;      
+  google.protobuf.Timestamp sent_at = 3;
+  EnvelopeType type = 4;      
 
   oneof content {
-    APIKeyRequestContent api_key_request = 6;
+    APIKeyRequestContent api_key_request = 5;
   }
 };
