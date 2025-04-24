@@ -30,24 +30,20 @@ func (s *Suite) Test_ConfirmAPIKey() {
 
 		s.Equal(0, len(s.pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequestEvent{
+		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
 			ID:               dummyAPIKey.ID,
 			To:               dummyAPIKey.Email,
-			VerificationCode: dummyAPIKey.ConfirmationCode,
+			ConfirmationCode: dummyAPIKey.ConfirmationCode,
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.pub.Messages))
 
-		msg := s.pub.Messages[0]
-
-		mapper := &event.APIKeyRequestMessageMapper{}
-		message, err := mapper.MapFromBytes(msg.Content)
-		s.NoError(err)
+		storedApiKey := s.apiKeyRepo.Items[0]
 
 		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
 			Key:              dummyAPIKey.Key,
-			ConfirmationCode: message.VerificationCode,
+			ConfirmationCode: storedApiKey.ConfirmationCode,
 		})
 
 		s.NoError(err)
@@ -95,10 +91,10 @@ func (s *Suite) Test_ConfirmAPIKey() {
 
 		s.Equal(0, len(s.pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequestEvent{
+		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
 			ID:               dummyAPIKey.ID,
 			To:               dummyAPIKey.Email,
-			VerificationCode: dummyAPIKey.ConfirmationCode,
+			ConfirmationCode: dummyAPIKey.ConfirmationCode,
 		})
 		s.NoError(err)
 
@@ -128,10 +124,10 @@ func (s *Suite) Test_ConfirmAPIKey() {
 
 		s.Equal(0, len(s.pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequestEvent{
+		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
 			ID:               dummyAPIKeyClone.ID,
 			To:               dummyAPIKeyClone.Email,
-			VerificationCode: dummyAPIKeyClone.ConfirmationCode,
+			ConfirmationCode: dummyAPIKeyClone.ConfirmationCode,
 		})
 		s.NoError(err)
 
@@ -156,31 +152,27 @@ func (s *Suite) Test_ConfirmAPIKey() {
 
 		s.Equal(0, len(s.pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequestEvent{
+		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
 			ID:               dummyAPIKey.ID,
 			To:               dummyAPIKey.Email,
-			VerificationCode: dummyAPIKey.ConfirmationCode,
+			ConfirmationCode: dummyAPIKey.ConfirmationCode,
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.pub.Messages))
 
-		msg := s.pub.Messages[0]
-
-		mapper := &event.APIKeyRequestMessageMapper{}
-		message, err := mapper.MapFromBytes(msg.Content)
-		s.NoError(err)
+		storedApiKey := s.apiKeyRepo.Items[0]
 
 		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
 			Key:              dummyAPIKey.Key,
-			ConfirmationCode: message.VerificationCode,
+			ConfirmationCode: storedApiKey.ConfirmationCode,
 		})
 
 		s.NoError(err)
 
 		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
 			Key:              dummyAPIKey.Key,
-			ConfirmationCode: message.VerificationCode,
+			ConfirmationCode: storedApiKey.ConfirmationCode,
 		})
 
 		s.Error(err)

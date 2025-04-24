@@ -49,10 +49,10 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	event := &event.APIKeyRequestEvent{
+	event := &event.APIKeyRequest{
 		ID:               ak.ID,
 		To:               ak.Email,
-		VerificationCode: ak.ConfirmationCode,
+		ConfirmationCode: ak.ConfirmationCode,
 		SentAt:           time.Now(),
 	}
 

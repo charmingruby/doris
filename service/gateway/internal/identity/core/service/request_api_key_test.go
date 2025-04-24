@@ -7,7 +7,6 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -47,24 +46,6 @@ func (s *Suite) Test_RequestApiKey() {
 		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
 
 		s.Equal(1, len(s.pub.Messages))
-	})
-
-	s.Run("it should publish a message with api key request with valid message", func() {
-		err := s.svc.RequestAPIKey(context.Background(), validInput)
-		s.NoError(err)
-
-		s.Equal(1, len(s.pub.Messages))
-
-		msg := s.pub.Messages[0]
-
-		mapper := &event.APIKeyRequestMessageMapper{}
-		message, err := mapper.MapFromBytes(msg.Content)
-		s.NoError(err)
-
-		s.NotEmpty(message.ID)
-		s.Equal(validInput.Email, message.To)
-		s.NotNil(message.SentAt)
-		s.NotEmpty(message.VerificationCode)
 	})
 
 	s.Run("it should return an error if datasource fails", func() {

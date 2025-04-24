@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/delivery/event"
 	"github.com/charmingruby/doris/service/gateway/test/memory"
 	"github.com/stretchr/testify/suite"
 )

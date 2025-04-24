@@ -4,9 +4,9 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
 	"github.com/charmingruby/doris/service/gateway/config"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/repository"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/service"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/delivery/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/delivery/http/rest/endpoint"
 	"github.com/gin-gonic/gin"
 )

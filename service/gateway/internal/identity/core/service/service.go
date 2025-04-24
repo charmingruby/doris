@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/repository"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/delivery/event"
 )
 
 type Service struct {
