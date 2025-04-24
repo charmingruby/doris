@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
@@ -17,7 +16,7 @@ func NewValidator() *Validator {
 	}
 }
 
-func (v *Validator) Validate(s any) []error {
+func (v *Validator) Validate(s any) []string {
 	err := v.validator.Struct(s)
 
 	if err == nil {
@@ -27,20 +26,19 @@ func (v *Validator) Validate(s any) []error {
 	return v.UnwrapValidationErr(err)
 }
 
-func (v *Validator) UnwrapValidationErr(err error) []error {
-	var wrappedErrs []error
-
+func (v *Validator) UnwrapValidationErr(err error) []string {
 	validationErrs, ok := err.(validator.ValidationErrors)
 	if !ok {
-		wrappedErrs = append(wrappedErrs, err)
-		return wrappedErrs
+		return []string{err.Error()}
 	}
+
+	reasonsWrapper := make([]string, 0, len(validationErrs))
 
 	for _, vErr := range validationErrs {
-		fmtErr := fmt.Sprintf("%s does not satisfy %s", vErr.Field(), vErr.Tag())
+		reason := fmt.Sprintf("field `%s` does not satisfy %s rule", vErr.Field(), vErr.Tag())
 
-		wrappedErrs = append(wrappedErrs, errors.New(fmtErr))
+		reasonsWrapper = append(reasonsWrapper, reason)
 	}
 
-	return wrappedErrs
+	return reasonsWrapper
 }
