@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	requestAPIKeyIdentifier = iota
+	apiKeyRequestIdentifier = iota
 )
 
 type Handler struct {
@@ -16,13 +16,13 @@ type Handler struct {
 }
 
 type HandlerInput struct {
-	RequestAPIKeyTopic string
+	APIKeyRequestTopic string
 }
 
 func NewHandler(pub messaging.Publisher, in HandlerInput) *Handler {
 	topics := make(map[int]string, 1)
 
-	topics[requestAPIKeyIdentifier] = in.RequestAPIKeyTopic
+	topics[apiKeyRequestIdentifier] = in.APIKeyRequestTopic
 
 	return &Handler{
 		pub:    pub,

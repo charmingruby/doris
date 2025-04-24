@@ -12,8 +12,10 @@ import (
 
 type Suite struct {
 	suite.Suite
+
 	apiKeyRepo *memory.APIKeyRepository
 	pub        *memory.Publisher
+	evtHandler *event.Handler
 	svc        *Service
 }
 
@@ -24,16 +26,17 @@ func (s *Suite) SetupTest() {
 
 	s.pub = memory.NewPublisher()
 
-	eventHandler := event.NewHandler(s.pub, event.HandlerInput{
-		RequestAPIKeyTopic: "notifications.send",
+	s.evtHandler = event.NewHandler(s.pub, event.HandlerInput{
+		APIKeyRequestTopic: "notifications.send",
 	})
 
-	s.svc = New(logger, s.apiKeyRepo, eventHandler)
+	s.svc = New(logger, s.apiKeyRepo, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {
 	s.apiKeyRepo.Items = []model.APIKey{}
 	s.apiKeyRepo.IsHealthy = true
+	s.pub.Messages = []memory.Message{}
 }
 
 func TestSuite(t *testing.T) {

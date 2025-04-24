@@ -5,18 +5,18 @@ import (
 	"errors"
 )
 
-type message struct {
+type Message struct {
 	Content []byte
 }
 
 type Publisher struct {
-	Messages  []message
+	Messages  []Message
 	IsHealthy bool
 }
 
 func NewPublisher() *Publisher {
 	return &Publisher{
-		Messages:  []message{},
+		Messages:  []Message{},
 		IsHealthy: true,
 	}
 }
@@ -26,7 +26,7 @@ func (p *Publisher) Publish(ctx context.Context, topic string, msg []byte) error
 		return errors.New("publisher is not healthy")
 	}
 
-	p.Messages = append(p.Messages, message{Content: msg})
+	p.Messages = append(p.Messages, Message{Content: msg})
 
 	return nil
 }

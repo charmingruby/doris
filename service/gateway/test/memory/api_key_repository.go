@@ -49,6 +49,20 @@ func (r *APIKeyRepository) FindByEmail(ctx context.Context, email string) (model
 	return model.APIKey{}, nil
 }
 
+func (r *APIKeyRepository) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
+	for _, i := range r.Items {
+		if i.Key == key {
+			return i, nil
+		}
+	}
+
+	if !r.IsHealthy {
+		return model.APIKey{}, ErrUnhealthyDatasource
+	}
+
+	return model.APIKey{}, nil
+}
+
 func (r *APIKeyRepository) Create(ctx context.Context, apiKey model.APIKey) error {
 	if !r.IsHealthy {
 		return ErrUnhealthyDatasource

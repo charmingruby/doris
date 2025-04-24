@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
@@ -39,14 +40,23 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		LastName:  in.LastName,
 		Email:     in.Email,
 		Key:       key,
-		ExpiresAt: expirationDate,
+		// TODO: create a confirmation code logic
+		ConfirmationCode:          id.New(),
+		ConfirmationCodeExpiresAt: expirationDate,
 	})
 
 	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	if err := s.eventHandler.PublishRequestAPIKey(ctx, *ak); err != nil {
+	event := &event.APIKeyRequestEvent{
+		ID:               ak.ID,
+		To:               ak.Email,
+		VerificationCode: ak.ConfirmationCode,
+		SentAt:           time.Now(),
+	}
+
+	if err := s.eventHandler.PublishAPIKeyRequest(ctx, event); err != nil {
 		return err
 	}
 

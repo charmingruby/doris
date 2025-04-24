@@ -13,7 +13,7 @@ import (
 
 func NewEventHandler(pub messaging.Publisher, cfg config.Config) *event.Handler {
 	return event.NewHandler(pub, event.HandlerInput{
-		RequestAPIKeyTopic: cfg.Custom.NotificationsSendTopic,
+		APIKeyRequestTopic: cfg.Custom.NotificationsSendTopic,
 	})
 }
 

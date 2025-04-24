@@ -7,9 +7,8 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
-	"github.com/charmingruby/doris/lib/proto/gen/notification"
+	"github.com/charmingruby/doris/service/gateway/internal/identity/core/event"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
-	"google.golang.org/protobuf/proto"
 )
 
 func (s *Suite) Test_RequestApiKey() {
@@ -22,11 +21,11 @@ func (s *Suite) Test_RequestApiKey() {
 	expirationDelay := 10 * time.Minute
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
-		FirstName: validInput.FirstName,
-		LastName:  validInput.LastName,
-		Email:     validInput.Email,
-		Key:       id.New(),
-		ExpiresAt: time.Now().Add(expirationDelay),
+		FirstName:                 validInput.FirstName,
+		LastName:                  validInput.LastName,
+		Email:                     validInput.Email,
+		Key:                       id.New(),
+		ConfirmationCodeExpiresAt: time.Now().Add(expirationDelay),
 	})
 
 	s.Run("it should create a new api key", func() {
@@ -40,29 +39,32 @@ func (s *Suite) Test_RequestApiKey() {
 		s.Equal(validInput.LastName, apiKey.LastName)
 		s.Equal(validInput.Email, apiKey.Email)
 		s.Equal(apiKey.Status, model.API_KEY_STATUS_PENDING)
-		s.Equal(apiKey.ExpiresAt, time.Now().Add(expirationDelay))
+
+		expectedExpiration := time.Now().Add(expirationDelay)
+
+		timeDiff := apiKey.ConfirmationCodeExpiresAt.Sub(expectedExpiration)
+
+		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
+
 		s.Equal(1, len(s.pub.Messages))
 	})
 
-	s.Run("it should publish a message with api key request protobuf structure", func() {
+	s.Run("it should publish a message with api key request with valid message", func() {
 		err := s.svc.RequestAPIKey(context.Background(), validInput)
 		s.NoError(err)
 
 		s.Equal(1, len(s.pub.Messages))
 
 		msg := s.pub.Messages[0]
-		envelope := &notification.Envelope{}
-		err = proto.Unmarshal(msg.Content, envelope)
+
+		mapper := &event.APIKeyRequestMessageMapper{}
+		message, err := mapper.MapFromBytes(msg.Content)
 		s.NoError(err)
 
-		s.NotEmpty(envelope.Id)
-		s.Equal(validInput.Email, envelope.To)
-		s.NotNil(envelope.SentAt)
-		s.Equal(notification.EnvelopeType_API_KEY_REQUEST, envelope.Type)
-
-		apiKeyRequest := envelope.GetApiKeyRequest()
-		s.NotNil(apiKeyRequest)
-		s.NotEmpty(apiKeyRequest.VerificationCode)
+		s.NotEmpty(message.ID)
+		s.Equal(validInput.Email, message.To)
+		s.NotNil(message.SentAt)
+		s.NotEmpty(message.VerificationCode)
 	})
 
 	s.Run("it should return an error if datasource fails", func() {
