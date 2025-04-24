@@ -28,12 +28,12 @@ func (s *Suite) Test_GenerateAPIKey() {
 	})
 
 	s.Run("it should create a new api key", func() {
-		err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.NoError(err)
 
 		apiKey := s.apiKeyRepo.Items[0]
 
-		s.NotEmpty(apiKey.ID)
+		s.Equal(apiKey.ID, id)
 		s.Equal(validInput.FirstName, apiKey.FirstName)
 		s.Equal(validInput.LastName, apiKey.LastName)
 		s.Equal(validInput.Email, apiKey.Email)
@@ -51,7 +51,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 	s.Run("it should return an error if datasource fails", func() {
 		s.apiKeyRepo.IsHealthy = false
 
-		err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		_, err := s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -62,7 +62,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
-		err = s.svc.GenerateAPIKey(context.Background(), validInput)
+		_, err = s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists

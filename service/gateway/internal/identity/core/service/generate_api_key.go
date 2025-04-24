@@ -16,17 +16,17 @@ type GenerateAPIKeyInput struct {
 	Email     string `json:"email"`
 }
 
-func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) error {
+func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
 	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
 		s.logger.Error("error on find by email", "error", err)
 
-		return custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
+		return "", custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
 	}
 
 	if apiKey.ID != "" {
-		return custom_err.NewErrResourceAlreadyExists("api key")
+		return "", custom_err.NewErrResourceAlreadyExists("api key")
 	}
 
 	key := id.New()
@@ -46,7 +46,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) er
 	})
 
 	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
+		return "", custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
 	event := &event.APIKeyActivation{
@@ -57,14 +57,14 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) er
 	}
 
 	if err := s.eventHandler.SendAPIKeyActivationCode(ctx, event); err != nil {
-		return err
+		return "", err
 	}
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 
 	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		return "", custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 
-	return nil
+	return ak.ID, nil
 }

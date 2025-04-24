@@ -2,9 +2,11 @@ package endpoint
 
 import (
 	"context"
-	"net/http"
+	"errors"
 	"time"
 
+	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/service"
 	"github.com/gin-gonic/gin"
 )
@@ -20,28 +22,30 @@ func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
 	defer cancel()
 
 	var req GenerateAPIKeyRequest
-
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"errors": e.val.UnwrapValidationErr(err),
-		})
+		reasons := e.val.UnwrapValidationErr(err)
 
+		rest.NewPayloadErrResponse(c, reasons)
 		return
 	}
 
-	if err := e.svc.GenerateAPIKey(ctx, service.GenerateAPIKeyInput{
+	id, err := e.svc.GenerateAPIKey(ctx, service.GenerateAPIKeyInput{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
-	}); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+	})
+	if err != nil {
+		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists
+		if errors.As(err, &errResourceAlreadyExists) {
+			rest.NewResourceAlreadyExistsResponse(c, "api key")
+			return
+		}
 
+		e.logger.Error("error on generate api key", "error", err)
+
+		rest.NewUncaughtErrResponse(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": "ok",
-	})
+	rest.NewCreatedResponse(c, id, "api key")
 }
