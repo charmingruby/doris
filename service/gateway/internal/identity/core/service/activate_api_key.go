@@ -8,12 +8,12 @@ import (
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
-type ConfirmAPIKeyInput struct {
-	Key              string `json:"key"`
-	ConfirmationCode string `json:"confirmation_code"`
+type ActivateAPIKeyInput struct {
+	Key            string `json:"key"`
+	ActivationCode string `json:"activation_code"`
 }
 
-func (s *Service) ConfirmAPIKey(ctx context.Context, in ConfirmAPIKeyInput) error {
+func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) error {
 	ak, err := s.apiKeyRepo.FindByKey(ctx, in.Key)
 
 	if err != nil {
@@ -24,11 +24,11 @@ func (s *Service) ConfirmAPIKey(ctx context.Context, in ConfirmAPIKeyInput) erro
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	if ak.ConfirmationCode != in.ConfirmationCode {
+	if ak.ActivationCode != in.ActivationCode {
 		return custom_err.NewErrInvalidConfirmationCode("does not match")
 	}
 
-	if ak.ConfirmationCodeExpiresAt.Before(time.Now()) {
+	if ak.ActivationCodeExpiresAt.Before(time.Now()) {
 		return custom_err.NewErrInvalidConfirmationCode("expired")
 	}
 

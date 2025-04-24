@@ -10,13 +10,13 @@ import (
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
-type RequestAPIKeyInput struct {
+type GenerateAPIKeyInput struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
-func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) error {
+func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) error {
 	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
@@ -41,22 +41,22 @@ func (s *Service) RequestAPIKey(ctx context.Context, in RequestAPIKeyInput) erro
 		Email:     in.Email,
 		Key:       key,
 		// TODO: create a confirmation code logic
-		ConfirmationCode:          id.New(),
-		ConfirmationCodeExpiresAt: expirationDate,
+		ActivationCode:          id.New(),
+		ActivationCodeExpiresAt: expirationDate,
 	})
 
 	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	event := &event.APIKeyRequest{
-		ID:               ak.ID,
-		To:               ak.Email,
-		ConfirmationCode: ak.ConfirmationCode,
-		SentAt:           time.Now(),
+	event := &event.APIKeyActivation{
+		ID:             ak.ID,
+		To:             ak.Email,
+		ActivationCode: ak.ActivationCode,
+		SentAt:         time.Now(),
 	}
 
-	if err := s.eventHandler.PublishAPIKeyRequest(ctx, event); err != nil {
+	if err := s.eventHandler.SendAPIKeyActivationCode(ctx, event); err != nil {
 		return err
 	}
 

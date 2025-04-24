@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
-	"github.com/charmingruby/doris/service/gateway/internal/identity/delivery/event"
 	"github.com/charmingruby/doris/service/gateway/test/memory"
 	"github.com/stretchr/testify/suite"
 )
@@ -14,8 +13,7 @@ type Suite struct {
 	suite.Suite
 
 	apiKeyRepo *memory.APIKeyRepository
-	pub        *memory.Publisher
-	evtHandler *event.Handler
+	evtHandler *memory.EventHandler
 	svc        *Service
 }
 
@@ -24,19 +22,17 @@ func (s *Suite) SetupTest() {
 
 	s.apiKeyRepo = memory.NewAPIKeyRepository()
 
-	s.pub = memory.NewPublisher()
+	pub := memory.NewPublisher()
 
-	s.evtHandler = event.NewHandler(s.pub, event.HandlerInput{
-		APIKeyRequestTopic: "notifications.send",
-	})
+	s.evtHandler = memory.NewEventHandler(*pub)
 
 	s.svc = New(logger, s.apiKeyRepo, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {
 	s.apiKeyRepo.Items = []model.APIKey{}
+	s.evtHandler.Pub.Messages = []memory.Message{}
 	s.apiKeyRepo.IsHealthy = true
-	s.pub.Messages = []memory.Message{}
 }
 
 func TestSuite(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
-func (s *Suite) Test_RequestApiKey() {
-	validInput := RequestAPIKeyInput{
+func (s *Suite) Test_GenerateAPIKey() {
+	validInput := GenerateAPIKeyInput{
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     "john.doe@example.com",
@@ -20,15 +20,15 @@ func (s *Suite) Test_RequestApiKey() {
 	expirationDelay := 10 * time.Minute
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
-		FirstName:                 validInput.FirstName,
-		LastName:                  validInput.LastName,
-		Email:                     validInput.Email,
-		Key:                       id.New(),
-		ConfirmationCodeExpiresAt: time.Now().Add(expirationDelay),
+		FirstName:               validInput.FirstName,
+		LastName:                validInput.LastName,
+		Email:                   validInput.Email,
+		Key:                     id.New(),
+		ActivationCodeExpiresAt: time.Now().Add(expirationDelay),
 	})
 
 	s.Run("it should create a new api key", func() {
-		err := s.svc.RequestAPIKey(context.Background(), validInput)
+		err := s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.NoError(err)
 
 		apiKey := s.apiKeyRepo.Items[0]
@@ -41,17 +41,17 @@ func (s *Suite) Test_RequestApiKey() {
 
 		expectedExpiration := time.Now().Add(expirationDelay)
 
-		timeDiff := apiKey.ConfirmationCodeExpiresAt.Sub(expectedExpiration)
+		timeDiff := apiKey.ActivationCodeExpiresAt.Sub(expectedExpiration)
 
 		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
 
-		s.Equal(1, len(s.pub.Messages))
+		s.Equal(1, len(s.evtHandler.Pub.Messages))
 	})
 
 	s.Run("it should return an error if datasource fails", func() {
 		s.apiKeyRepo.IsHealthy = false
 
-		err := s.svc.RequestAPIKey(context.Background(), validInput)
+		err := s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -62,7 +62,7 @@ func (s *Suite) Test_RequestApiKey() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
-		err = s.svc.RequestAPIKey(context.Background(), validInput)
+		err = s.svc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists

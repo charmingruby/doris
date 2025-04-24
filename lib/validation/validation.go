@@ -18,24 +18,29 @@ func NewValidator() *Validator {
 }
 
 func (v *Validator) Validate(s any) []error {
-	var errs []error
-
 	err := v.validator.Struct(s)
 
 	if err == nil {
 		return nil
 	}
 
+	return v.UnwrapValidationErr(err)
+}
+
+func (v *Validator) UnwrapValidationErr(err error) []error {
+	var wrappedErrs []error
+
 	validationErrs, ok := err.(validator.ValidationErrors)
 	if !ok {
-		errs = append(errs, err)
-		return errs
+		wrappedErrs = append(wrappedErrs, err)
+		return wrappedErrs
 	}
 
 	for _, vErr := range validationErrs {
 		fmtErr := fmt.Sprintf("%s does not satisfy %s", vErr.Field(), vErr.Tag())
-		errs = append(errs, errors.New(fmtErr))
+
+		wrappedErrs = append(wrappedErrs, errors.New(fmtErr))
 	}
 
-	return errs
+	return wrappedErrs
 }

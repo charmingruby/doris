@@ -41,41 +41,33 @@ func NewPublisher(opts ...PublisherOpt) (*Publisher, error) {
 
 	pub.js = js
 
-	created, err := prepareStream(pub.js, pub.stream)
-	if err != nil {
+	if _, err := prepareStream(pub.js, pub.stream); err != nil {
 		return nil, err
-	}
-
-	if !created {
-		pub.logger.Info("stream already exists", "stream", pub.stream)
 	}
 
 	return pub, nil
 }
 
 func (p *Publisher) Publish(ctx context.Context, topic string, message []byte) error {
-	created, err := prepareSubject(p.js, p.stream, topic)
-	if err != nil {
+	if _, err := prepareSubject(p.js, p.stream, topic); err != nil {
 		return err
-	}
-
-	if !created {
-		p.logger.Info("subject already exists", "subject", topic)
 	}
 
 	if err := p.nc.Publish(topic, message); err != nil {
 		return err
 	}
+
 	select {
 	case <-ctx.Done():
+		p.logger.Error("message not published", "topic", topic, "error", ctx.Err())
 		return ctx.Err()
 	default:
+		p.logger.Debug("message published", "topic", topic)
 		return nil
 	}
 }
 
 func (s *Publisher) Close(ctx context.Context) error {
-
 	s.nc.Close()
 
 	return nil

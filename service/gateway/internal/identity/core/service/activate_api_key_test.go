@@ -11,15 +11,15 @@ import (
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/model"
 )
 
-func (s *Suite) Test_ConfirmAPIKey() {
+func (s *Suite) Test_ActivateAPIKey() {
 	expirationDelay := 10 * time.Minute
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
-		FirstName:                 "John",
-		LastName:                  "Doe",
-		Email:                     "john.doe@example.com",
-		Key:                       id.New(),
-		ConfirmationCodeExpiresAt: time.Now().Add(expirationDelay),
+		FirstName:               "John",
+		LastName:                "Doe",
+		Email:                   "john.doe@example.com",
+		Key:                     id.New(),
+		ActivationCodeExpiresAt: time.Now().Add(expirationDelay),
 	})
 
 	s.Run("it should confirm the api key", func() {
@@ -28,22 +28,23 @@ func (s *Suite) Test_ConfirmAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
-		s.Equal(0, len(s.pub.Messages))
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
-			ID:               dummyAPIKey.ID,
-			To:               dummyAPIKey.Email,
-			ConfirmationCode: dummyAPIKey.ConfirmationCode,
+		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+			ID:             dummyAPIKey.ID,
+			To:             dummyAPIKey.Email,
+			ActivationCode: dummyAPIKey.ActivationCode,
+			SentAt:         time.Now(),
 		})
 		s.NoError(err)
 
-		s.Equal(1, len(s.pub.Messages))
+		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		storedApiKey := s.apiKeyRepo.Items[0]
 
-		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: storedApiKey.ConfirmationCode,
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: storedApiKey.ActivationCode,
 		})
 
 		s.NoError(err)
@@ -58,9 +59,9 @@ func (s *Suite) Test_ConfirmAPIKey() {
 
 		s.apiKeyRepo.IsHealthy = false
 
-		err := s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: dummyAPIKey.ConfirmationCode,
+		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: dummyAPIKey.ActivationCode,
 		})
 
 		s.Error(err)
@@ -72,9 +73,9 @@ func (s *Suite) Test_ConfirmAPIKey() {
 	s.Run("it should be not able to confirm the api key if the api key is not found", func() {
 		ctx := context.Background()
 
-		err := s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: dummyAPIKey.ConfirmationCode,
+		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: dummyAPIKey.ActivationCode,
 		})
 
 		s.Error(err)
@@ -89,20 +90,21 @@ func (s *Suite) Test_ConfirmAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
-		s.Equal(0, len(s.pub.Messages))
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
-			ID:               dummyAPIKey.ID,
-			To:               dummyAPIKey.Email,
-			ConfirmationCode: dummyAPIKey.ConfirmationCode,
+		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+			ID:             dummyAPIKey.ID,
+			To:             dummyAPIKey.Email,
+			ActivationCode: dummyAPIKey.ActivationCode,
+			SentAt:         time.Now(),
 		})
 		s.NoError(err)
 
-		s.Equal(1, len(s.pub.Messages))
+		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: "invalid-code",
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: "invalid-code",
 		})
 
 		s.Error(err)
@@ -117,25 +119,25 @@ func (s *Suite) Test_ConfirmAPIKey() {
 		dummyAPIKeyClone := dummyAPIKey
 
 		alwaysExpiredDate := time.Date(1920, 1, 1, 0, 0, 0, 0, time.UTC)
-		dummyAPIKeyClone.ConfirmationCodeExpiresAt = alwaysExpiredDate
+		dummyAPIKeyClone.ActivationCodeExpiresAt = alwaysExpiredDate
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKeyClone)
 		s.NoError(err)
 
-		s.Equal(0, len(s.pub.Messages))
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
-			ID:               dummyAPIKeyClone.ID,
-			To:               dummyAPIKeyClone.Email,
-			ConfirmationCode: dummyAPIKeyClone.ConfirmationCode,
+		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+			ID:             dummyAPIKeyClone.ID,
+			To:             dummyAPIKeyClone.Email,
+			ActivationCode: dummyAPIKeyClone.ActivationCode,
 		})
 		s.NoError(err)
 
-		s.Equal(1, len(s.pub.Messages))
+		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKeyClone.Key,
-			ConfirmationCode: "invalid-code",
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKeyClone.Key,
+			ActivationCode: "invalid-code",
 		})
 
 		s.Error(err)
@@ -150,29 +152,29 @@ func (s *Suite) Test_ConfirmAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
-		s.Equal(0, len(s.pub.Messages))
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.PublishAPIKeyRequest(ctx, &event.APIKeyRequest{
-			ID:               dummyAPIKey.ID,
-			To:               dummyAPIKey.Email,
-			ConfirmationCode: dummyAPIKey.ConfirmationCode,
+		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+			ID:             dummyAPIKey.ID,
+			To:             dummyAPIKey.Email,
+			ActivationCode: dummyAPIKey.ActivationCode,
 		})
 		s.NoError(err)
 
-		s.Equal(1, len(s.pub.Messages))
+		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		storedApiKey := s.apiKeyRepo.Items[0]
 
-		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: storedApiKey.ConfirmationCode,
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: storedApiKey.ActivationCode,
 		})
 
 		s.NoError(err)
 
-		err = s.svc.ConfirmAPIKey(ctx, ConfirmAPIKeyInput{
-			Key:              dummyAPIKey.Key,
-			ConfirmationCode: storedApiKey.ConfirmationCode,
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			Key:            dummyAPIKey.Key,
+			ActivationCode: storedApiKey.ActivationCode,
 		})
 
 		s.Error(err)

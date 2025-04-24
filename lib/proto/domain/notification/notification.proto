@@ -8,20 +8,20 @@ import "google/protobuf/timestamp.proto";
 
 enum EnvelopeType{
     UNSPECIFIED = 0;
-    API_KEY_REQUEST = 1;
+    API_KEY_ACTIVATION = 1;
 };
 
-message APIKeyRequestContent {
-  string verification_code = 1;
+message APIKeyActivationContent {
+  string activation_code = 1;
 };
 
 message Envelope {
   string id = 1;
   string to = 2;
-  google.protobuf.Timestamp sent_at = 3;
-  EnvelopeType type = 4;      
+  EnvelopeType type = 3;      
+  google.protobuf.Timestamp sent_at = 4;
 
   oneof content {
-    APIKeyRequestContent api_key_request = 5;
+    APIKeyActivationContent api_key_activation = 5;
   }
 };

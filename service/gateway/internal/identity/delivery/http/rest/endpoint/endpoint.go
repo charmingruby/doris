@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/gateway/internal/identity/core/service"
 	"github.com/gin-gonic/gin"
 )
@@ -9,17 +10,20 @@ import (
 type Endpoint struct {
 	logger *logger.Logger
 	r      *gin.Engine
+	val    *validation.Validator
 	svc    *service.Service
 }
 
 func New(
 	logger *logger.Logger,
 	r *gin.Engine,
+	val *validation.Validator,
 	svc *service.Service,
 ) *Endpoint {
 	return &Endpoint{
 		logger: logger,
 		r:      r,
+		val:    val,
 		svc:    svc,
 	}
 }
@@ -27,5 +31,5 @@ func New(
 func (e *Endpoint) Register() {
 	api := e.r.Group("/api")
 
-	api.GET("/api-key/request", e.makeRequestAPIKey)
+	api.POST("/api-key/generate", e.makeGenerateAPIKey)
 }

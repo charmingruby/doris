@@ -11,6 +11,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/gateway/config"
 	"github.com/charmingruby/doris/service/gateway/internal/identity"
 	"github.com/charmingruby/doris/service/gateway/internal/platform"
@@ -45,7 +46,9 @@ func main() {
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	initModules(log, cfg, pub, router)
+	val := validation.NewValidator()
+
+	initModules(log, cfg, val, pub, router)
 
 	log.Info("modules initialized successfully")
 
@@ -61,14 +64,14 @@ func main() {
 	gracefulShutdown(log, pub, server)
 }
 
-func initModules(log *logger.Logger, cfg config.Config, pub *nats.Publisher, r *gin.Engine) {
+func initModules(log *logger.Logger, cfg config.Config, val *validation.Validator, pub *nats.Publisher, r *gin.Engine) {
 	apiKeyRepo := memory.NewAPIKeyRepository()
 
 	identityEvtHandler := identity.NewEventHandler(pub, cfg)
 
 	identitySvc := identity.NewService(log, apiKeyRepo, identityEvtHandler)
 
-	identity.NewHTTPHandler(log, r, identitySvc)
+	identity.NewHTTPHandler(log, r, val, identitySvc)
 
 	platform.NewHTTPHandler(r)
 }
