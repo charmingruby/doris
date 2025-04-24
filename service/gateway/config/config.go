@@ -11,6 +11,8 @@ type CustomConfig struct {
 	RestServerPort         string `env:"REST_SERVER_PORT" envDefault:"3000"`
 	NatsStream             string `env:"NATS_STREAM"`
 	NotificationsSendTopic string `env:"NOTIFICATIONS_SEND_TOPIC"`
+	MongoURL               string `env:"MONGO_URL,required"`
+	MongoDatabase          string `env:"MONGO_DB,required"`
 }
 
 func New() (Config, error) {

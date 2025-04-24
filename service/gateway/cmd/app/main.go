@@ -11,6 +11,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/persistence/mongo"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/gateway/config"
 	"github.com/charmingruby/doris/service/gateway/internal/identity"
@@ -44,11 +45,19 @@ func main() {
 
 	log.Info("nats publisher created successfully")
 
+	db, err := mongo.New(cfg.Custom.MongoURL, cfg.Custom.MongoDatabase)
+	if err != nil {
+		log.Error("failed to create mongo connection", "error", err)
+		return
+	}
+
+	log.Info("mongo connection created successfully")
+
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
 	val := validation.NewValidator()
 
-	initModules(log, cfg, val, pub, router)
+	initModules(log, cfg, val, db, pub, router)
 
 	log.Info("modules initialized successfully")
 
@@ -61,10 +70,10 @@ func main() {
 		}
 	}()
 
-	gracefulShutdown(log, pub, server)
+	gracefulShutdown(log, db, pub, server)
 }
 
-func initModules(log *logger.Logger, cfg config.Config, val *validation.Validator, pub *nats.Publisher, r *gin.Engine) {
+func initModules(log *logger.Logger, cfg config.Config, val *validation.Validator, db *mongo.Client, pub *nats.Publisher, r *gin.Engine) {
 	apiKeyRepo := memory.NewAPIKeyRepository()
 
 	identityEvtHandler := identity.NewEventHandler(pub, cfg)
@@ -76,7 +85,7 @@ func initModules(log *logger.Logger, cfg config.Config, val *validation.Validato
 	platform.NewHTTPHandler(r)
 }
 
-func gracefulShutdown(log *logger.Logger, pub *nats.Publisher, srv *rest.Server) {
+func gracefulShutdown(log *logger.Logger, db *mongo.Client, pub *nats.Publisher, srv *rest.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -86,6 +95,10 @@ func gracefulShutdown(log *logger.Logger, pub *nats.Publisher, srv *rest.Server)
 
 	if err := pub.Close(ctx); err != nil {
 		log.Error("failed to close nats publisher", "error", err)
+	}
+
+	if err := db.Close(ctx); err != nil {
+		log.Error("failed to disconnect from mongo", "error", err)
 	}
 
 	if err := srv.Shutdown(ctx); err != nil {
