@@ -95,6 +95,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKey.ID,
 			To:             dummyAPIKey.Email,
+			RecipientName:  dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
 			ActivationCode: dummyAPIKey.ActivationCode,
 			SentAt:         time.Now(),
 		})
@@ -129,7 +130,9 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKeyClone.ID,
 			To:             dummyAPIKeyClone.Email,
+			RecipientName:  dummyAPIKeyClone.FirstName + " " + dummyAPIKeyClone.LastName,
 			ActivationCode: dummyAPIKeyClone.ActivationCode,
+			SentAt:         time.Now(),
 		})
 		s.NoError(err)
 
@@ -157,7 +160,9 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKey.ID,
 			To:             dummyAPIKey.Email,
+			RecipientName:  dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
 			ActivationCode: dummyAPIKey.ActivationCode,
+			SentAt:         time.Now(),
 		})
 		s.NoError(err)
 

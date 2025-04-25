@@ -19,9 +19,10 @@ message Envelope {
   string id = 1;
   string to = 2;
   EnvelopeType type = 3;      
-  google.protobuf.Timestamp sent_at = 4;
+  string recipient_name = 4;
+  google.protobuf.Timestamp sent_at = 5;
 
   oneof content {
-    APIKeyActivationContent api_key_activation = 5;
+    APIKeyActivationContent api_key_activation = 6;
   }
 };

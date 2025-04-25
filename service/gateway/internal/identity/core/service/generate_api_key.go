@@ -52,6 +52,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 	event := &event.APIKeyActivation{
 		ID:             ak.ID,
 		To:             ak.Email,
+		RecipientName:  ak.FirstName + " " + ak.LastName,
 		ActivationCode: ak.ActivationCode,
 		SentAt:         time.Now(),
 	}

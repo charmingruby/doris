@@ -12,10 +12,11 @@ import (
 
 func (h *Handler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyActivation) error {
 	envelope := notification.Envelope{
-		Id:     event.ID,
-		To:     event.To,
-		SentAt: timestamppb.New(event.SentAt),
-		Type:   notification.EnvelopeType_API_KEY_ACTIVATION,
+		Id:            event.ID,
+		To:            event.To,
+		RecipientName: event.RecipientName,
+		SentAt:        timestamppb.New(event.SentAt),
+		Type:          notification.EnvelopeType_API_KEY_ACTIVATION,
 		Content: &notification.Envelope_ApiKeyActivation{
 			ApiKeyActivation: &notification.APIKeyActivationContent{
 				ActivationCode: event.ActivationCode,
