@@ -15,7 +15,7 @@ type Server struct {
 func NewServer(host, port string) (*Server, *gin.Engine) {
 	gin.SetMode(gin.ReleaseMode)
 
-	r := gin.Default()
+	r := gin.New()
 
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
