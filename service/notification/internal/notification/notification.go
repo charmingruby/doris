@@ -9,7 +9,7 @@ import (
 
 func NewEventHandler(log *logger.Logger, sub *nats.Subscriber, cfg config.Config) {
 	evtHandler := event.NewHandler(log, sub, event.HandlerInput{
-		APIKeyActivationTopic: cfg.Custom.NotificationsSendTopic,
+		ReceiveNotificationTopic: cfg.Custom.NotificationsSendTopic,
 	})
 
 	evtHandler.Subscribe()

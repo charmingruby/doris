@@ -9,25 +9,23 @@ import (
 )
 
 const (
-	apiKeyActivationIdentifier = iota
+	receiveNotificationIdentifier = iota
 )
 
 type Handler struct {
-	sub messaging.Subscriber
-	log *logger.Logger
-
-	// identifier -> topic
+	sub    messaging.Subscriber
+	log    *logger.Logger
 	topics map[int]string
 }
 
 type HandlerInput struct {
-	APIKeyActivationTopic string
+	ReceiveNotificationTopic string
 }
 
 func NewHandler(log *logger.Logger, sub messaging.Subscriber, in HandlerInput) *Handler {
 	topics := make(map[int]string, 1)
 
-	topics[apiKeyActivationIdentifier] = in.APIKeyActivationTopic
+	topics[receiveNotificationIdentifier] = in.ReceiveNotificationTopic
 
 	return &Handler{
 		log:    log,
@@ -40,7 +38,7 @@ func (h *Handler) Subscribe() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := h.receiveAPIKeyActivationSubscription(ctx); err != nil {
+	if err := h.receiveNotification(ctx); err != nil {
 		return err
 	}
 
