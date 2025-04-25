@@ -56,7 +56,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		SentAt:         time.Now(),
 	}
 
-	if err := s.eventHandler.SendAPIKeyActivationCode(ctx, event); err != nil {
+	if err := s.eventHandler.SendAPIKeyActivation(ctx, event); err != nil {
 		return "", err
 	}
 

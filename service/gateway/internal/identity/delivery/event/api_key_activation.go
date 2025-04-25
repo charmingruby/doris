@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) SendAPIKeyActivationCode(ctx context.Context, event *event.APIKeyActivation) error {
+func (h *Handler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyActivation) error {
 	envelope := notification.Envelope{
 		Id:     event.ID,
 		To:     event.To,

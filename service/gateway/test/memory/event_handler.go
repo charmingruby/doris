@@ -18,7 +18,7 @@ func NewEventHandler(pub Publisher) *EventHandler {
 	}
 }
 
-func (h *EventHandler) SendAPIKeyActivationCode(ctx context.Context, event *event.APIKeyActivation) error {
+func (h *EventHandler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyActivation) error {
 	if !h.Pub.IsHealthy {
 		return errors.New("publisher is not healthy")
 	}

@@ -30,7 +30,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKey.ID,
 			To:             dummyAPIKey.Email,
 			ActivationCode: dummyAPIKey.ActivationCode,
@@ -92,7 +92,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKey.ID,
 			To:             dummyAPIKey.Email,
 			ActivationCode: dummyAPIKey.ActivationCode,
@@ -126,7 +126,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKeyClone.ID,
 			To:             dummyAPIKeyClone.Email,
 			ActivationCode: dummyAPIKeyClone.ActivationCode,
@@ -154,7 +154,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivationCode(ctx, &event.APIKeyActivation{
+		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
 			ID:             dummyAPIKey.ID,
 			To:             dummyAPIKey.Email,
 			ActivationCode: dummyAPIKey.ActivationCode,
