@@ -9,15 +9,15 @@ import (
 )
 
 type ActivateAPIKeyInput struct {
-	Key            string `json:"key"`
+	ID             string `json:"id"`
 	ActivationCode string `json:"activation_code"`
 }
 
 func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) error {
-	ak, err := s.apiKeyRepo.FindByKey(ctx, in.Key)
+	ak, err := s.apiKeyRepo.FindByID(ctx, in.ID)
 
 	if err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("find api key by key", err)
+		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
 	}
 
 	if ak.ID == "" {

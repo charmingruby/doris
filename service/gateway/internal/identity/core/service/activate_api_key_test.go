@@ -43,7 +43,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		storedApiKey := s.apiKeyRepo.Items[0]
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: storedApiKey.ActivationCode,
 		})
 
@@ -60,7 +60,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.apiKeyRepo.IsHealthy = false
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: dummyAPIKey.ActivationCode,
 		})
 
@@ -74,7 +74,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		ctx := context.Background()
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: dummyAPIKey.ActivationCode,
 		})
 
@@ -104,7 +104,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: "invalid-code",
 		})
 
@@ -139,7 +139,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKeyClone.Key,
+			ID:             dummyAPIKeyClone.ID,
 			ActivationCode: "invalid-code",
 		})
 
@@ -171,14 +171,14 @@ func (s *Suite) Test_ActivateAPIKey() {
 		storedApiKey := s.apiKeyRepo.Items[0]
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: storedApiKey.ActivationCode,
 		})
 
 		s.NoError(err)
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			Key:            dummyAPIKey.Key,
+			ID:             dummyAPIKey.ID,
 			ActivationCode: storedApiKey.ActivationCode,
 		})
 
