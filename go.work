@@ -5,5 +5,5 @@ use (
 	./service/billing
 	./service/documentation
 	./service/notification
-	./service/gateway
+	./service/hub
 )
