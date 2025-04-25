@@ -1,6 +1,7 @@
 package nats
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -9,8 +10,39 @@ import (
 )
 
 const (
-	DEFAULT_BROKER_URL = "nats://localhost:4222"
+	defaultBrokerURL = "nats://localhost:4222"
 )
+
+type Config struct {
+	stream    string
+	brokerURL string
+}
+
+type ConfigOpt func(*Config)
+
+func WithBrokerURL(brokerURL string) ConfigOpt {
+	return func(p *Config) {
+		p.brokerURL = brokerURL
+	}
+}
+
+func WithStream(stream string) ConfigOpt {
+	return func(p *Config) {
+		p.stream = stream
+	}
+}
+
+func (p *Config) validate() error {
+	if p.brokerURL == "" {
+		p.brokerURL = defaultBrokerURL
+	}
+
+	if p.stream == "" {
+		return errors.New("stream is required")
+	}
+
+	return nil
+}
 
 func prepareStream(js nats.JetStreamContext, streamName string) (bool, error) {
 	if _, err := js.StreamInfo(streamName); err != nil {

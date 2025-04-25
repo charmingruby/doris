@@ -35,7 +35,7 @@ func main() {
 	log.Info("config loaded successfully")
 
 	pub, err := nats.NewPublisher(
-		nats.WithLogger(log),
+		log,
 		nats.WithStream(cfg.Custom.NatsStream),
 	)
 	if err != nil {
