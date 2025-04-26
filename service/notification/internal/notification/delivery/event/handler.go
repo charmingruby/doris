@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 )
 
 const (
@@ -16,13 +17,14 @@ type Handler struct {
 	sub    messaging.Subscriber
 	log    *logger.Logger
 	topics map[int]string
+	svc    *service.Service
 }
 
-type HandlerInput struct {
+type TopicInput struct {
 	ReceiveNotificationTopic string
 }
 
-func NewHandler(log *logger.Logger, sub messaging.Subscriber, in HandlerInput) *Handler {
+func NewHandler(log *logger.Logger, sub messaging.Subscriber, svc *service.Service, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
 	topics[receiveNotificationIdentifier] = in.ReceiveNotificationTopic
@@ -31,6 +33,7 @@ func NewHandler(log *logger.Logger, sub messaging.Subscriber, in HandlerInput) *
 		log:    log,
 		sub:    sub,
 		topics: topics,
+		svc:    svc,
 	}
 }
 

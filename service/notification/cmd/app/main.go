@@ -61,7 +61,9 @@ func main() {
 }
 
 func initModules(log *logger.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) {
-	notification.NewEventHandler(log, sub, cfg)
+	notificationSvc := notification.NewService(log)
+
+	notification.NewEventHandler(log, sub, cfg, notificationSvc)
 
 	platform.NewHTTPHandler(r)
 }

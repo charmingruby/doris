@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/proto/gen/notification"
+	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -17,9 +18,9 @@ func (h *Handler) receiveNotification(ctx context.Context) error {
 
 		switch envelope.Type {
 		case notification.EnvelopeType_API_KEY_ACTIVATION:
-			h.log.Debug("received api key activation", "envelope", &envelope)
+			h.svc.NotifyApiKeyActivation(ctx, service.NotifyApiKeyActivationInput{})
 		default:
-			h.log.Debug("received unknown notification", "envelope", &envelope)
+			h.log.Error("received unknown notification", "envelope", &envelope)
 		}
 
 		return nil
