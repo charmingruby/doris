@@ -15,11 +15,11 @@ type Handler struct {
 	topics map[int]string
 }
 
-type HandlerInput struct {
+type TopicInput struct {
 	APIKeyActivationTopic string
 }
 
-func NewHandler(pub messaging.Publisher, in HandlerInput) *Handler {
+func NewHandler(pub messaging.Publisher, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
 	topics[apiKeyActivationIdentifier] = in.APIKeyActivationTopic
