@@ -22,6 +22,7 @@ func (h *Handler) receiveNotification(ctx context.Context) error {
 				CorrelationID: envelope.Id,
 				To:            envelope.To,
 				RecipientName: envelope.RecipientName,
+				EmittedAt:     envelope.SentAt.AsTime(),
 			}); err != nil {
 				h.logger.Error("failed to notify api key activation", "error", err)
 			}

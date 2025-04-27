@@ -14,6 +14,7 @@ import (
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification"
 	"github.com/charmingruby/doris/service/notification/internal/platform"
+	"github.com/charmingruby/doris/service/notification/test/memory"
 	"github.com/gin-gonic/gin"
 )
 
@@ -61,7 +62,9 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) {
-	notificationSvc := notification.NewService(logger)
+	notificationRepo := memory.NewNotificationRepository()
+
+	notificationSvc := notification.NewService(logger, notificationRepo)
 
 	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
 
