@@ -31,7 +31,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 
 	key := id.New()
 
-	expirationDelay := 10 * time.Minute
+	expirationDelay := 30 * time.Minute
 
 	expirationDate := time.Now().Add(expirationDelay)
 

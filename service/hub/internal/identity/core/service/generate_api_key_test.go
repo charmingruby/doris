@@ -17,7 +17,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		Email:     "john.doe@example.com",
 	}
 
-	expirationDelay := 10 * time.Minute
+	expirationDelay := 30 * time.Minute
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
 		FirstName:               validInput.FirstName,
