@@ -17,7 +17,7 @@ type GenerateAPIKeyInput struct {
 }
 
 func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
-	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
+	apiKey, err := s.repo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
 		s.logger.Error("error on find by email", "error", err)
@@ -45,7 +45,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		ActivationCodeExpiresAt: expirationDate,
 	})
 
-	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
+	if err := s.repo.Create(ctx, *ak); err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
@@ -57,13 +57,13 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		SentAt:         time.Now(),
 	}
 
-	if err := s.eventHandler.SendAPIKeyActivation(ctx, event); err != nil {
+	if err := s.event.SendAPIKeyActivation(ctx, event); err != nil {
 		return "", err
 	}
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 
-	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
+	if err := s.repo.Update(ctx, *ak); err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 

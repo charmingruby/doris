@@ -24,7 +24,7 @@ func (s *Service) NotifyApiKeyActivation(ctx context.Context, in NotifyApiKeyAct
 		EmittedAt:     in.EmittedAt,
 	})
 
-	if err := s.notificationRepo.Create(ctx, *notification); err != nil {
+	if err := s.repo.Create(ctx, *notification); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("create notification", err)
 	}
 

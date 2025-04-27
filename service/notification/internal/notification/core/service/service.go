@@ -6,13 +6,13 @@ import (
 )
 
 type Service struct {
-	logger           *instrumentation.Logger
-	notificationRepo repository.NotificationRepository
+	logger *instrumentation.Logger
+	repo   repository.NotificationRepository
 }
 
-func New(logger *instrumentation.Logger, notificationRepo repository.NotificationRepository) *Service {
+func New(logger *instrumentation.Logger, repo repository.NotificationRepository) *Service {
 	return &Service{
-		logger:           logger,
-		notificationRepo: notificationRepo,
+		logger: logger,
+		repo:   repo,
 	}
 }

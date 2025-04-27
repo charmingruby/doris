@@ -14,7 +14,7 @@ type ActivateAPIKeyInput struct {
 }
 
 func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) error {
-	ak, err := s.apiKeyRepo.FindByID(ctx, in.ID)
+	ak, err := s.repo.FindByID(ctx, in.ID)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
@@ -38,7 +38,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 
 	ak.Status = model.API_KEY_STATUS_ACTIVE
 
-	if err := s.apiKeyRepo.Update(ctx, ak); err != nil {
+	if err := s.repo.Update(ctx, ak); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 
