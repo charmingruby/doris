@@ -3,18 +3,18 @@ package nats
 import (
 	"context"
 
-	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/nats-io/nats.go"
 )
 
 type Subscriber struct {
-	logger *logger.Logger
+	logger *instrumentation.Logger
 	js     nats.JetStreamContext
 	nc     *nats.Conn
 	cfg    *Config
 }
 
-func NewSubscriber(logger *logger.Logger, opts ...ConfigOpt) (*Subscriber, error) {
+func NewSubscriber(logger *instrumentation.Logger, opts ...ConfigOpt) (*Subscriber, error) {
 	cfg := &Config{}
 
 	for _, opt := range opts {

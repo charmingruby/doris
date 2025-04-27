@@ -1,4 +1,4 @@
-package logger
+package instrumentation
 
 import (
 	"log/slog"

@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/service/hub/internal/identity/core/model"
 	"github.com/charmingruby/doris/service/hub/test/memory"
 	"github.com/stretchr/testify/suite"
@@ -18,7 +18,7 @@ type Suite struct {
 }
 
 func (s *Suite) SetupTest() {
-	logger := logger.New(logger.LOG_LEVEL_DEBUG)
+	logger := instrumentation.New(instrumentation.LOG_LEVEL_DEBUG)
 
 	s.apiKeyRepo = memory.NewAPIKeyRepository()
 

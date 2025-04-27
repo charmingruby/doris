@@ -18,9 +18,15 @@ func (h *Handler) receiveNotification(ctx context.Context) error {
 
 		switch envelope.Type {
 		case notification.EnvelopeType_API_KEY_ACTIVATION:
-			h.svc.NotifyApiKeyActivation(ctx, service.NotifyApiKeyActivationInput{})
+			if err := h.svc.NotifyApiKeyActivation(ctx, service.NotifyApiKeyActivationInput{
+				CorrelationID: envelope.Id,
+				To:            envelope.To,
+				RecipientName: envelope.RecipientName,
+			}); err != nil {
+				h.logger.Error("failed to notify api key activation", "error", err)
+			}
 		default:
-			h.log.Error("received unknown notification", "envelope", &envelope)
+			h.logger.Error("received unknown notification", "envelope", &envelope)
 		}
 
 		return nil

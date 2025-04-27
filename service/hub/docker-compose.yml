@@ -1,6 +1,7 @@
 services:
   mongo-express:
     image: mongo-express
+    container_name: doris-hub-mongo-express
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
@@ -16,6 +17,7 @@ services:
 
   mongo:
     image: mongo
+    container_name: doris-hub-mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root

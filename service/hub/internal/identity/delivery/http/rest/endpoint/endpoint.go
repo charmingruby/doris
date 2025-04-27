@@ -1,21 +1,21 @@
 package endpoint
 
 import (
-	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/hub/internal/identity/core/service"
 	"github.com/gin-gonic/gin"
 )
 
 type Endpoint struct {
-	logger *logger.Logger
+	logger *instrumentation.Logger
 	r      *gin.Engine
 	val    *validation.Validator
 	svc    *service.Service
 }
 
 func New(
-	logger *logger.Logger,
+	logger *instrumentation.Logger,
 	r *gin.Engine,
 	val *validation.Validator,
 	svc *service.Service,

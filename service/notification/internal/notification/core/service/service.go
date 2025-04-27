@@ -1,11 +1,15 @@
 package service
 
 import (
-	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/instrumentation"
 )
 
-type Service struct{}
+type Service struct {
+	logger *instrumentation.Logger
+}
 
-func New(log *logger.Logger) *Service {
-	return &Service{}
+func New(logger *instrumentation.Logger) *Service {
+	return &Service{
+		logger: logger,
+	}
 }

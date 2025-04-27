@@ -3,18 +3,18 @@ package nats
 import (
 	"context"
 
-	"github.com/charmingruby/doris/lib/instrumentation/logger"
+	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/nats-io/nats.go"
 )
 
 type Publisher struct {
 	nc     *nats.Conn
 	js     nats.JetStreamContext
-	logger *logger.Logger
+	logger *instrumentation.Logger
 	cfg    *Config
 }
 
-func NewPublisher(logger *logger.Logger, opts ...ConfigOpt) (*Publisher, error) {
+func NewPublisher(logger *instrumentation.Logger, opts ...ConfigOpt) (*Publisher, error) {
 	cfg := &Config{}
 
 	for _, opt := range opts {
