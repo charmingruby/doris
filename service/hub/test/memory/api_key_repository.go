@@ -2,12 +2,9 @@ package memory
 
 import (
 	"context"
-	"errors"
 
 	"github.com/charmingruby/doris/service/hub/internal/identity/core/model"
 )
-
-var ErrUnhealthyDatasource = errors.New("datasource is unhealthy")
 
 type APIKeyRepository struct {
 	Items     []model.APIKey

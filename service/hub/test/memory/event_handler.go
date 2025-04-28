@@ -3,7 +3,6 @@ package memory
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"github.com/charmingruby/doris/service/hub/internal/identity/core/event"
 )
@@ -18,9 +17,9 @@ func NewEventHandler(pub Publisher) *EventHandler {
 	}
 }
 
-func (h *EventHandler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyActivation) error {
+func (h *EventHandler) SendOTP(ctx context.Context, event *event.OTP) error {
 	if !h.Pub.IsHealthy {
-		return errors.New("publisher is not healthy")
+		return ErrUnhealthyDatasource
 	}
 
 	msg, err := json.Marshal(event)

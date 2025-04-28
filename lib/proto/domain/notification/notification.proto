@@ -8,11 +8,11 @@ import "google/protobuf/timestamp.proto";
 
 enum EnvelopeType{
     UNSPECIFIED = 0;
-    API_KEY_ACTIVATION = 1;
+    OTP = 1;
 };
 
-message APIKeyActivationContent {
-  string activation_code = 1;
+message OTPContent {
+  string code = 1;
 };
 
 message Envelope {
@@ -23,6 +23,6 @@ message Envelope {
   google.protobuf.Timestamp sent_at = 5;
 
   oneof content {
-    APIKeyActivationContent api_key_activation = 6;
+    OTPContent otp = 6;
   }
 };

@@ -7,19 +7,22 @@ import (
 )
 
 type Service struct {
-	logger *instrumentation.Logger
-	repo   repository.APIKeyRepository
-	event  event.Handler
+	logger     *instrumentation.Logger
+	apiKeyRepo repository.APIKeyRepository
+	otpRepo    repository.OTPRepository
+	event      event.Handler
 }
 
 func New(
 	logger *instrumentation.Logger,
-	repo repository.APIKeyRepository,
+	apiKeyRepo repository.APIKeyRepository,
+	otpRepo repository.OTPRepository,
 	event event.Handler,
 ) *Service {
 	return &Service{
-		logger: logger,
-		repo:   repo,
-		event:  event,
+		logger:     logger,
+		apiKeyRepo: apiKeyRepo,
+		otpRepo:    otpRepo,
+		event:      event,
 	}
 }

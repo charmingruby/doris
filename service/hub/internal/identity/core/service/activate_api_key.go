@@ -9,12 +9,12 @@ import (
 )
 
 type ActivateAPIKeyInput struct {
-	ID             string `json:"id"`
-	ActivationCode string `json:"activation_code"`
+	APIKeyID string `json:"api_key_id"`
+	OTPCode  string `json:"otp_code"`
 }
 
 func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) error {
-	ak, err := s.repo.FindByID(ctx, in.ID)
+	ak, err := s.apiKeyRepo.FindByID(ctx, in.APIKeyID)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
@@ -24,12 +24,22 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	if ak.ActivationCode != in.ActivationCode {
-		return custom_err.NewErrInvalidConfirmationCode("does not match")
+	otp, err := s.otpRepo.FindByCorrelationID(ctx, ak.ID)
+
+	if err != nil {
+		return custom_err.NewErrDatasourceOperationFailed("find otp by correlation id", err)
 	}
 
-	if ak.ActivationCodeExpiresAt.Before(time.Now()) {
-		return custom_err.NewErrInvalidConfirmationCode("expired")
+	if otp.ID == "" {
+		return custom_err.NewErrResourceNotFound("otp")
+	}
+
+	if otp.Code != in.OTPCode {
+		return custom_err.NewErrInvalidOTPCode("does not match")
+	}
+
+	if otp.ExpiresAt.Before(time.Now()) {
+		return custom_err.NewErrInvalidOTPCode("expired")
 	}
 
 	if ak.Status == model.API_KEY_STATUS_ACTIVE {
@@ -38,7 +48,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 
 	ak.Status = model.API_KEY_STATUS_ACTIVE
 
-	if err := s.repo.Update(ctx, ak); err != nil {
+	if err := s.apiKeyRepo.Update(ctx, ak); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 

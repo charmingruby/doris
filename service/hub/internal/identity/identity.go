@@ -14,12 +14,12 @@ import (
 
 func NewEventHandler(pub messaging.Publisher, cfg config.Config) *event.Handler {
 	return event.NewHandler(pub, event.TopicInput{
-		APIKeyActivationTopic: cfg.Custom.NotificationsSendTopic,
+		OTPTopic: cfg.Custom.NotificationsSendTopic,
 	})
 }
 
-func NewService(logger *instrumentation.Logger, apiKeyRepo repository.APIKeyRepository, eventHandler *event.Handler) *service.Service {
-	return service.New(logger, apiKeyRepo, eventHandler)
+func NewService(logger *instrumentation.Logger, apiKeyRepo repository.APIKeyRepository, otpRepo repository.OTPRepository, eventHandler *event.Handler) *service.Service {
+	return service.New(logger, apiKeyRepo, otpRepo, eventHandler)
 }
 
 func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, val *validation.Validator, svc *service.Service) {

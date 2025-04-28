@@ -13,6 +13,7 @@ type Suite struct {
 	suite.Suite
 
 	apiKeyRepo *memory.APIKeyRepository
+	otpRepo    *memory.OTPRepository
 	evtHandler *memory.EventHandler
 	svc        *Service
 }
@@ -22,11 +23,13 @@ func (s *Suite) SetupTest() {
 
 	s.apiKeyRepo = memory.NewAPIKeyRepository()
 
+	s.otpRepo = memory.NewOTPRepository()
+
 	pub := memory.NewPublisher()
 
 	s.evtHandler = memory.NewEventHandler(*pub)
 
-	s.svc = New(logger, s.apiKeyRepo, s.evtHandler)
+	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {

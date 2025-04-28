@@ -41,7 +41,7 @@ func (h *Handler) Subscribe() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := h.receiveNotification(ctx); err != nil {
+	if err := h.receiveNotificationSendIntent(ctx); err != nil {
 		return err
 	}
 

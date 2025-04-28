@@ -19,40 +19,34 @@ const (
 )
 
 type APIKeyInput struct {
-	FirstName               string    `json:"first_name"`
-	LastName                string    `json:"last_name"`
-	Email                   string    `json:"email"`
-	Key                     string    `json:"key"`
-	ActivationCode          string    `json:"activation_code"`
-	ActivationCodeExpiresAt time.Time `json:"activation_code_expires_at"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Key       string `json:"key"`
 }
 
 func NewAPIKey(in APIKeyInput) *APIKey {
 	return &APIKey{
-		ID:                      id.New(),
-		FirstName:               in.FirstName,
-		LastName:                in.LastName,
-		Email:                   in.Email,
-		Key:                     in.Key,
-		Plan:                    API_KEY_PLAN_TRIAL,
-		Status:                  API_KEY_STATUS_NONE,
-		ActivationCode:          in.ActivationCode,
-		ActivationCodeExpiresAt: in.ActivationCodeExpiresAt,
-		CreatedAt:               time.Now(),
-		UpdatedAt:               nil,
+		ID:        id.New(),
+		FirstName: in.FirstName,
+		LastName:  in.LastName,
+		Email:     in.Email,
+		Key:       in.Key,
+		Plan:      API_KEY_PLAN_TRIAL,
+		Status:    API_KEY_STATUS_NONE,
+		CreatedAt: time.Now(),
+		UpdatedAt: nil,
 	}
 }
 
 type APIKey struct {
-	ID                      string     `json:"id"`
-	FirstName               string     `json:"first_name"`
-	LastName                string     `json:"last_name"`
-	Email                   string     `json:"email"`
-	Key                     string     `json:"key"`
-	Plan                    string     `json:"plan"`
-	Status                  string     `json:"status"`
-	ActivationCode          string     `json:"activation_code"`
-	ActivationCodeExpiresAt time.Time  `json:"activation_code_expires_at"`
-	CreatedAt               time.Time  `json:"created_at"`
-	UpdatedAt               *time.Time `json:"updated_at"`
+	ID        string     `json:"id"`
+	FirstName string     `json:"first_name"`
+	LastName  string     `json:"last_name"`
+	Email     string     `json:"email"`
+	Key       string     `json:"key"`
+	Plan      string     `json:"plan"`
+	Status    string     `json:"status"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
 }

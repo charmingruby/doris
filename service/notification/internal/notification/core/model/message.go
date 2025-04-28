@@ -9,15 +9,15 @@ import (
 type MessageType string
 
 const (
-	APIKeyActivation MessageType = "api_key_activation"
+	OTP MessageType = "otp"
 )
 
 type NotificationInput struct {
 	CorrelationID string      `json:"correlation_id"`
 	To            string      `json:"to"`
 	RecipientName string      `json:"recipient_name"`
+	Content       string      `json:"content"`
 	MessageType   MessageType `json:"message_type"`
-	EmittedAt     time.Time   `json:"emitted_at"`
 }
 
 func NewNotification(in NotificationInput) *Notification {
@@ -27,7 +27,6 @@ func NewNotification(in NotificationInput) *Notification {
 		To:            in.To,
 		RecipientName: in.RecipientName,
 		MessageType:   string(in.MessageType),
-		EmittedAt:     in.EmittedAt,
 		CreatedAt:     time.Now(),
 	}
 }
@@ -38,6 +37,5 @@ type Notification struct {
 	To            string    `json:"to"`
 	RecipientName string    `json:"recipient_name"`
 	MessageType   string    `json:"message_type"`
-	EmittedAt     time.Time `json:"emitted_at"`
 	CreatedAt     time.Time `json:"created_at"`
 }

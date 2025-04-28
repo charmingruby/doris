@@ -77,9 +77,11 @@ func main() {
 func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *mongo.Client, pub *nats.Publisher, r *gin.Engine) {
 	apiKeyRepo := memory.NewAPIKeyRepository()
 
+	otpRepo := memory.NewOTPRepository()
+
 	identityEvtHandler := identity.NewEventHandler(pub, cfg)
 
-	identitySvc := identity.NewService(logger, apiKeyRepo, identityEvtHandler)
+	identitySvc := identity.NewService(logger, apiKeyRepo, otpRepo, identityEvtHandler)
 
 	identity.NewHTTPHandler(logger, r, val, identitySvc)
 

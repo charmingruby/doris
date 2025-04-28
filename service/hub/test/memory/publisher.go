@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"errors"
 )
 
 type Message struct {
@@ -23,7 +22,7 @@ func NewPublisher() *Publisher {
 
 func (p *Publisher) Publish(ctx context.Context, topic string, msg []byte) error {
 	if !p.IsHealthy {
-		return errors.New("publisher is not healthy")
+		return ErrUnhealthyDatasource
 	}
 
 	p.Messages = append(p.Messages, Message{Content: msg})
@@ -33,7 +32,7 @@ func (p *Publisher) Publish(ctx context.Context, topic string, msg []byte) error
 
 func (p *Publisher) Close(ctx context.Context) error {
 	if !p.IsHealthy {
-		return errors.New("publisher is not healthy")
+		return ErrUnhealthyDatasource
 	}
 
 	return nil

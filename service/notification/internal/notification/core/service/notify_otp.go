@@ -2,26 +2,25 @@ package service
 
 import (
 	"context"
-	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/model"
 )
 
-type NotifyApiKeyActivationInput struct {
+type NotifyOTPInput struct {
 	CorrelationID string
 	To            string
 	RecipientName string
-	EmittedAt     time.Time
+	Content       string
 }
 
-func (s *Service) NotifyApiKeyActivation(ctx context.Context, in NotifyApiKeyActivationInput) error {
+func (s *Service) NotifyOTP(ctx context.Context, in NotifyOTPInput) error {
 	notification := model.NewNotification(model.NotificationInput{
 		CorrelationID: in.CorrelationID,
 		To:            in.To,
 		RecipientName: in.RecipientName,
-		MessageType:   model.APIKeyActivation,
-		EmittedAt:     in.EmittedAt,
+		Content:       in.Content,
+		MessageType:   model.OTP,
 	})
 
 	if err := s.repo.Create(ctx, *notification); err != nil {

@@ -15,12 +15,19 @@ func (s *Suite) Test_ActivateAPIKey() {
 	expirationDelay := 10 * time.Minute
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
-		FirstName:               "John",
-		LastName:                "Doe",
-		Email:                   "john.doe@example.com",
-		Key:                     id.New(),
-		ActivationCodeExpiresAt: time.Now().Add(expirationDelay),
+		FirstName: "John",
+		LastName:  "Doe",
+		Email:     "john.doe@example.com",
+		Key:       id.New(),
 	})
+
+	dummyOTP, err := model.NewOTP(model.OTPInput{
+		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
+		CorrelationID: dummyAPIKey.ID,
+		ExpiresAt:     time.Now().Add(expirationDelay),
+	})
+
+	s.NoError(err)
 
 	s.Run("it should confirm the api key", func() {
 		ctx := context.Background()
@@ -30,21 +37,20 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
-			ID:             dummyAPIKey.ID,
-			To:             dummyAPIKey.Email,
-			ActivationCode: dummyAPIKey.ActivationCode,
-			SentAt:         time.Now(),
+		err = s.evtHandler.SendOTP(ctx, &event.OTP{
+			ID:            dummyAPIKey.ID,
+			To:            dummyAPIKey.Email,
+			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
+			Code:          dummyOTP.Code,
+			SentAt:        time.Now(),
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		storedApiKey := s.apiKeyRepo.Items[0]
-
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: storedApiKey.ActivationCode,
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
 		})
 
 		s.NoError(err)
@@ -60,8 +66,8 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.apiKeyRepo.IsHealthy = false
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: dummyAPIKey.ActivationCode,
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
 		})
 
 		s.Error(err)
@@ -74,8 +80,8 @@ func (s *Suite) Test_ActivateAPIKey() {
 		ctx := context.Background()
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: dummyAPIKey.ActivationCode,
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
 		})
 
 		s.Error(err)
@@ -92,61 +98,65 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
-			ID:             dummyAPIKey.ID,
-			To:             dummyAPIKey.Email,
-			RecipientName:  dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
-			ActivationCode: dummyAPIKey.ActivationCode,
-			SentAt:         time.Now(),
+		err = s.evtHandler.SendOTP(ctx, &event.OTP{
+			ID:            dummyAPIKey.ID,
+			To:            dummyAPIKey.Email,
+			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
+			Code:          dummyOTP.Code,
+			SentAt:        time.Now(),
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: "invalid-code",
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  "invalid-code",
 		})
 
 		s.Error(err)
 
-		var invalidConfirmationCodeErr *custom_err.ErrInvalidConfirmationCode
-		s.True(errors.As(err, &invalidConfirmationCodeErr), "error should be of type ErrInvalidConfirmationCode")
+		var invalidOTPCodeErr *custom_err.ErrInvalidOTPCode
+		s.True(errors.As(err, &invalidOTPCodeErr), "error should be of type ErrInvalidOTPCode")
 	})
 
 	s.Run("it should be not able to confirm the api key if the confirmation code has expired", func() {
 		ctx := context.Background()
 
-		dummyAPIKeyClone := dummyAPIKey
+		dummyOTPClone := dummyOTP
+		dummyOTPClone.CorrelationID = dummyAPIKey.ID
 
 		alwaysExpiredDate := time.Date(1920, 1, 1, 0, 0, 0, 0, time.UTC)
-		dummyAPIKeyClone.ActivationCodeExpiresAt = alwaysExpiredDate
+		dummyOTPClone.ExpiresAt = alwaysExpiredDate
 
-		err := s.apiKeyRepo.Create(ctx, dummyAPIKeyClone)
+		err := s.otpRepo.Create(ctx, *dummyOTPClone)
+		s.NoError(err)
+
+		err = s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
-			ID:             dummyAPIKeyClone.ID,
-			To:             dummyAPIKeyClone.Email,
-			RecipientName:  dummyAPIKeyClone.FirstName + " " + dummyAPIKeyClone.LastName,
-			ActivationCode: dummyAPIKeyClone.ActivationCode,
-			SentAt:         time.Now(),
+		err = s.evtHandler.SendOTP(ctx, &event.OTP{
+			ID:            dummyAPIKey.ID,
+			To:            dummyAPIKey.Email,
+			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
+			Code:          dummyOTPClone.Code,
+			SentAt:        time.Now(),
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKeyClone.ID,
-			ActivationCode: "invalid-code",
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTPClone.Code,
 		})
 
 		s.Error(err)
 
-		var invalidConfirmationCodeErr *custom_err.ErrInvalidConfirmationCode
-		s.True(errors.As(err, &invalidConfirmationCodeErr), "error should be of type ErrInvalidConfirmationCode")
+		var invalidOTPCodeErr *custom_err.ErrInvalidOTPCode
+		s.True(errors.As(err, &invalidOTPCodeErr), "error should be of type ErrInvalidOTPCode")
 	})
 
 	s.Run("it should be not able to confirm the api key if the api key is already confirmed", func() {
@@ -157,29 +167,27 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendAPIKeyActivation(ctx, &event.APIKeyActivation{
-			ID:             dummyAPIKey.ID,
-			To:             dummyAPIKey.Email,
-			RecipientName:  dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
-			ActivationCode: dummyAPIKey.ActivationCode,
-			SentAt:         time.Now(),
+		err = s.evtHandler.SendOTP(ctx, &event.OTP{
+			ID:            dummyAPIKey.ID,
+			To:            dummyAPIKey.Email,
+			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
+			Code:          dummyOTP.Code,
+			SentAt:        time.Now(),
 		})
 		s.NoError(err)
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		storedApiKey := s.apiKeyRepo.Items[0]
-
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: storedApiKey.ActivationCode,
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
 		})
 
 		s.NoError(err)
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
-			ID:             dummyAPIKey.ID,
-			ActivationCode: storedApiKey.ActivationCode,
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
 		})
 
 		s.Error(err)

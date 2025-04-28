@@ -17,7 +17,7 @@ type GenerateAPIKeyInput struct {
 }
 
 func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
-	apiKey, err := s.repo.FindByEmail(ctx, in.Email)
+	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
 		s.logger.Error("error on find by email", "error", err)
@@ -40,30 +40,41 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		LastName:  in.LastName,
 		Email:     in.Email,
 		Key:       key,
-		// TODO: create a confirmation code logic
-		ActivationCode:          id.New(),
-		ActivationCodeExpiresAt: expirationDate,
 	})
 
-	if err := s.repo.Create(ctx, *ak); err != nil {
+	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("create api key", err)
 	}
 
-	event := &event.APIKeyActivation{
-		ID:             ak.ID,
-		To:             ak.Email,
-		RecipientName:  ak.FirstName + " " + ak.LastName,
-		ActivationCode: ak.ActivationCode,
-		SentAt:         time.Now(),
+	otp, err := model.NewOTP(model.OTPInput{
+		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
+		CorrelationID: ak.ID,
+		ExpiresAt:     expirationDate,
+	})
+
+	if err != nil {
+		return "", custom_err.NewErrInvalidEntity("otp")
 	}
 
-	if err := s.event.SendAPIKeyActivation(ctx, event); err != nil {
+	if err := s.otpRepo.Create(ctx, *otp); err != nil {
+		return "", custom_err.NewErrDatasourceOperationFailed("create otp", err)
+	}
+
+	event := &event.OTP{
+		ID:            ak.ID,
+		To:            ak.Email,
+		RecipientName: ak.FirstName + " " + ak.LastName,
+		Code:          otp.Code,
+		SentAt:        time.Now(),
+	}
+
+	if err := s.event.SendOTP(ctx, event); err != nil {
 		return "", err
 	}
 
 	ak.Status = model.API_KEY_STATUS_PENDING
 
-	if err := s.repo.Update(ctx, *ak); err != nil {
+	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("update api key", err)
 	}
 

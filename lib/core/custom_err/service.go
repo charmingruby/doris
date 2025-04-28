@@ -30,17 +30,17 @@ func NewErrResourceNotFound(resource string) error {
 	return &ErrResourceNotFound{resource: resource}
 }
 
-// Represents an invalid confirmation code.
-type ErrInvalidConfirmationCode struct {
+// Represents an invalid OTP code.
+type ErrInvalidOTPCode struct {
 	reason string
 }
 
-func (e *ErrInvalidConfirmationCode) Error() string {
-	return fmt.Sprintf("invalid confirmation code: %s", e.reason)
+func (e *ErrInvalidOTPCode) Error() string {
+	return fmt.Sprintf("invalid OTP code: %s", e.reason)
 }
 
-func NewErrInvalidConfirmationCode(reason string) error {
-	return &ErrInvalidConfirmationCode{reason: reason}
+func NewErrInvalidOTPCode(reason string) error {
+	return &ErrInvalidOTPCode{reason: reason}
 }
 
 // Represents an api key that is already confirmed.

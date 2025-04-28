@@ -10,16 +10,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyActivation) error {
+func (h *Handler) SendOTP(ctx context.Context, event *event.OTP) error {
 	envelope := notification.Envelope{
 		Id:            event.ID,
 		To:            event.To,
 		RecipientName: event.RecipientName,
 		SentAt:        timestamppb.New(event.SentAt),
-		Type:          notification.EnvelopeType_API_KEY_ACTIVATION,
-		Content: &notification.Envelope_ApiKeyActivation{
-			ApiKeyActivation: &notification.APIKeyActivationContent{
-				ActivationCode: event.ActivationCode,
+		Type:          notification.EnvelopeType_OTP,
+		Content: &notification.Envelope_Otp{
+			Otp: &notification.OTPContent{
+				Code: event.Code,
 			},
 		},
 	}
@@ -29,7 +29,7 @@ func (h *Handler) SendAPIKeyActivation(ctx context.Context, event *event.APIKeyA
 		return custom_err.NewErrSerializationFailed(err)
 	}
 
-	topic := h.topics[apiKeyActivationIdentifier]
+	topic := h.topics[otpIdentifier]
 
 	if err := h.pub.Publish(ctx, topic, msgBytes); err != nil {
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)

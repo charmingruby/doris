@@ -19,12 +19,19 @@ func (s *Suite) Test_GenerateAPIKey() {
 
 	expirationDelay := 30 * time.Minute
 
+	dummyOTP, err := model.NewOTP(model.OTPInput{
+		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
+		CorrelationID: id.New(),
+		ExpiresAt:     time.Now().Add(expirationDelay),
+	})
+
+	s.NoError(err)
+
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
-		FirstName:               validInput.FirstName,
-		LastName:                validInput.LastName,
-		Email:                   validInput.Email,
-		Key:                     id.New(),
-		ActivationCodeExpiresAt: time.Now().Add(expirationDelay),
+		FirstName: validInput.FirstName,
+		LastName:  validInput.LastName,
+		Email:     validInput.Email,
+		Key:       id.New(),
 	})
 
 	s.Run("it should create a new api key", func() {
@@ -41,7 +48,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 
 		expectedExpiration := time.Now().Add(expirationDelay)
 
-		timeDiff := apiKey.ActivationCodeExpiresAt.Sub(expectedExpiration)
+		timeDiff := dummyOTP.ExpiresAt.Sub(expectedExpiration)
 
 		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
 

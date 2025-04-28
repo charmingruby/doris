@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func (h *Handler) receiveNotification(ctx context.Context) error {
+func (h *Handler) receiveNotificationSendIntent(ctx context.Context) error {
 	return h.sub.Subscribe(ctx, h.topics[receiveNotificationIdentifier], func(message []byte) error {
 		var envelope notification.Envelope
 
@@ -17,14 +17,14 @@ func (h *Handler) receiveNotification(ctx context.Context) error {
 		}
 
 		switch envelope.Type {
-		case notification.EnvelopeType_API_KEY_ACTIVATION:
-			if err := h.svc.NotifyApiKeyActivation(ctx, service.NotifyApiKeyActivationInput{
+		case notification.EnvelopeType_OTP:
+			if err := h.svc.NotifyOTP(ctx, service.NotifyOTPInput{
 				CorrelationID: envelope.Id,
 				To:            envelope.To,
+				Content:       envelope.GetOtp().Code,
 				RecipientName: envelope.RecipientName,
-				EmittedAt:     envelope.SentAt.AsTime(),
 			}); err != nil {
-				h.logger.Error("failed to notify api key activation", "error", err)
+				h.logger.Error("failed to notify otp", "error", err)
 			}
 		default:
 			h.logger.Error("received unknown notification", "envelope", &envelope)

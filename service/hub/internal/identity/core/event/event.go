@@ -3,5 +3,5 @@ package event
 import "context"
 
 type Handler interface {
-	SendAPIKeyActivation(ctx context.Context, event *APIKeyActivation) error
+	SendOTP(ctx context.Context, event *OTP) error
 }
