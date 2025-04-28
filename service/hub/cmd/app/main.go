@@ -11,7 +11,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
-	"github.com/charmingruby/doris/lib/persistence/mongo"
+	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/hub/config"
 	"github.com/charmingruby/doris/service/hub/internal/identity"
@@ -46,13 +46,20 @@ func main() {
 
 	logger.Info("nats publisher created successfully")
 
-	db, err := mongo.New(cfg.Custom.MongoURL, cfg.Custom.MongoDatabase)
+	db, err := postgres.New(logger, postgres.ConnectionInput{
+		User:         cfg.Custom.DatabaseUser,
+		Password:     cfg.Custom.DatabasePassword,
+		Host:         cfg.Custom.DatabaseHost,
+		DatabaseName: cfg.Custom.DatabaseName,
+		SSL:          cfg.Custom.DatabaseSSL,
+	})
+
 	if err != nil {
-		logger.Error("failed to create mongo connection", "error", err)
+		logger.Error("failed to create postgres connection", "error", err)
 		return
 	}
 
-	logger.Info("mongo connection created successfully")
+	logger.Info("postgres connection created successfully")
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
@@ -74,7 +81,7 @@ func main() {
 	gracefulShutdown(logger, db, pub, server)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *mongo.Client, pub *nats.Publisher, r *gin.Engine) {
+func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *postgres.Client, pub *nats.Publisher, r *gin.Engine) {
 	apiKeyRepo := memory.NewAPIKeyRepository()
 
 	otpRepo := memory.NewOTPRepository()
@@ -88,7 +95,7 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, val *validat
 	platform.NewHTTPHandler(r)
 }
 
-func gracefulShutdown(logger *instrumentation.Logger, db *mongo.Client, pub *nats.Publisher, srv *rest.Server) {
+func gracefulShutdown(logger *instrumentation.Logger, db *postgres.Client, pub *nats.Publisher, srv *rest.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -101,7 +108,7 @@ func gracefulShutdown(logger *instrumentation.Logger, db *mongo.Client, pub *nat
 	}
 
 	if err := db.Close(ctx); err != nil {
-		logger.Error("failed to disconnect from mongo", "error", err)
+		logger.Error("failed to disconnect from postgres", "error", err)
 	}
 
 	if err := srv.Shutdown(ctx); err != nil {
