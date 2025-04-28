@@ -2,8 +2,10 @@ go 1.23.2
 
 use (
 	./lib
+
 	./service/billing
 	./service/documentation
 	./service/notification
-	./service/hub
+	./service/identity
+	./service/gateway
 )
