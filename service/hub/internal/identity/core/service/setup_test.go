@@ -34,6 +34,7 @@ func (s *Suite) SetupTest() {
 
 func (s *Suite) SetupSubTest() {
 	s.apiKeyRepo.Items = []model.APIKey{}
+	s.otpRepo.Items = []model.OTP{}
 	s.evtHandler.Pub.Messages = []memory.Message{}
 	s.apiKeyRepo.IsHealthy = true
 }

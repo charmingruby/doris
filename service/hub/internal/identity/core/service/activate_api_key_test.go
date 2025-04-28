@@ -35,6 +35,9 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
+		err = s.otpRepo.Create(ctx, *dummyOTP)
+		s.NoError(err)
+
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
 		err = s.evtHandler.SendOTP(ctx, &event.OTP{
@@ -56,7 +59,6 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.NoError(err)
 
 		verifiedAPIKey := s.apiKeyRepo.Items[0]
-
 		s.Equal(model.API_KEY_STATUS_ACTIVE, verifiedAPIKey.Status)
 	})
 
@@ -90,10 +92,30 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &resourceNotFoundErr), "error should be of type ErrResourceNotFound")
 	})
 
+	s.Run("it should be not able to confirm the api key if the otp is not found", func() {
+		ctx := context.Background()
+
+		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
+		s.NoError(err)
+
+		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+			APIKeyID: dummyAPIKey.ID,
+			OTPCode:  dummyOTP.Code,
+		})
+
+		s.Error(err)
+
+		var resourceNotFoundErr *custom_err.ErrResourceNotFound
+		s.True(errors.As(err, &resourceNotFoundErr), "error should be of type ErrResourceNotFound")
+	})
+
 	s.Run("it should be not able to confirm the api key if the confirmation code does not match", func() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
+		s.NoError(err)
+
+		err = s.otpRepo.Create(ctx, *dummyOTP)
 		s.NoError(err)
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
@@ -123,13 +145,10 @@ func (s *Suite) Test_ActivateAPIKey() {
 	s.Run("it should be not able to confirm the api key if the confirmation code has expired", func() {
 		ctx := context.Background()
 
-		dummyOTPClone := dummyOTP
-		dummyOTPClone.CorrelationID = dummyAPIKey.ID
+		expiredOTP := *dummyOTP
+		expiredOTP.ExpiresAt = time.Now().Add(-1 * time.Hour)
 
-		alwaysExpiredDate := time.Date(1920, 1, 1, 0, 0, 0, 0, time.UTC)
-		dummyOTPClone.ExpiresAt = alwaysExpiredDate
-
-		err := s.otpRepo.Create(ctx, *dummyOTPClone)
+		err := s.otpRepo.Create(ctx, expiredOTP)
 		s.NoError(err)
 
 		err = s.apiKeyRepo.Create(ctx, dummyAPIKey)
@@ -141,7 +160,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 			ID:            dummyAPIKey.ID,
 			To:            dummyAPIKey.Email,
 			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
-			Code:          dummyOTPClone.Code,
+			Code:          expiredOTP.Code,
 			SentAt:        time.Now(),
 		})
 		s.NoError(err)
@@ -150,7 +169,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTPClone.Code,
+			OTPCode:  expiredOTP.Code,
 		})
 
 		s.Error(err)
@@ -163,6 +182,9 @@ func (s *Suite) Test_ActivateAPIKey() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
+		s.NoError(err)
+
+		err = s.otpRepo.Create(ctx, *dummyOTP)
 		s.NoError(err)
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
@@ -182,7 +204,6 @@ func (s *Suite) Test_ActivateAPIKey() {
 			APIKeyID: dummyAPIKey.ID,
 			OTPCode:  dummyOTP.Code,
 		})
-
 		s.NoError(err)
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{

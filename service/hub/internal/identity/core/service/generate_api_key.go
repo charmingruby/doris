@@ -29,17 +29,11 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		return "", custom_err.NewErrResourceAlreadyExists("api key")
 	}
 
-	key := id.New()
-
-	expirationDelay := 30 * time.Minute
-
-	expirationDate := time.Now().Add(expirationDelay)
-
 	ak := model.NewAPIKey(model.APIKeyInput{
 		FirstName: in.FirstName,
 		LastName:  in.LastName,
 		Email:     in.Email,
-		Key:       key,
+		Key:       id.New(),
 	})
 
 	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
@@ -49,7 +43,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 	otp, err := model.NewOTP(model.OTPInput{
 		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
 		CorrelationID: ak.ID,
-		ExpiresAt:     expirationDate,
+		ExpiresAt:     time.Now().Add(30 * time.Minute),
 	})
 
 	if err != nil {
@@ -69,7 +63,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 	}
 
 	if err := s.event.SendOTP(ctx, event); err != nil {
-		return "", err
+		return "", custom_err.NewErrMessagingWrapper(err)
 	}
 
 	ak.Status = model.API_KEY_STATUS_PENDING

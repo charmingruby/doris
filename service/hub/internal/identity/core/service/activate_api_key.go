@@ -24,6 +24,10 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
+	if ak.Status == model.API_KEY_STATUS_ACTIVE {
+		return custom_err.NewErrAPIKeyAlreadyConfirmed()
+	}
+
 	otp, err := s.otpRepo.FindByCorrelationID(ctx, ak.ID)
 
 	if err != nil {
@@ -40,10 +44,6 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 
 	if otp.ExpiresAt.Before(time.Now()) {
 		return custom_err.NewErrInvalidOTPCode("expired")
-	}
-
-	if ak.Status == model.API_KEY_STATUS_ACTIVE {
-		return custom_err.NewErrAPIKeyAlreadyConfirmed()
 	}
 
 	ak.Status = model.API_KEY_STATUS_ACTIVE

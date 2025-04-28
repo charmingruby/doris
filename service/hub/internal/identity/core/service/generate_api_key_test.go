@@ -19,14 +19,6 @@ func (s *Suite) Test_GenerateAPIKey() {
 
 	expirationDelay := 30 * time.Minute
 
-	dummyOTP, err := model.NewOTP(model.OTPInput{
-		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
-		CorrelationID: id.New(),
-		ExpiresAt:     time.Now().Add(expirationDelay),
-	})
-
-	s.NoError(err)
-
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
 		FirstName: validInput.FirstName,
 		LastName:  validInput.LastName,
@@ -39,6 +31,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.NoError(err)
 
 		apiKey := s.apiKeyRepo.Items[0]
+		otp := s.otpRepo.Items[0]
 
 		s.Equal(apiKey.ID, id)
 		s.Equal(validInput.FirstName, apiKey.FirstName)
@@ -48,7 +41,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 
 		expectedExpiration := time.Now().Add(expirationDelay)
 
-		timeDiff := dummyOTP.ExpiresAt.Sub(expectedExpiration)
+		timeDiff := otp.ExpiresAt.Sub(expectedExpiration)
 
 		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
 
@@ -74,5 +67,18 @@ func (s *Suite) Test_GenerateAPIKey() {
 
 		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists
 		s.True(errors.As(err, &errResourceAlreadyExists), "error should be of type ErrResourceAlreadyExists")
+	})
+
+	s.Run("it should return an error if the messaging fails", func() {
+		s.evtHandler.Pub.IsHealthy = false
+
+		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+
+		s.Empty(id)
+		s.Error(err)
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
+
+		var errMessaging *custom_err.ErrMessagingWrapper
+		s.True(errors.As(err, &errMessaging), "error should be of type ErrMessagingWrapper")
 	})
 }
