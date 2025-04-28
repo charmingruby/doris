@@ -15,7 +15,7 @@ func NewService(logger *instrumentation.Logger, notificationRepo repository.Noti
 
 func NewEventHandler(logger *instrumentation.Logger, sub *nats.Subscriber, cfg config.Config, svc *service.Service) {
 	evtHandler := event.NewHandler(logger, sub, svc, event.TopicInput{
-		ReceiveNotificationTopic: cfg.Custom.NotificationsSendTopic,
+		OTPNotification: cfg.Custom.SendOTPNotificationTopic,
 	})
 
 	evtHandler.Subscribe()

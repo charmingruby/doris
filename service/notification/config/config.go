@@ -7,10 +7,10 @@ import (
 type Config config.Config[CustomConfig]
 
 type CustomConfig struct {
-	RestServerHost         string `env:"REST_SERVER_HOST" envDefault:"localhost"`
-	RestServerPort         string `env:"REST_SERVER_PORT" envDefault:"3001"`
-	NatsStream             string `env:"NATS_STREAM"`
-	NotificationsSendTopic string `env:"NOTIFICATIONS_SEND_TOPIC"`
+	RestServerHost           string `env:"REST_SERVER_HOST" envDefault:"localhost"`
+	RestServerPort           string `env:"REST_SERVER_PORT" envDefault:"3001"`
+	NatsStream               string `env:"NATS_STREAM"`
+	SendOTPNotificationTopic string `env:"SEND_OTP_NOTIFICATION_TOPIC"`
 }
 
 func New() (Config, error) {

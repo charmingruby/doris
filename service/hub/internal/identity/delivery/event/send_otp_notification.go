@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) SendOTP(ctx context.Context, event *event.OTP) error {
+func (h *Handler) SendOTPNotification(ctx context.Context, event *event.SendOTPNotificationMessage) error {
 	envelope := notification.Envelope{
 		Id:            event.ID,
 		To:            event.To,
@@ -29,7 +29,7 @@ func (h *Handler) SendOTP(ctx context.Context, event *event.OTP) error {
 		return custom_err.NewErrSerializationFailed(err)
 	}
 
-	topic := h.topics[otpIdentifier]
+	topic := h.topics[otpNotificationIdentifier]
 
 	if err := h.pub.Publish(ctx, topic, msgBytes); err != nil {
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)

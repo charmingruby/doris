@@ -3,5 +3,5 @@ package event
 import "context"
 
 type Handler interface {
-	SendOTP(ctx context.Context, event *OTP) error
+	SendOTPNotification(ctx context.Context, event *SendOTPNotificationMessage) error
 }

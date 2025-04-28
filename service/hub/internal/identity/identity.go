@@ -14,7 +14,7 @@ import (
 
 func NewEventHandler(pub messaging.Publisher, cfg config.Config) *event.Handler {
 	return event.NewHandler(pub, event.TopicInput{
-		OTPTopic: cfg.Custom.NotificationsSendTopic,
+		OTPNotification: cfg.Custom.SendOTPNotificationTopic,
 	})
 }
 

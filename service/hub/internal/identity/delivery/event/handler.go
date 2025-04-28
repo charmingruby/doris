@@ -5,24 +5,22 @@ import (
 )
 
 const (
-	otpIdentifier = iota
+	otpNotificationIdentifier = iota
 )
 
 type Handler struct {
-	pub messaging.Publisher
-
-	// identifier -> topic
+	pub    messaging.Publisher
 	topics map[int]string
 }
 
 type TopicInput struct {
-	OTPTopic string
+	OTPNotification string
 }
 
 func NewHandler(pub messaging.Publisher, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
-	topics[otpIdentifier] = in.OTPTopic
+	topics[otpNotificationIdentifier] = in.OTPNotification
 
 	return &Handler{
 		pub:    pub,

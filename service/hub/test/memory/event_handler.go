@@ -17,7 +17,7 @@ func NewEventHandler(pub Publisher) *EventHandler {
 	}
 }
 
-func (h *EventHandler) SendOTP(ctx context.Context, event *event.OTP) error {
+func (h *EventHandler) SendOTPNotification(ctx context.Context, event *event.SendOTPNotificationMessage) error {
 	if !h.Pub.IsHealthy {
 		return ErrUnhealthyDatasource
 	}
@@ -27,5 +27,5 @@ func (h *EventHandler) SendOTP(ctx context.Context, event *event.OTP) error {
 		return err
 	}
 
-	return h.Pub.Publish(ctx, "api_key_activation", msg)
+	return h.Pub.Publish(ctx, "send_otp_notification", msg)
 }

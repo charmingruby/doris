@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	receiveNotificationIdentifier = iota
+	otpNotificationIdentifier = iota
 )
 
 type Handler struct {
@@ -21,13 +21,13 @@ type Handler struct {
 }
 
 type TopicInput struct {
-	ReceiveNotificationTopic string
+	OTPNotification string
 }
 
 func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *service.Service, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
-	topics[receiveNotificationIdentifier] = in.ReceiveNotificationTopic
+	topics[otpNotificationIdentifier] = in.OTPNotification
 
 	return &Handler{
 		logger: logger,
@@ -41,7 +41,7 @@ func (h *Handler) Subscribe() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := h.receiveNotificationSendIntent(ctx); err != nil {
+	if err := h.receiveOTPNotification(ctx); err != nil {
 		return err
 	}
 

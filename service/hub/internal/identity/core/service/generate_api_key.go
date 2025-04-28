@@ -54,7 +54,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		return "", custom_err.NewErrDatasourceOperationFailed("create otp", err)
 	}
 
-	event := &event.OTP{
+	event := &event.SendOTPNotificationMessage{
 		ID:            ak.ID,
 		To:            ak.Email,
 		RecipientName: ak.FirstName + " " + ak.LastName,
@@ -62,7 +62,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		SentAt:        time.Now(),
 	}
 
-	if err := s.event.SendOTP(ctx, event); err != nil {
+	if err := s.event.SendOTPNotification(ctx, event); err != nil {
 		return "", custom_err.NewErrMessagingWrapper(err)
 	}
 

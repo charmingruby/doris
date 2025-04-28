@@ -2,7 +2,7 @@ package event
 
 import "time"
 
-type OTP struct {
+type SendOTPNotificationMessage struct {
 	ID            string
 	To            string
 	RecipientName string

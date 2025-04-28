@@ -8,8 +8,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func (h *Handler) receiveNotificationSendIntent(ctx context.Context) error {
-	return h.sub.Subscribe(ctx, h.topics[receiveNotificationIdentifier], func(message []byte) error {
+func (h *Handler) receiveOTPNotification(ctx context.Context) error {
+	return h.sub.Subscribe(ctx, h.topics[otpNotificationIdentifier], func(message []byte) error {
 		var envelope notification.Envelope
 
 		if err := proto.Unmarshal(message, &envelope); err != nil {
