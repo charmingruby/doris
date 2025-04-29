@@ -26,16 +26,16 @@ func NewNotification(in NotificationInput) *Notification {
 		CorrelationID: in.CorrelationID,
 		To:            in.To,
 		RecipientName: in.RecipientName,
-		MessageType:   string(in.MessageType),
+		MessageType:   in.MessageType,
 		CreatedAt:     time.Now(),
 	}
 }
 
 type Notification struct {
-	ID            string    `json:"id"`
-	CorrelationID string    `json:"correlation_id"`
-	To            string    `json:"to"`
-	RecipientName string    `json:"recipient_name"`
-	MessageType   string    `json:"message_type"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID            string      `json:"id"`
+	CorrelationID string      `json:"correlation_id"`
+	To            string      `json:"to"`
+	RecipientName string      `json:"recipient_name"`
+	MessageType   MessageType `json:"message_type"`
+	CreatedAt     time.Time   `json:"created_at"`
 }
