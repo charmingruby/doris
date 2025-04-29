@@ -6,24 +6,24 @@ import (
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/model"
 )
 
-type NotificationRepository struct {
+type Notifier struct {
 	Items     []model.Notification
 	IsHealthy bool
 }
 
-func NewNotificationRepository() *NotificationRepository {
-	return &NotificationRepository{
+func NewNotifier() *Notifier {
+	return &Notifier{
 		Items:     []model.Notification{},
 		IsHealthy: true,
 	}
 }
 
-func (r *NotificationRepository) Create(ctx context.Context, notification model.Notification) error {
-	if !r.IsHealthy {
+func (n *Notifier) Send(ctx context.Context, notification model.Notification) error {
+	if !n.IsHealthy {
 		return ErrUnhealthyDatasource
 	}
 
-	r.Items = append(r.Items, notification)
+	n.Items = append(n.Items, notification)
 
 	return nil
 }

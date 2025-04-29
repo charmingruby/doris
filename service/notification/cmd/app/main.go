@@ -64,7 +64,9 @@ func main() {
 func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) {
 	notificationRepo := memory.NewNotificationRepository()
 
-	notificationSvc := notification.NewService(logger, notificationRepo)
+	notifier := memory.NewNotifier()
+
+	notificationSvc := notification.NewService(logger, notificationRepo, notifier)
 
 	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
 

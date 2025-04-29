@@ -9,7 +9,7 @@ import (
 type MessageType string
 
 const (
-	OTP MessageType = "otp"
+	OTPMessageType MessageType = "otp"
 )
 
 type NotificationInput struct {
