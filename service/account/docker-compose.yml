@@ -1,7 +1,7 @@
 services:  
   postgres:
     image: bitnami/postgresql:latest
-    container_name: doris-identity-postgres
+    container_name: doris-account-postgres
     ports:
       - "${DATABASE_PORT}:5432"
     environment:
