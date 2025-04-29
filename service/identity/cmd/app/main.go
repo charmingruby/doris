@@ -17,7 +17,6 @@ import (
 	"github.com/charmingruby/doris/service/identity/internal/access"
 	"github.com/charmingruby/doris/service/identity/internal/access/persistence"
 	"github.com/charmingruby/doris/service/identity/internal/platform"
-	"github.com/charmingruby/doris/service/identity/test/memory"
 
 	"github.com/gin-gonic/gin"
 )
@@ -91,7 +90,10 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, val *validat
 		return err
 	}
 
-	otpRepo := memory.NewOTPRepository()
+	otpRepo, err := persistence.NewOTPPostgresRepo(db.Conn)
+	if err != nil {
+		return err
+	}
 
 	accessEvtHandler := access.NewEventHandler(pub, cfg)
 
