@@ -7,6 +7,7 @@ replace github.com/charmingruby/doris/lib => ../../lib
 require (
 	github.com/charmingruby/doris/lib v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.1
 )
@@ -25,7 +26,6 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect

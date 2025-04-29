@@ -31,17 +31,15 @@ func NewAPIKey(in APIKeyInput) *APIKey {
 		Key:       in.Key,
 		Status:    API_KEY_STATUS_NONE,
 		CreatedAt: time.Now(),
-		UpdatedAt: nil,
 	}
 }
 
 type APIKey struct {
-	ID        string     `json:"id"`
-	FirstName string     `json:"first_name"`
-	LastName  string     `json:"last_name"`
-	Email     string     `json:"email"`
-	Key       string     `json:"key"`
-	Status    string     `json:"status"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	ID        string    `json:"id" db:"id"`
+	FirstName string    `json:"first_name" db:"first_name"`
+	LastName  string    `json:"last_name" db:"last_name"`
+	Email     string    `json:"email" db:"email"`
+	Key       string    `json:"key" db:"key"`
+	Status    string    `json:"status" db:"status"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }

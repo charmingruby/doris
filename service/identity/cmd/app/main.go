@@ -15,6 +15,7 @@ import (
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/identity/config"
 	"github.com/charmingruby/doris/service/identity/internal/access"
+	"github.com/charmingruby/doris/service/identity/internal/access/persistence"
 	"github.com/charmingruby/doris/service/identity/internal/platform"
 	"github.com/charmingruby/doris/service/identity/test/memory"
 
@@ -65,7 +66,10 @@ func main() {
 
 	val := validation.NewValidator()
 
-	initModules(logger, cfg, val, db, pub, router)
+	if err := initModules(logger, cfg, val, db, pub, router); err != nil {
+		logger.Error("failed to initialize modules", "error", err)
+		return
+	}
 
 	logger.Info("modules initialized successfully")
 
@@ -81,8 +85,11 @@ func main() {
 	gracefulShutdown(logger, db, pub, server)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *postgres.Client, pub *nats.Publisher, r *gin.Engine) {
-	apiKeyRepo := memory.NewAPIKeyRepository()
+func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *postgres.Client, pub *nats.Publisher, r *gin.Engine) error {
+	apiKeyRepo, err := persistence.NewAPIKeyPostgresRepo(db.Conn)
+	if err != nil {
+		return err
+	}
 
 	otpRepo := memory.NewOTPRepository()
 
@@ -93,6 +100,8 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, val *validat
 	access.NewHTTPHandler(logger, r, val, accessSvc)
 
 	platform.NewHTTPHandler(r)
+
+	return nil
 }
 
 func gracefulShutdown(logger *instrumentation.Logger, db *postgres.Client, pub *nats.Publisher, srv *rest.Server) {

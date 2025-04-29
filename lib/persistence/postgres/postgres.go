@@ -11,7 +11,7 @@ import (
 )
 
 type Client struct {
-	DB     *sqlx.DB
+	Conn   *sqlx.DB
 	logger *instrumentation.Logger
 }
 
@@ -44,11 +44,11 @@ func New(logger *instrumentation.Logger, in ConnectionInput) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{DB: db, logger: logger}, nil
+	return &Client{Conn: db, logger: logger}, nil
 }
 
 func (c *Client) Close(ctx context.Context) error {
-	c.DB.Close()
+	c.Conn.Close()
 
 	select {
 	case <-ctx.Done():
