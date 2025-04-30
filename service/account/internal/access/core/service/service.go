@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/event"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/repository"
+	"github.com/charmingruby/doris/service/account/internal/access/core/event"
+	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
 type Service struct {

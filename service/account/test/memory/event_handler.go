@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/charmingruby/doris/service/identity/internal/access/core/event"
+	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 )
 
 type EventHandler struct {

@@ -1,7 +1,7 @@
 package platform
 
 import (
-	"github.com/charmingruby/doris/service/identity/internal/platform/delivery/http/rest/endpoint"
+	"github.com/charmingruby/doris/service/account/internal/platform/delivery/http/rest/endpoint"
 	"github.com/gin-gonic/gin"
 )
 

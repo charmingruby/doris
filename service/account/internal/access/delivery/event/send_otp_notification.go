@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/proto/gen/notification"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/event"
+	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

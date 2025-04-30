@@ -3,7 +3,7 @@ package memory
 import (
 	"context"
 
-	"github.com/charmingruby/doris/service/identity/internal/access/core/model"
+	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 )
 
 type OTPRepository struct {

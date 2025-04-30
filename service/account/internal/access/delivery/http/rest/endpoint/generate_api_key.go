@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
 )
 

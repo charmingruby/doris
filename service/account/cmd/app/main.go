@@ -13,10 +13,10 @@ import (
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/identity/config"
-	"github.com/charmingruby/doris/service/identity/internal/access"
-	"github.com/charmingruby/doris/service/identity/internal/access/persistence"
-	"github.com/charmingruby/doris/service/identity/internal/platform"
+	"github.com/charmingruby/doris/service/account/config"
+	"github.com/charmingruby/doris/service/account/internal/access"
+	"github.com/charmingruby/doris/service/account/internal/access/persistence"
+	"github.com/charmingruby/doris/service/account/internal/platform"
 
 	"github.com/gin-gonic/gin"
 )

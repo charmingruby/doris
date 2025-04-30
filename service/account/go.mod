@@ -1,4 +1,4 @@
-module github.com/charmingruby/doris/service/identity
+module github.com/charmingruby/doris/service/account
 
 go 1.23.2
 

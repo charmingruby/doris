@@ -4,11 +4,11 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/identity/config"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/repository"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/service"
-	"github.com/charmingruby/doris/service/identity/internal/access/delivery/event"
-	"github.com/charmingruby/doris/service/identity/internal/access/delivery/http/rest/endpoint"
+	"github.com/charmingruby/doris/service/account/config"
+	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
+	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/delivery/event"
+	"github.com/charmingruby/doris/service/account/internal/access/delivery/http/rest/endpoint"
 	"github.com/gin-gonic/gin"
 )
 

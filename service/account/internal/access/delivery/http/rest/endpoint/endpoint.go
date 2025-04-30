@@ -3,7 +3,7 @@ package endpoint
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -7,8 +7,8 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/event"
-	"github.com/charmingruby/doris/service/identity/internal/access/core/model"
+	"github.com/charmingruby/doris/service/account/internal/access/core/event"
+	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 )
 
 func (s *Suite) Test_ActivateAPIKey() {
