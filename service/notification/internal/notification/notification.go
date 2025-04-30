@@ -8,10 +8,23 @@ import (
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/repository"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 	"github.com/charmingruby/doris/service/notification/internal/notification/delivery/event"
+	"github.com/charmingruby/doris/service/notification/test/memory"
 )
 
-func NewService(logger *instrumentation.Logger, notificationRepo repository.NotificationRepository, notifier client.Notifier) *service.Service {
-	return service.New(logger, notificationRepo, notifier)
+type Datasource struct {
+	notificationRepo repository.NotificationRepository
+}
+
+func NewDatasource() (*Datasource, error) {
+	notificationRepo := memory.NewNotificationRepository()
+
+	return &Datasource{
+		notificationRepo: notificationRepo,
+	}, nil
+}
+
+func NewService(logger *instrumentation.Logger, datasource *Datasource, notifier client.Notifier) *service.Service {
+	return service.New(logger, datasource.notificationRepo, notifier)
 }
 
 func NewEventHandler(logger *instrumentation.Logger, sub *nats.Subscriber, cfg config.Config, svc *service.Service) {

@@ -15,7 +15,6 @@ import (
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/account/config"
 	"github.com/charmingruby/doris/service/account/internal/access"
-	"github.com/charmingruby/doris/service/account/internal/access/persistence"
 	"github.com/charmingruby/doris/service/account/internal/platform"
 
 	"github.com/gin-gonic/gin"
@@ -85,24 +84,14 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *postgres.Client, pub *nats.Publisher, r *gin.Engine) error {
-	apiKeyRepo, err := persistence.NewAPIKeyRepo(db.Conn)
-	if err != nil {
-		return err
-	}
-
-	otpRepo, err := persistence.NewOTPRepo(db.Conn)
-	if err != nil {
-		return err
-	}
-
-	accessTxManager, err := persistence.NewTransactionManager(db.Conn)
+	accessDatasource, err := access.NewDatasource(db.Conn)
 	if err != nil {
 		return err
 	}
 
 	accessEvtHandler := access.NewEventHandler(pub, cfg)
 
-	accessSvc := access.NewService(logger, apiKeyRepo, otpRepo, accessEvtHandler, accessTxManager)
+	accessSvc := access.NewService(logger, accessDatasource, accessEvtHandler)
 
 	access.NewHTTPHandler(logger, r, val, accessSvc)
 

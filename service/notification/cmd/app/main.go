@@ -45,7 +45,10 @@ func main() {
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	initModules(logger, cfg, router, sub)
+	if err := initModules(logger, cfg, router, sub); err != nil {
+		logger.Error("failed to initialize modules", "error", err)
+		return
+	}
 
 	logger.Info("modules initialized successfully")
 
@@ -61,16 +64,21 @@ func main() {
 	gracefulShutdown(logger, server, sub)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) {
-	notificationRepo := memory.NewNotificationRepository()
+func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) error {
+	notificationDatasource, err := notification.NewDatasource()
+	if err != nil {
+		return err
+	}
 
 	notifier := memory.NewNotifier()
 
-	notificationSvc := notification.NewService(logger, notificationRepo, notifier)
+	notificationSvc := notification.NewService(logger, notificationDatasource, notifier)
 
 	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
 
 	platform.NewHTTPHandler(r)
+
+	return nil
 }
 
 func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nats.Subscriber) {
