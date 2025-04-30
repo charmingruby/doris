@@ -85,19 +85,24 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, val *validation.Validator, db *postgres.Client, pub *nats.Publisher, r *gin.Engine) error {
-	apiKeyRepo, err := persistence.NewAPIKeyPostgresRepo(db.Conn)
+	apiKeyRepo, err := persistence.NewAPIKeyRepo(db.Conn)
 	if err != nil {
 		return err
 	}
 
-	otpRepo, err := persistence.NewOTPPostgresRepo(db.Conn)
+	otpRepo, err := persistence.NewOTPRepo(db.Conn)
+	if err != nil {
+		return err
+	}
+
+	accessTxManager, err := persistence.NewTransactionManager(db.Conn)
 	if err != nil {
 		return err
 	}
 
 	accessEvtHandler := access.NewEventHandler(pub, cfg)
 
-	accessSvc := access.NewService(logger, apiKeyRepo, otpRepo, accessEvtHandler)
+	accessSvc := access.NewService(logger, apiKeyRepo, otpRepo, accessEvtHandler, accessTxManager)
 
 	access.NewHTTPHandler(logger, r, val, accessSvc)
 

@@ -28,12 +28,12 @@ func apiKeyQueries() map[string]string {
 	}
 }
 
-type APIKeyPostgresRepo struct {
-	db    *sqlx.DB
+type APIKeyRepo struct {
+	db    postgres.Database
 	stmts map[string]*sqlx.Stmt
 }
 
-func NewAPIKeyPostgresRepo(db *sqlx.DB) (*APIKeyPostgresRepo, error) {
+func NewAPIKeyRepo(db postgres.Database) (*APIKeyRepo, error) {
 	stmts := make(map[string]*sqlx.Stmt)
 
 	for queryName, statement := range apiKeyQueries() {
@@ -46,13 +46,13 @@ func NewAPIKeyPostgresRepo(db *sqlx.DB) (*APIKeyPostgresRepo, error) {
 		stmts[queryName] = stmt
 	}
 
-	return &APIKeyPostgresRepo{
+	return &APIKeyRepo{
 		db:    db,
 		stmts: stmts,
 	}, nil
 }
 
-func (r *APIKeyPostgresRepo) statement(queryName string) (*sqlx.Stmt, error) {
+func (r *APIKeyRepo) statement(queryName string) (*sqlx.Stmt, error) {
 	stmt, ok := r.stmts[queryName]
 
 	if !ok {
@@ -63,7 +63,7 @@ func (r *APIKeyPostgresRepo) statement(queryName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-func (r *APIKeyPostgresRepo) FindByID(ctx context.Context, id string) (model.APIKey, error) {
+func (r *APIKeyRepo) FindByID(ctx context.Context, id string) (model.APIKey, error) {
 	stmt, err := r.statement(findAPIKeyByID)
 	if err != nil {
 		return model.APIKey{}, err
@@ -81,7 +81,7 @@ func (r *APIKeyPostgresRepo) FindByID(ctx context.Context, id string) (model.API
 	return apiKey, nil
 }
 
-func (r *APIKeyPostgresRepo) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
+func (r *APIKeyRepo) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
 	stmt, err := r.statement(findAPIKeyByEmail)
 	if err != nil {
 		return model.APIKey{}, err
@@ -99,7 +99,7 @@ func (r *APIKeyPostgresRepo) FindByEmail(ctx context.Context, email string) (mod
 	return apiKey, nil
 }
 
-func (r *APIKeyPostgresRepo) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
+func (r *APIKeyRepo) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
 	stmt, err := r.statement(findAPIKeyByID)
 	if err != nil {
 		return model.APIKey{}, err
@@ -117,7 +117,7 @@ func (r *APIKeyPostgresRepo) FindByKey(ctx context.Context, key string) (model.A
 	return apiKey, nil
 }
 
-func (r *APIKeyPostgresRepo) Create(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
 	stmt, err := r.statement(createAPIKey)
 	if err != nil {
 		return err
@@ -137,7 +137,7 @@ func (r *APIKeyPostgresRepo) Create(ctx context.Context, apiKey model.APIKey) er
 	return nil
 }
 
-func (r *APIKeyPostgresRepo) Update(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepo) Update(ctx context.Context, apiKey model.APIKey) error {
 	stmt, err := r.statement(updateAPIKey)
 	if err != nil {
 		return err

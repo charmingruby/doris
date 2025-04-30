@@ -8,6 +8,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
+	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
 type GenerateAPIKeyInput struct {
@@ -36,40 +37,46 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		Key:       id.New(),
 	})
 
-	if err := s.apiKeyRepo.Create(ctx, *ak); err != nil {
-		return "", custom_err.NewErrDatasourceOperationFailed("create api key", err)
-	}
+	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+		if err := tx.APIKeyRepo.Create(ctx, *ak); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("create api key", err)
+		}
 
-	otp, err := model.NewOTP(model.OTPInput{
-		Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
-		CorrelationID: ak.ID,
-		ExpiresAt:     time.Now().Add(30 * time.Minute),
-	})
+		otp, err := model.NewOTP(model.OTPInput{
+			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
+			CorrelationID: ak.ID,
+			ExpiresAt:     time.Now().Add(30 * time.Minute),
+		})
 
-	if err != nil {
-		return "", custom_err.NewErrInvalidEntity("otp")
-	}
+		if err != nil {
+			return custom_err.NewErrInvalidEntity("otp")
+		}
 
-	if err := s.otpRepo.Create(ctx, *otp); err != nil {
-		return "", custom_err.NewErrDatasourceOperationFailed("create otp", err)
-	}
+		if err := tx.OTPRepo.Create(ctx, *otp); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("create otp", err)
+		}
 
-	event := &event.SendOTPNotificationMessage{
-		ID:            ak.ID,
-		To:            ak.Email,
-		RecipientName: ak.FirstName + " " + ak.LastName,
-		Code:          otp.Code,
-		SentAt:        time.Now(),
-	}
+		event := &event.SendOTPNotificationMessage{
+			ID:            ak.ID,
+			To:            ak.Email,
+			RecipientName: ak.FirstName + " " + ak.LastName,
+			Code:          otp.Code,
+			SentAt:        time.Now(),
+		}
 
-	if err := s.event.SendOTPNotification(ctx, event); err != nil {
-		return "", custom_err.NewErrMessagingWrapper(err)
-	}
+		if err := s.event.SendOTPNotification(ctx, event); err != nil {
+			return custom_err.NewErrMessagingWrapper(err)
+		}
 
-	ak.Status = model.API_KEY_STATUS_PENDING
+		ak.Status = model.API_KEY_STATUS_PENDING
 
-	if err := s.apiKeyRepo.Update(ctx, *ak); err != nil {
-		return "", custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		if err := tx.APIKeyRepo.Update(ctx, *ak); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		}
+
+		return nil
+	}); err != nil {
+		return "", err
 	}
 
 	return ak.ID, nil

@@ -22,12 +22,12 @@ func otpQueries() map[string]string {
 	}
 }
 
-type OTPPostgresRepo struct {
-	db    *sqlx.DB
+type OTPRepo struct {
+	db    postgres.Database
 	stmts map[string]*sqlx.Stmt
 }
 
-func NewOTPPostgresRepo(db *sqlx.DB) (*OTPPostgresRepo, error) {
+func NewOTPRepo(db postgres.Database) (*OTPRepo, error) {
 	stmts := make(map[string]*sqlx.Stmt)
 
 	for queryName, statement := range otpQueries() {
@@ -40,13 +40,13 @@ func NewOTPPostgresRepo(db *sqlx.DB) (*OTPPostgresRepo, error) {
 		stmts[queryName] = stmt
 	}
 
-	return &OTPPostgresRepo{
+	return &OTPRepo{
 		db:    db,
 		stmts: stmts,
 	}, nil
 }
 
-func (r *OTPPostgresRepo) statement(queryName string) (*sqlx.Stmt, error) {
+func (r *OTPRepo) statement(queryName string) (*sqlx.Stmt, error) {
 	stmt, ok := r.stmts[queryName]
 
 	if !ok {
@@ -57,7 +57,7 @@ func (r *OTPPostgresRepo) statement(queryName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-func (r *OTPPostgresRepo) Create(ctx context.Context, otp model.OTP) error {
+func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
 	stmt, err := r.statement(createOTP)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func (r *OTPPostgresRepo) Create(ctx context.Context, otp model.OTP) error {
 	return nil
 }
 
-func (r *OTPPostgresRepo) FindByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
+func (r *OTPRepo) FindByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
 	stmt, err := r.statement(findOTPByCorrelationID)
 	if err != nil {
 		return model.OTP{}, err

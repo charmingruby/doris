@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/charmingruby/doris/lib/instrumentation"
@@ -9,6 +10,12 @@ import (
 
 	_ "github.com/lib/pq"
 )
+
+type Database interface {
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
+	Preparex(query string) (*sqlx.Stmt, error)
+}
 
 type Client struct {
 	Conn   *sqlx.DB

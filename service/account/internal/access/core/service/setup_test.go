@@ -14,6 +14,7 @@ type Suite struct {
 
 	apiKeyRepo *memory.APIKeyRepository
 	otpRepo    *memory.OTPRepository
+	txManager  *memory.TransactionManager
 	evtHandler *memory.EventHandler
 	svc        *Service
 }
@@ -29,14 +30,19 @@ func (s *Suite) SetupTest() {
 
 	s.evtHandler = memory.NewEventHandler(*pub)
 
-	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.evtHandler)
+	s.txManager = memory.NewTransactionManager(s.apiKeyRepo, s.otpRepo)
+
+	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.txManager, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {
 	s.apiKeyRepo.Items = []model.APIKey{}
-	s.otpRepo.Items = []model.OTP{}
-	s.evtHandler.Pub.Messages = []memory.Message{}
 	s.apiKeyRepo.IsHealthy = true
+
+	s.otpRepo.Items = []model.OTP{}
+	s.otpRepo.IsHealthy = true
+
+	s.evtHandler.Pub.Messages = []memory.Message{}
 }
 
 func TestSuite(t *testing.T) {

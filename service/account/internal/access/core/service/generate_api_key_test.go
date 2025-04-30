@@ -81,4 +81,16 @@ func (s *Suite) Test_GenerateAPIKey() {
 		var errMessaging *custom_err.ErrMessagingWrapper
 		s.True(errors.As(err, &errMessaging), "error should be of type ErrMessagingWrapper")
 	})
+
+	s.Run("it should rollback if there is an error inside the transaction", func() {
+		s.evtHandler.Pub.IsHealthy = false
+
+		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+
+		s.Empty(id)
+		s.Error(err)
+		s.Equal(0, len(s.evtHandler.Pub.Messages))
+		s.Equal(0, len(s.apiKeyRepo.Items))
+		s.Equal(0, len(s.otpRepo.Items))
+	})
 }
