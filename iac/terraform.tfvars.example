@@ -1,0 +1,4 @@
+project     = "doris"
+environment = "dev"
+managed_by  = "terraform"
+created_at  = "01/05/2025"
