@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS api_keys
     last_name varchar NOT NULL,
     email varchar NOT NULL,
     key varchar NOT NULL,
+    tier varchar NOT NULL,
     status varchar NOT NULL,
     created_at timestamp DEFAULT now() NOT NULL
 );

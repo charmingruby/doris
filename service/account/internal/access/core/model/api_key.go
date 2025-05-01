@@ -6,6 +6,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/id"
 )
 
+// Represents the status of the API key
 const (
 	API_KEY_STATUS_NONE      = "NONE"
 	API_KEY_STATUS_PENDING   = "PENDING"
@@ -13,6 +14,14 @@ const (
 	API_KEY_STATUS_EXPIRED   = "EXPIRED"
 	API_KEY_STATUS_DEFAULTER = "DEFAULTER"
 	API_KEY_STATUS_INACTIVE  = "INACTIVE"
+)
+
+// Represents the tier of the API key, it's used to determine the permissions of the API key
+const (
+	API_KEY_TIER_ROOKIE  = "ROOKIE"
+	API_KEY_TIER_PRO     = "PRO"
+	API_KEY_TIER_MANAGER = "MANAGER"
+	API_KEY_TIER_ADMIN   = "ADMIN"
 )
 
 type APIKeyInput struct {
@@ -30,6 +39,7 @@ func NewAPIKey(in APIKeyInput) *APIKey {
 		Email:     in.Email,
 		Key:       in.Key,
 		Status:    API_KEY_STATUS_NONE,
+		Tier:      API_KEY_TIER_ROOKIE,
 		CreatedAt: time.Now(),
 	}
 }
@@ -40,6 +50,7 @@ type APIKey struct {
 	LastName  string    `json:"last_name" db:"last_name"`
 	Email     string    `json:"email" db:"email"`
 	Key       string    `json:"key" db:"key"`
+	Tier      string    `json:"tier" db:"tier"`
 	Status    string    `json:"status" db:"status"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }

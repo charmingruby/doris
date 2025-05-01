@@ -38,6 +38,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.Equal(validInput.LastName, apiKey.LastName)
 		s.Equal(validInput.Email, apiKey.Email)
 		s.Equal(apiKey.Status, model.API_KEY_STATUS_PENDING)
+		s.Equal(apiKey.Tier, model.API_KEY_TIER_ROOKIE)
 
 		expectedExpiration := time.Now().Add(expirationDelay)
 
