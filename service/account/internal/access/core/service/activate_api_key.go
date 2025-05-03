@@ -10,7 +10,7 @@ import (
 
 type ActivateAPIKeyInput struct {
 	APIKeyID string `json:"api_key_id"`
-	OTPCode  string `json:"otp_code"`
+	OTP      string `json:"otp"`
 }
 
 func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) error {
@@ -25,10 +25,10 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 	}
 
 	if ak.Status == model.API_KEY_STATUS_ACTIVE {
-		return custom_err.NewErrAPIKeyAlreadyConfirmed()
+		return custom_err.NewErrAPIKeyAlreadyActivated()
 	}
 
-	otp, err := s.otpRepo.FindByCorrelationID(ctx, ak.ID)
+	otp, err := s.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find otp by correlation id", err)
@@ -38,11 +38,11 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) er
 		return custom_err.NewErrResourceNotFound("otp")
 	}
 
-	if otp.Code != in.OTPCode {
+	if otp.Code != in.OTP {
 		return custom_err.NewErrInvalidOTPCode("does not match")
 	}
 
-	if otp.ExpiresAt.Before(time.Now()) {
+	if otp.ExpiresAt.Before(time.Now().UTC()) {
 		return custom_err.NewErrInvalidOTPCode("expired")
 	}
 

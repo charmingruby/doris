@@ -8,5 +8,5 @@ import (
 
 type OTPRepository interface {
 	Create(ctx context.Context, otp model.OTP) error
-	FindByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error)
+	FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error)
 }

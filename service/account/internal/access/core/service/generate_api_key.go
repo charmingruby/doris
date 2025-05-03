@@ -45,7 +45,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		otp, err := model.NewOTP(model.OTPInput{
 			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
 			CorrelationID: ak.ID,
-			ExpiresAt:     time.Now().Add(30 * time.Minute),
+			ExpiresAt:     time.Now().UTC().Add(30 * time.Minute),
 		})
 
 		if err != nil {

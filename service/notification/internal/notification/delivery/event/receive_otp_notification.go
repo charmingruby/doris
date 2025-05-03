@@ -27,6 +27,8 @@ func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 			return custom_err.NewErrSerializationFailed(errors.New("unsupported envelope type"))
 		}
 
+		h.logger.Debug("received otp notification", "message", &envelope)
+
 		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
 			CorrelationID: envelope.Id,
 			To:            envelope.To,

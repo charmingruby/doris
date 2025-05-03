@@ -17,7 +17,7 @@ const (
 
 func otpQueries() map[string]string {
 	return map[string]string{
-		findOTPByCorrelationID: `SELECT * FROM otps WHERE correlation_id = $1`,
+		findOTPByCorrelationID: `SELECT * FROM otps WHERE correlation_id = $1 ORDER BY created_at DESC LIMIT 1`,
 		createOTP:              `INSERT INTO otps (id, correlation_id, code, purpose, expires_at) VALUES ($1, $2, $3, $4, $5)`,
 	}
 }
@@ -70,7 +70,7 @@ func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
 	return nil
 }
 
-func (r *OTPRepo) FindByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
+func (r *OTPRepo) FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
 	stmt, err := r.statement(findOTPByCorrelationID)
 	if err != nil {
 		return model.OTP{}, err

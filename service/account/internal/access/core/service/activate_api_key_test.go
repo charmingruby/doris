@@ -53,7 +53,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 
 		s.NoError(err)
@@ -69,7 +69,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 
 		s.Error(err)
@@ -83,7 +83,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 
 		s.Error(err)
@@ -100,7 +100,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 
 		s.Error(err)
@@ -133,7 +133,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  "invalid-code",
+			OTP:      "invalid-code",
 		})
 
 		s.Error(err)
@@ -169,7 +169,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  expiredOTP.Code,
+			OTP:      expiredOTP.Code,
 		})
 
 		s.Error(err)
@@ -202,18 +202,18 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 		s.NoError(err)
 
 		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
-			OTPCode:  dummyOTP.Code,
+			OTP:      dummyOTP.Code,
 		})
 
 		s.Error(err)
 
-		var apiKeyAlreadyConfirmedErr *custom_err.ErrAPIKeyAlreadyConfirmed
-		s.True(errors.As(err, &apiKeyAlreadyConfirmedErr), "error should be of type ErrAPIKeyAlreadyConfirmed")
+		var apiKeyAlreadyActivatedErr *custom_err.ErrAPIKeyAlreadyActivated
+		s.True(errors.As(err, &apiKeyAlreadyActivatedErr), "error should be of type ErrAPIKeyAlreadyActivated")
 	})
 }

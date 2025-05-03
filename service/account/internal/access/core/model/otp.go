@@ -35,12 +35,12 @@ func NewOTP(in OTPInput) (*OTP, error) {
 }
 
 type OTP struct {
-	ID            string    `json:"id"`
-	Code          string    `json:"code"`
-	Purpose       string    `json:"purpose"`
-	CorrelationID string    `json:"correlation_id"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID            string    `json:"id" db:"id"`
+	Code          string    `json:"code" db:"code"`
+	Purpose       string    `json:"purpose" db:"purpose"`
+	CorrelationID string    `json:"correlation_id" db:"correlation_id"`
+	ExpiresAt     time.Time `json:"expires_at" db:"expires_at"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 }
 
 func generateOTPCode(length int) (string, error) {

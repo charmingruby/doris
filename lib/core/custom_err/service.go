@@ -44,12 +44,12 @@ func NewErrInvalidOTPCode(reason string) error {
 }
 
 // Represents an api key that is already confirmed.
-type ErrAPIKeyAlreadyConfirmed struct{}
+type ErrAPIKeyAlreadyActivated struct{}
 
-func (e *ErrAPIKeyAlreadyConfirmed) Error() string {
-	return "api key already confirmed"
+func (e *ErrAPIKeyAlreadyActivated) Error() string {
+	return "api key already activated"
 }
 
-func NewErrAPIKeyAlreadyConfirmed() error {
-	return &ErrAPIKeyAlreadyConfirmed{}
+func NewErrAPIKeyAlreadyActivated() error {
+	return &ErrAPIKeyAlreadyActivated{}
 }

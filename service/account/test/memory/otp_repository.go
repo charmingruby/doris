@@ -28,16 +28,26 @@ func (r *OTPRepository) Create(ctx context.Context, otp model.OTP) error {
 	return nil
 }
 
-func (r *OTPRepository) FindByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
-	for _, i := range r.Items {
-		if i.CorrelationID == correlationID {
-			return i, nil
-		}
-	}
-
+func (r *OTPRepository) FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
 	if !r.IsHealthy {
 		return model.OTP{}, ErrUnhealthyDatasource
 	}
 
-	return model.OTP{}, nil
+	var mostRecent model.OTP
+	found := false
+
+	for _, i := range r.Items {
+		if i.CorrelationID == correlationID {
+			if !found || i.CreatedAt.After(mostRecent.CreatedAt) {
+				mostRecent = i
+				found = true
+			}
+		}
+	}
+
+	if !found {
+		return model.OTP{}, nil
+	}
+
+	return mostRecent, nil
 }
