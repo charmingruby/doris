@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS otps
 	created_at timestamp DEFAULT now() NOT NULL
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_otps_correlation_id ON otps (correlation_id);
+CREATE INDEX IF NOT EXISTS idx_otps_correlation_id ON otps (correlation_id);
