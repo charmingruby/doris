@@ -15,6 +15,10 @@ type ActivateAPIKeyRequest struct {
 	OTP string `json:"otp" binding:"required,min=1,max=255"`
 }
 
+type ActivateAPIKeyResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
 func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
@@ -33,10 +37,12 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 		return
 	}
 
-	if err := e.svc.ActivateAPIKey(ctx, service.ActivateAPIKeyInput{
+	token, err := e.svc.ActivateAPIKey(ctx, service.ActivateAPIKeyInput{
 		APIKeyID: apiKeyID,
 		OTP:      req.OTP,
-	}); err != nil {
+	})
+
+	if err != nil {
 		var errResourceNotFound *custom_err.ErrResourceNotFound
 		if errors.As(err, &errResourceNotFound) {
 			rest.NewResourceNotFoundResponse(c, "api key")
@@ -61,5 +67,7 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 		return
 	}
 
-	rest.NewOKResponse(c, "api key activated successfully", nil)
+	rest.NewOKResponse(c, "api key activated successfully", ActivateAPIKeyResponse{
+		AccessToken: token,
+	})
 }

@@ -12,11 +12,12 @@ import (
 type Suite struct {
 	suite.Suite
 
-	apiKeyRepo *memory.APIKeyRepository
-	otpRepo    *memory.OTPRepository
-	txManager  *memory.TransactionManager
-	evtHandler *memory.EventHandler
-	svc        *Service
+	apiKeyRepo  *memory.APIKeyRepository
+	otpRepo     *memory.OTPRepository
+	txManager   *memory.TransactionManager
+	tokenClient *memory.TokenClient
+	evtHandler  *memory.EventHandler
+	svc         *Service
 }
 
 func (s *Suite) SetupTest() {
@@ -32,7 +33,9 @@ func (s *Suite) SetupTest() {
 
 	s.txManager = memory.NewTransactionManager(s.apiKeyRepo, s.otpRepo)
 
-	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.txManager, s.evtHandler)
+	s.tokenClient = memory.NewTokenClient()
+
+	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.txManager, s.tokenClient, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {
@@ -43,6 +46,8 @@ func (s *Suite) SetupSubTest() {
 	s.otpRepo.IsHealthy = true
 
 	s.evtHandler.Pub.Messages = []memory.Message{}
+
+	s.tokenClient.Items = make(map[string]memory.TokenPayload)
 }
 
 func TestSuite(t *testing.T) {

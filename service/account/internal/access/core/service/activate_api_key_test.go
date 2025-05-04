@@ -51,15 +51,20 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		token, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
-
 		s.NoError(err)
+		s.NotEmpty(token)
 
 		verifiedAPIKey := s.apiKeyRepo.Items[0]
 		s.Equal(model.API_KEY_STATUS_ACTIVE, verifiedAPIKey.Status)
+
+		generatedToken := verifiedAPIKey.ID + "-token"
+		tokenPayload := s.tokenClient.Items[generatedToken]
+		s.Equal(verifiedAPIKey.ID, tokenPayload.Sub)
+		s.Equal(verifiedAPIKey.Tier, tokenPayload.Payload.Tier)
 	})
 
 	s.Run("it should be not able to confirm the api key if the datasource operation fails", func() {
@@ -67,7 +72,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.apiKeyRepo.IsHealthy = false
 
-		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -81,7 +86,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 	s.Run("it should be not able to confirm the api key if the api key is not found", func() {
 		ctx := context.Background()
 
-		err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -98,7 +103,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -131,7 +136,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      "invalid-code",
 		})
@@ -167,7 +172,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      expiredOTP.Code,
 		})
@@ -200,17 +205,16 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
 		s.NoError(err)
 
-		err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
-
 		s.Error(err)
 
 		var apiKeyAlreadyActivatedErr *custom_err.ErrAPIKeyAlreadyActivated

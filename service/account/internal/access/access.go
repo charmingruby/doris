@@ -1,9 +1,11 @@
 package access
 
 import (
+	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	persistenceLib "github.com/charmingruby/doris/lib/persistence"
+	"github.com/charmingruby/doris/lib/security"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/account/config"
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
@@ -54,10 +56,11 @@ func NewService(
 	logger *instrumentation.Logger,
 	datasource *Datasource,
 	eventHandler *event.Handler,
+	tokenClient security.Token,
 ) *service.Service {
-	return service.New(logger, datasource.apiKeyRepo, datasource.otpRepo, datasource.txManager, eventHandler)
+	return service.New(logger, datasource.apiKeyRepo, datasource.otpRepo, datasource.txManager, tokenClient, eventHandler)
 }
 
-func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, val *validation.Validator, svc *service.Service) {
-	endpoint.New(logger, r, val, svc).Register()
+func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, svc *service.Service) {
+	endpoint.New(logger, r, mw, val, svc).Register()
 }
