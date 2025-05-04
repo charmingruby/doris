@@ -54,7 +54,7 @@ func NewErrAPIKeyAlreadyActivated() error {
 	return &ErrAPIKeyAlreadyActivated{}
 }
 
-// Represents a action with insufficient permission.
+// Represents an action with insufficient permission.
 type ErrInsufficientPermission struct{}
 
 func (e *ErrInsufficientPermission) Error() string {
@@ -63,4 +63,15 @@ func (e *ErrInsufficientPermission) Error() string {
 
 func NewErrInsufficientPermission() error {
 	return &ErrInsufficientPermission{}
+}
+
+// Represents an intent to modify something that does not change nothing.
+type ErrNothingToChange struct{}
+
+func (e *ErrNothingToChange) Error() string {
+	return "nothing to change"
+}
+
+func NewErrNothingToChange() error {
+	return &ErrNothingToChange{}
 }

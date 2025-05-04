@@ -39,14 +39,14 @@ func (s *Service) SignInIntent(ctx context.Context, in SignInIntentInput) error 
 		})
 
 		if err != nil {
-			return custom_err.NewErrInvalidEntity("otp")
+			return custom_err.NewErrInvalidEntity(err.Error())
 		}
 
 		if err := tx.OTPRepo.Create(ctx, *otp); err != nil {
 			return custom_err.NewErrDatasourceOperationFailed("create otp", err)
 		}
 
-		event := &event.SendOTPNotificationMessage{
+		event := event.SendOTPNotificationMessage{
 			ID:            ak.ID,
 			To:            ak.Email,
 			RecipientName: ak.FirstName + " " + ak.LastName,

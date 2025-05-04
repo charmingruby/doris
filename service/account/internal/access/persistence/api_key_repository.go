@@ -24,7 +24,7 @@ func apiKeyQueries() map[string]string {
 		findAPIKeyByKey:   `SELECT * FROM api_keys WHERE key = $1`,
 		findAPIKeyByEmail: `SELECT * FROM api_keys WHERE email = $1`,
 		createAPIKey:      `INSERT INTO api_keys (id, first_name, last_name, email, key, status, tier) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		updateAPIKey:      `UPDATE api_keys SET status = $1 WHERE id = $2`,
+		updateAPIKey:      `UPDATE api_keys SET status = $1, tier = $2 WHERE id = $3`,
 	}
 }
 
@@ -144,7 +144,7 @@ func (r *APIKeyRepo) Update(ctx context.Context, apiKey model.APIKey) error {
 		return err
 	}
 
-	if _, err := stmt.Exec(apiKey.Status, apiKey.ID); err != nil {
+	if _, err := stmt.Exec(apiKey.Status, apiKey.Tier, apiKey.ID); err != nil {
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/id"
@@ -21,6 +22,8 @@ const (
 	API_KEY_TIER_MANAGER = "MANAGER"
 	API_KEY_TIER_ADMIN   = "ADMIN"
 )
+
+var ErrInvalidTier = errors.New("invalid tier")
 
 type APIKeyInput struct {
 	FirstName string `json:"first_name"`
@@ -51,4 +54,23 @@ type APIKey struct {
 	Tier      string    `json:"tier" db:"tier"`
 	Status    string    `json:"status" db:"status"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
+}
+
+func (a *APIKey) Validate() error {
+	return a.validateTier()
+}
+
+func (a *APIKey) validateTier() error {
+	tiers := map[string]string{
+		API_KEY_TIER_ROOKIE:  API_KEY_TIER_ROOKIE,
+		API_KEY_TIER_PRO:     API_KEY_TIER_PRO,
+		API_KEY_TIER_MANAGER: API_KEY_TIER_MANAGER,
+		API_KEY_TIER_ADMIN:   API_KEY_TIER_ADMIN,
+	}
+
+	if _, ok := tiers[a.Tier]; !ok {
+		return ErrInvalidTier
+	}
+
+	return nil
 }

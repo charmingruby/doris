@@ -46,8 +46,8 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 	}, nil
 }
 
-func NewEventHandler(pub messaging.Publisher, cfg config.Config) *event.Handler {
-	return event.NewHandler(pub, event.TopicInput{
+func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, cfg config.Config) *event.Handler {
+	return event.NewHandler(logger, pub, event.TopicInput{
 		OTPNotification: cfg.Custom.SendOTPNotificationTopic,
 	})
 }

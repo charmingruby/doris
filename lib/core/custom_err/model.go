@@ -4,13 +4,13 @@ import "fmt"
 
 // Represents an invalid entity.
 type ErrInvalidEntity struct {
-	entity string
+	msg string
 }
 
 func (e *ErrInvalidEntity) Error() string {
-	return fmt.Sprintf("invalid entity: %s", e.entity)
+	return fmt.Sprintf("invalid entity: %s", e.msg)
 }
 
-func NewErrInvalidEntity(entity string) error {
-	return &ErrInvalidEntity{entity: entity}
+func NewErrInvalidEntity(msg string) error {
+	return &ErrInvalidEntity{msg: msg}
 }

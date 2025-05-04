@@ -94,7 +94,7 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, val *validat
 		return err
 	}
 
-	accessEvtHandler := access.NewEventHandler(pub, cfg)
+	accessEvtHandler := access.NewEventHandler(logger, pub, cfg)
 
 	accessSvc := access.NewService(logger, accessDatasource, accessEvtHandler, tokenClient)
 
