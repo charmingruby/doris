@@ -2,10 +2,8 @@ package endpoint
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
@@ -44,33 +42,7 @@ func (e *Endpoint) makeDelegateAPIKeyTier(c *gin.Context) {
 		APIKeyIDToChange: apiKeyID,
 		NewTier:          req.NewTier,
 	}); err != nil {
-		var errResourceNotFound *custom_err.ErrResourceNotFound
-		if errors.As(err, &errResourceNotFound) {
-			rest.NewResourceNotFoundResponse(c, errResourceNotFound.Error())
-			return
-		}
-
-		var errNothingToChange *custom_err.ErrNothingToChange
-		if errors.As(err, &errNothingToChange) {
-			rest.NewNoContentResponse(c)
-			return
-		}
-
-		var errInsufficientPermission *custom_err.ErrInsufficientPermission
-		if errors.As(err, &errInsufficientPermission) {
-			rest.NewForbiddenResponse(c)
-			return
-		}
-
-		var errInvalidEntity *custom_err.ErrInvalidEntity
-		if errors.As(err, &errInvalidEntity) {
-			rest.NewUnprocessableEntityResponse(c, err.Error())
-			return
-		}
-
-		e.logger.Error("error on delegate api key tier", "error", err)
-
-		rest.NewUncaughtErrResponse(c, err)
+		rest.HandleHTTPError(c, e.logger, err)
 		return
 	}
 

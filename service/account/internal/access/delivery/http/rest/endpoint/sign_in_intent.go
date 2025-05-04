@@ -2,10 +2,8 @@ package endpoint
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
@@ -31,27 +29,7 @@ func (e *Endpoint) makeSignInIntent(c *gin.Context) {
 		Email: req.Email,
 	})
 	if err != nil {
-		var errInvalidEntity *custom_err.ErrInvalidEntity
-		if errors.As(err, &errInvalidEntity) {
-			rest.NewUnprocessableEntityResponse(c, errInvalidEntity.Error())
-			return
-		}
-
-		var errResourceNotFound *custom_err.ErrResourceNotFound
-		if errors.As(err, &errResourceNotFound) {
-			rest.NewResourceNotFoundResponse(c, errResourceNotFound.Error())
-			return
-		}
-
-		var errInsufficentPermission *custom_err.ErrInsufficientPermission
-		if errors.As(err, &errInsufficentPermission) {
-			rest.NewForbiddenResponse(c)
-			return
-		}
-
-		e.logger.Error("error on sign in intent", "error", err)
-
-		rest.NewUncaughtErrResponse(c, err)
+		rest.HandleHTTPError(c, e.logger, err)
 		return
 	}
 

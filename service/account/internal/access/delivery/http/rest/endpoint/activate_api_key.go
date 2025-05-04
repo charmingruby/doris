@@ -2,10 +2,8 @@ package endpoint
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
@@ -43,27 +41,7 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 	})
 
 	if err != nil {
-		var errResourceNotFound *custom_err.ErrResourceNotFound
-		if errors.As(err, &errResourceNotFound) {
-			rest.NewResourceNotFoundResponse(c, errResourceNotFound.Error())
-			return
-		}
-
-		var errInvalidOTPCode *custom_err.ErrInvalidOTPCode
-		if errors.As(err, &errInvalidOTPCode) {
-			rest.NewConflictResponse(c, errInvalidOTPCode.Error())
-			return
-		}
-
-		var errAPIKeyAlreadyActivated *custom_err.ErrAPIKeyAlreadyActivated
-		if errors.As(err, &errAPIKeyAlreadyActivated) {
-			rest.NewConflictResponse(c, errAPIKeyAlreadyActivated.Error())
-			return
-		}
-
-		e.logger.Error("error on activate api key", "error", err)
-
-		rest.NewUncaughtErrResponse(c, err)
+		rest.HandleHTTPError(c, e.logger, err)
 		return
 	}
 
