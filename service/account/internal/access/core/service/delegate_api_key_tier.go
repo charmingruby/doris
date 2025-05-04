@@ -31,19 +31,20 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 		return custom_err.NewErrNothingToChange()
 	}
 
-	managerAPIKeyID, err := s.apiKeyRepo.FindByID(ctx, in.ManagerAPIKeyID)
+	managerAPIKey, err := s.apiKeyRepo.FindByID(ctx, in.ManagerAPIKeyID)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
 	}
 
-	if managerAPIKeyID.ID == "" {
+	if managerAPIKey.ID == "" {
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	isAdmin := managerAPIKeyID.Tier == model.API_KEY_TIER_ADMIN
+	isAdmin := managerAPIKey.Tier == model.API_KEY_TIER_ADMIN
 
-	if !isAdmin && in.NewTier == string(model.API_KEY_TIER_ADMIN) {
+	if !isAdmin &&
+		(apiKey.Tier == model.API_KEY_TIER_ADMIN || in.NewTier == string(model.API_KEY_TIER_ADMIN)) {
 		return custom_err.NewErrInsufficientPermission()
 	}
 

@@ -75,3 +75,13 @@ func NewOKResponse(c *gin.Context, msg string, data any) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func NewUnauthorizedResponse(c *gin.Context) {
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"error": "unauthorized",
+	})
+}
+
+func NewNoContentResponse(c *gin.Context) {
+	c.Status(http.StatusNoContent)
+}

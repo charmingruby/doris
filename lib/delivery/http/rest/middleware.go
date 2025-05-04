@@ -81,7 +81,7 @@ func (m *Middleware) RBAC(allowedTiers ...string) gin.HandlerFunc {
 
 		token := parts[1]
 
-		_, payload, err := m.jwt.Validate(token)
+		sub, payload, err := m.jwt.Validate(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "invalid token",
@@ -99,6 +99,9 @@ func (m *Middleware) RBAC(allowedTiers ...string) gin.HandlerFunc {
 
 			return
 		}
+
+		c.Set("api-key-id", sub)
+		c.Set("tier", payload.Tier)
 
 		c.Next()
 	}

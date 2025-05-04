@@ -40,7 +40,6 @@ func (e *Endpoint) Register() {
 
 	apiKey.POST("/generate", e.makeGenerateAPIKey)
 	apiKey.POST("/:id/activate", e.makeActivateAPIKey)
-	// TODO
 	apiKey.POST("/:id/delegate",
 		e.mw.RBAC(
 			model.API_KEY_TIER_MANAGER,
