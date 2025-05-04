@@ -62,7 +62,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 			SentAt:        time.Now(),
 		}
 
-		if err := s.event.SendOTPNotification(ctx, event); err != nil {
+		if err := s.event.DispatchSendOTPNotification(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 

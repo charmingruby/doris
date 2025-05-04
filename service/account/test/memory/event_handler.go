@@ -17,7 +17,7 @@ func NewEventHandler(pub Publisher) *EventHandler {
 	}
 }
 
-func (h *EventHandler) SendOTPNotification(ctx context.Context, event event.SendOTPNotificationMessage) error {
+func (h *EventHandler) DispatchSendOTPNotification(ctx context.Context, event event.SendOTPNotificationMessage) error {
 	if !h.Pub.IsHealthy {
 		return ErrUnhealthyDatasource
 	}
@@ -30,7 +30,7 @@ func (h *EventHandler) SendOTPNotification(ctx context.Context, event event.Send
 	return h.Pub.Publish(ctx, "send_otp_notification", msg)
 }
 
-func (h *EventHandler) SendNewAPIKeyDelegation(ctx context.Context, event event.SendNewAPIKeyDelegationMessage) error {
+func (h *EventHandler) DispatchAPIKeyDelegation(ctx context.Context, event event.APIKeyDelegationMessage) error {
 	if !h.Pub.IsHealthy {
 		return ErrUnhealthyDatasource
 	}

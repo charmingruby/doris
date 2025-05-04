@@ -54,7 +54,7 @@ func (s *Service) SignInIntent(ctx context.Context, in SignInIntentInput) error 
 			SentAt:        time.Now(),
 		}
 
-		if err := s.event.SendOTPNotification(ctx, event); err != nil {
+		if err := s.event.DispatchSendOTPNotification(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 

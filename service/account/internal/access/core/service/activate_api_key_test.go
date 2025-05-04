@@ -40,7 +40,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            dummyAPIKey.ID,
 			To:            dummyAPIKey.Email,
 			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
@@ -125,7 +125,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            dummyAPIKey.ID,
 			To:            dummyAPIKey.Email,
 			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
@@ -161,7 +161,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            dummyAPIKey.ID,
 			To:            dummyAPIKey.Email,
 			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,
@@ -194,7 +194,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            dummyAPIKey.ID,
 			To:            dummyAPIKey.Email,
 			RecipientName: dummyAPIKey.FirstName + " " + dummyAPIKey.LastName,

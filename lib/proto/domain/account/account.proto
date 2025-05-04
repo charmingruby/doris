@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package account;
+
+option go_package = "github.com/charmingruby/doris/lib/proto/gen/account";
+
+import "google/protobuf/timestamp.proto";
+
+message ApiKeyDelegation {
+    string id = 1;
+    string new_tier = 2;
+    string old_tier = 3;
+    google.protobuf.Timestamp sent_at = 5;
+};

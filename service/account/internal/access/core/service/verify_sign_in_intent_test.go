@@ -43,7 +43,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            validAPIKey.ID,
 			To:            validAPIKey.Email,
 			RecipientName: validAPIKey.FirstName + " " + validAPIKey.LastName,
@@ -82,7 +82,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            validAPIKey.ID,
 			To:            validAPIKey.Email,
 			RecipientName: validAPIKey.FirstName + " " + validAPIKey.LastName,
@@ -155,7 +155,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            validAPIKey.ID,
 			To:            validAPIKey.Email,
 			RecipientName: validAPIKey.FirstName + " " + validAPIKey.LastName,
@@ -194,7 +194,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            validAPIKey.ID,
 			To:            validAPIKey.Email,
 			RecipientName: validAPIKey.FirstName + " " + validAPIKey.LastName,
@@ -236,7 +236,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
-		err = s.evtHandler.SendOTPNotification(ctx, event.SendOTPNotificationMessage{
+		err = s.evtHandler.DispatchSendOTPNotification(ctx, event.SendOTPNotificationMessage{
 			ID:            validAPIKey.ID,
 			To:            validAPIKey.Email,
 			RecipientName: validAPIKey.FirstName + " " + validAPIKey.LastName,

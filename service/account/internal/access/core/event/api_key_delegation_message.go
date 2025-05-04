@@ -2,7 +2,7 @@ package event
 
 import "time"
 
-type SendNewAPIKeyDelegationMessage struct {
+type APIKeyDelegationMessage struct {
 	ID      string
 	NewTier string
 	OldTier string
