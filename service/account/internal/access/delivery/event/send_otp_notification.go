@@ -11,20 +11,20 @@ import (
 )
 
 func (h *Handler) SendOTPNotification(ctx context.Context, event event.SendOTPNotificationMessage) error {
-	envelope := notification.Envelope{
+	notification := notification.Notification{
 		Id:            event.ID,
 		To:            event.To,
 		RecipientName: event.RecipientName,
 		SentAt:        timestamppb.New(event.SentAt),
-		Type:          notification.EnvelopeType_OTP,
-		Content: &notification.Envelope_Otp{
+		Type:          notification.NotificationType_OTP,
+		Content: &notification.Notification_Otp{
 			Otp: &notification.OTPContent{
 				Code: event.Code,
 			},
 		},
 	}
 
-	msgBytes, err := proto.Marshal(&envelope)
+	msgBytes, err := proto.Marshal(&notification)
 	if err != nil {
 		return custom_err.NewErrSerializationFailed(err)
 	}
@@ -35,7 +35,7 @@ func (h *Handler) SendOTPNotification(ctx context.Context, event event.SendOTPNo
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)
 	}
 
-	h.logger.Debug("sent otp notification event", "message", &envelope)
+	h.logger.Debug("sent otp notification event", "message", &notification)
 
 	return nil
 }

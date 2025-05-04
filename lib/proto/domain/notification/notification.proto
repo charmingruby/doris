@@ -6,7 +6,7 @@ option go_package = "github.com/charmingruby/doris/lib/proto/gen/notification";
 
 import "google/protobuf/timestamp.proto";
 
-enum EnvelopeType{
+enum NotificationType{
     UNSPECIFIED = 0;
     OTP = 1;
 };
@@ -15,10 +15,10 @@ message OTPContent {
   string code = 1;
 };
 
-message Envelope {
+message Notification {
   string id = 1;
   string to = 2;
-  EnvelopeType type = 3;      
+  NotificationType type = 3;      
   string recipient_name = 4;
   google.protobuf.Timestamp sent_at = 5;
 

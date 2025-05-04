@@ -13,27 +13,27 @@ import (
 
 func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 	return h.sub.Subscribe(ctx, h.topics[otpNotificationIdentifier], func(message []byte) error {
-		var envelope notification.Envelope
+		var n notification.Notification
 
-		if err := proto.Unmarshal(message, &envelope); err != nil {
-			h.logger.Error("failed to unmarshal envelope", "error", err)
+		if err := proto.Unmarshal(message, &n); err != nil {
+			h.logger.Error("failed to unmarshal message", "error", err)
 
 			return custom_err.NewErrSerializationFailed(err)
 		}
 
-		if envelope.Type != notification.EnvelopeType_OTP {
-			h.logger.Error("received unknown notification", "envelope", &envelope)
+		if n.Type != notification.NotificationType_OTP {
+			h.logger.Error("received unknown notification", "message", &n)
 
-			return custom_err.NewErrSerializationFailed(errors.New("unsupported envelope type"))
+			return custom_err.NewErrSerializationFailed(errors.New("unsupported notification type"))
 		}
 
-		h.logger.Debug("received otp notification", "message", &envelope)
+		h.logger.Debug("received otp notification", "message", &n)
 
 		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
-			CorrelationID: envelope.Id,
-			To:            envelope.To,
-			Content:       envelope.GetOtp().Code,
-			RecipientName: envelope.RecipientName,
+			CorrelationID: n.Id,
+			To:            n.To,
+			Content:       n.GetOtp().Code,
+			RecipientName: n.RecipientName,
 			MessageType:   model.OTPMessageType,
 		}); err != nil {
 			h.logger.Error("failed to dispatch notification", "error", err)
@@ -41,7 +41,7 @@ func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 			return err
 		}
 
-		h.logger.Debug("notification dispatched", "correlation_id", envelope.Id)
+		h.logger.Debug("notification dispatched", "correlation_id", n.Id)
 
 		return nil
 	})
