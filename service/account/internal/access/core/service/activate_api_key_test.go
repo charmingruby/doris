@@ -29,7 +29,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 	s.NoError(err)
 
-	s.Run("it should confirm the api key", func() {
+	s.Run("it should activate the api key", func() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
@@ -67,7 +67,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.Equal(verifiedAPIKey.Tier, tokenPayload.Payload.Tier)
 	})
 
-	s.Run("it should be not able to confirm the api key if the datasource operation fails", func() {
+	s.Run("it should be not able to activate the api key if the datasource operation fails", func() {
 		ctx := context.Background()
 
 		s.apiKeyRepo.IsHealthy = false
@@ -83,7 +83,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &dsErr), "error should be of type ErrDatasourceOperationFailed")
 	})
 
-	s.Run("it should be not able to confirm the api key if the api key is not found", func() {
+	s.Run("it should be not able to activate the api key if the api key is not found", func() {
 		ctx := context.Background()
 
 		_, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
@@ -97,7 +97,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &resourceNotFoundErr), "error should be of type ErrResourceNotFound")
 	})
 
-	s.Run("it should be not able to confirm the api key if the otp is not found", func() {
+	s.Run("it should be not able to activate the api key if the otp is not found", func() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
@@ -114,7 +114,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &resourceNotFoundErr), "error should be of type ErrResourceNotFound")
 	})
 
-	s.Run("it should be not able to confirm the api key if the confirmation code does not match", func() {
+	s.Run("it should be not able to activate the api key if the confirmation code does not match", func() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
@@ -147,7 +147,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &invalidOTPCodeErr), "error should be of type ErrInvalidOTPCode")
 	})
 
-	s.Run("it should be not able to confirm the api key if the confirmation code has expired", func() {
+	s.Run("it should be not able to activate the api key if the confirmation code has expired", func() {
 		ctx := context.Background()
 
 		expiredOTP := *dummyOTP
@@ -183,7 +183,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		s.True(errors.As(err, &invalidOTPCodeErr), "error should be of type ErrInvalidOTPCode")
 	})
 
-	s.Run("it should be not able to confirm the api key if the api key is already confirmed", func() {
+	s.Run("it should be not able to activate the api key if the api key is already activated", func() {
 		ctx := context.Background()
 
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)

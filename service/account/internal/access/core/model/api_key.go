@@ -8,10 +8,8 @@ import (
 
 // Represents the status of the API key
 const (
-	API_KEY_STATUS_NONE      = "NONE"
 	API_KEY_STATUS_PENDING   = "PENDING"
 	API_KEY_STATUS_ACTIVE    = "ACTIVE"
-	API_KEY_STATUS_EXPIRED   = "EXPIRED"
 	API_KEY_STATUS_DEFAULTER = "DEFAULTER"
 	API_KEY_STATUS_INACTIVE  = "INACTIVE"
 )
@@ -38,7 +36,7 @@ func NewAPIKey(in APIKeyInput) *APIKey {
 		LastName:  in.LastName,
 		Email:     in.Email,
 		Key:       in.Key,
-		Status:    API_KEY_STATUS_NONE,
+		Status:    API_KEY_STATUS_PENDING,
 		Tier:      API_KEY_TIER_ROOKIE,
 		CreatedAt: time.Now(),
 	}

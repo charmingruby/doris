@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/security"
+	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 )
 
 type VerifySignInIntentInput struct {
@@ -22,6 +23,12 @@ func (s *Service) VerifySignInIntent(ctx context.Context, in VerifySignInIntentI
 
 	if ak.ID == "" {
 		return "", custom_err.NewErrResourceNotFound("api key")
+	}
+
+	hasSufficientPermission := ak.Status == model.API_KEY_STATUS_ACTIVE || ak.Status == model.API_KEY_STATUS_DEFAULTER
+
+	if !hasSufficientPermission {
+		return "", custom_err.NewErrInsufficientPermission()
 	}
 
 	otp, err := s.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)

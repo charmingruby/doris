@@ -53,3 +53,14 @@ func (e *ErrAPIKeyAlreadyActivated) Error() string {
 func NewErrAPIKeyAlreadyActivated() error {
 	return &ErrAPIKeyAlreadyActivated{}
 }
+
+// Represents a action with insufficient permission.
+type ErrInsufficientPermission struct{}
+
+func (e *ErrInsufficientPermission) Error() string {
+	return "insufficient permission"
+}
+
+func NewErrInsufficientPermission() error {
+	return &ErrInsufficientPermission{}
+}

@@ -49,7 +49,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 	})
 
-	s.Run("it should return an error if datasource fails", func() {
+	s.Run("it should be not able to create a new api key if datasource fails", func() {
 		s.apiKeyRepo.IsHealthy = false
 
 		_, err := s.svc.GenerateAPIKey(context.Background(), validInput)
@@ -59,7 +59,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.True(errors.As(err, &dsErr), "error should be of type ErrDatasourceOperationFailed")
 	})
 
-	s.Run("it should return an error if the api key already exists", func() {
+	s.Run("it should be not able to create a new api key if the api key already exists", func() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
@@ -70,7 +70,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.True(errors.As(err, &errResourceAlreadyExists), "error should be of type ErrResourceAlreadyExists")
 	})
 
-	s.Run("it should return an error if the messaging fails", func() {
+	s.Run("it should be not able to create a new api key if the messaging fails", func() {
 		s.evtHandler.Pub.IsHealthy = false
 
 		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
@@ -83,7 +83,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.True(errors.As(err, &errMessaging), "error should be of type ErrMessagingWrapper")
 	})
 
-	s.Run("it should rollback if there is an error inside the transaction", func() {
+	s.Run("it should be not able to create a new api key if there is an error inside the transaction", func() {
 		s.evtHandler.Pub.IsHealthy = false
 
 		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)

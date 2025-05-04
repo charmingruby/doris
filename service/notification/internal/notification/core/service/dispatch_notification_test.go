@@ -17,7 +17,7 @@ func (s *Suite) Test_DispatchNotification() {
 		MessageType:   model.OTPMessageType,
 	}
 
-	s.Run("should perform successfully the notification dispatch", func() {
+	s.Run("it should dispatch a notification", func() {
 		err := s.svc.DispatchNotification(context.Background(), validInput)
 		s.NoError(err)
 
@@ -37,7 +37,7 @@ func (s *Suite) Test_DispatchNotification() {
 		s.Equal(validInput.MessageType, sentNotification.MessageType)
 	})
 
-	s.Run("should return an error when the notification client dispatch fails", func() {
+	s.Run("it should be not able to dispatch a notification if the notification client fails", func() {
 		s.notifierClient.IsHealthy = false
 
 		err := s.svc.DispatchNotification(context.Background(), validInput)
@@ -50,7 +50,7 @@ func (s *Suite) Test_DispatchNotification() {
 		s.Equal(0, len(s.notifierClient.Items))
 	})
 
-	s.Run("should return an error when the notification storage fails", func() {
+	s.Run("it should be not able to dispatch a notification if the notification storage fails", func() {
 		s.notificationRepo.IsHealthy = false
 
 		err := s.svc.DispatchNotification(context.Background(), validInput)

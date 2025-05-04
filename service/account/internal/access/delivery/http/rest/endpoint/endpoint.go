@@ -50,4 +50,5 @@ func (e *Endpoint) Register() {
 	)
 
 	auth.POST("/signin", e.makeSignInIntent)
+	auth.POST("/signin/confirm", e.makeVerifySignInIntent)
 }

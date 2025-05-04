@@ -39,11 +39,17 @@ func (e *Endpoint) makeSignInIntent(c *gin.Context) {
 
 		var errResourceNotFound *custom_err.ErrResourceNotFound
 		if errors.As(err, &errResourceNotFound) {
-			rest.NewResourceNotFoundResponse(c, "api key")
+			rest.NewResourceNotFoundResponse(c, errResourceNotFound.Error())
 			return
 		}
 
-		e.logger.Error("error on generate api key", "error", err)
+		var errInsufficentPermission *custom_err.ErrInsufficientPermission
+		if errors.As(err, &errInsufficentPermission) {
+			rest.NewForbiddenResponse(c)
+			return
+		}
+
+		e.logger.Error("error on sign in intent", "error", err)
 
 		rest.NewUncaughtErrResponse(c, err)
 		return

@@ -19,42 +19,42 @@ func NewAPIKeyRepository() *APIKeyRepository {
 }
 
 func (r *APIKeyRepository) FindByID(ctx context.Context, id string) (model.APIKey, error) {
+	if !r.IsHealthy {
+		return model.APIKey{}, ErrUnhealthyDatasource
+	}
+
 	for _, i := range r.Items {
 		if i.ID == id {
 			return i, nil
 		}
 	}
 
-	if !r.IsHealthy {
-		return model.APIKey{}, ErrUnhealthyDatasource
-	}
-
 	return model.APIKey{}, nil
 }
 
 func (r *APIKeyRepository) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
+	if !r.IsHealthy {
+		return model.APIKey{}, ErrUnhealthyDatasource
+	}
+
 	for _, i := range r.Items {
 		if i.Email == email {
 			return i, nil
 		}
 	}
 
-	if !r.IsHealthy {
-		return model.APIKey{}, ErrUnhealthyDatasource
-	}
-
 	return model.APIKey{}, nil
 }
 
 func (r *APIKeyRepository) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
+	if !r.IsHealthy {
+		return model.APIKey{}, ErrUnhealthyDatasource
+	}
+
 	for _, i := range r.Items {
 		if i.Key == key {
 			return i, nil
 		}
-	}
-
-	if !r.IsHealthy {
-		return model.APIKey{}, ErrUnhealthyDatasource
 	}
 
 	return model.APIKey{}, nil

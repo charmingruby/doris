@@ -25,6 +25,12 @@ func (s *Service) SignInIntent(ctx context.Context, in SignInIntentInput) error 
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
+	hasSufficientPermission := ak.Status == model.API_KEY_STATUS_ACTIVE || ak.Status == model.API_KEY_STATUS_DEFAULTER
+
+	if !hasSufficientPermission {
+		return custom_err.NewErrInsufficientPermission()
+	}
+
 	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
 		otp, err := model.NewOTP(model.OTPInput{
 			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,

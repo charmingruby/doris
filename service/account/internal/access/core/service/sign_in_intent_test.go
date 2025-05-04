@@ -25,7 +25,10 @@ func (s *Suite) Test_SignInIntent() {
 	})
 
 	s.Run("it should dispatch an otp for sign in", func() {
-		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
+		validAPIKey := dummyAPIKey
+		validAPIKey.Status = model.API_KEY_STATUS_ACTIVE
+
+		err := s.apiKeyRepo.Create(context.Background(), validAPIKey)
 		s.NoError(err)
 
 		err = s.svc.SignInIntent(context.Background(), validInput)
@@ -41,8 +44,11 @@ func (s *Suite) Test_SignInIntent() {
 		s.True(timeDiff < time.Second && timeDiff > -time.Second, "expiration time should be within 1 second of expected time")
 	})
 
-	s.Run("it should rollback if there is an error inside the transaction", func() {
-		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
+	s.Run("it should be not able to dispatch an otp for sign in if there is an error inside the transaction", func() {
+		validAPIKey := dummyAPIKey
+		validAPIKey.Status = model.API_KEY_STATUS_ACTIVE
+
+		err := s.apiKeyRepo.Create(context.Background(), validAPIKey)
 		s.NoError(err)
 
 		s.evtHandler.Pub.IsHealthy = false
@@ -54,7 +60,7 @@ func (s *Suite) Test_SignInIntent() {
 		s.Equal(0, len(s.otpRepo.Items))
 	})
 
-	s.Run("it should return an error if the api key does not exists", func() {
+	s.Run("it should be not able to dispatch an otp for sign in if the api key does not exists", func() {
 		err := s.svc.SignInIntent(context.Background(), validInput)
 		s.Error(err)
 
@@ -62,8 +68,11 @@ func (s *Suite) Test_SignInIntent() {
 		s.True(errors.As(err, &errResourceNotFound), "error should be of type ErrResourceNotFound")
 	})
 
-	s.Run("it should return an error if datasource fails", func() {
-		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
+	s.Run("it should be not able to dispatch an otp for sign in if datasource fails", func() {
+		validAPIKey := dummyAPIKey
+		validAPIKey.Status = model.API_KEY_STATUS_ACTIVE
+
+		err := s.apiKeyRepo.Create(context.Background(), validAPIKey)
 		s.NoError(err)
 
 		s.otpRepo.IsHealthy = false
@@ -75,8 +84,11 @@ func (s *Suite) Test_SignInIntent() {
 		s.True(errors.As(err, &dsErr), "error should be of type ErrDatasourceOperationFailed")
 	})
 
-	s.Run("it should return an error if the messaging fails", func() {
-		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
+	s.Run("it should be not able to dispatch an otp for sign in if the messaging fails", func() {
+		validAPIKey := dummyAPIKey
+		validAPIKey.Status = model.API_KEY_STATUS_ACTIVE
+
+		err := s.apiKeyRepo.Create(context.Background(), validAPIKey)
 		s.NoError(err)
 
 		s.evtHandler.Pub.IsHealthy = false
@@ -87,5 +99,19 @@ func (s *Suite) Test_SignInIntent() {
 
 		var errMessaging *custom_err.ErrMessagingWrapper
 		s.True(errors.As(err, &errMessaging), "error should be of type ErrMessagingWrapper")
+	})
+
+	s.Run("it should be not able to dispatch an otp for sign in if api key has insufficient permission", func() {
+		invalidAPIKey := dummyAPIKey
+		invalidAPIKey.Status = model.API_KEY_STATUS_PENDING
+
+		err := s.apiKeyRepo.Create(context.Background(), invalidAPIKey)
+		s.NoError(err)
+
+		err = s.svc.SignInIntent(context.Background(), validInput)
+		s.Error(err)
+
+		var errInsufficientPermission *custom_err.ErrInsufficientPermission
+		s.True(errors.As(err, &errInsufficientPermission), "error should be of type ErrInsufficientPermission")
 	})
 }

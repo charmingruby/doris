@@ -37,7 +37,7 @@ func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
 	if err != nil {
 		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists
 		if errors.As(err, &errResourceAlreadyExists) {
-			rest.NewResourceAlreadyExistsResponse(c, "api key")
+			rest.NewResourceAlreadyExistsResponse(c, errResourceAlreadyExists.Error())
 			return
 		}
 

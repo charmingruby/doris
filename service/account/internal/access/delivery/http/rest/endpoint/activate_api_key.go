@@ -45,7 +45,7 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 	if err != nil {
 		var errResourceNotFound *custom_err.ErrResourceNotFound
 		if errors.As(err, &errResourceNotFound) {
-			rest.NewResourceNotFoundResponse(c, "api key")
+			rest.NewResourceNotFoundResponse(c, errResourceNotFound.Error())
 			return
 		}
 
@@ -61,7 +61,7 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 			return
 		}
 
-		e.logger.Error("error on generate api key", "error", err)
+		e.logger.Error("error on activate api key", "error", err)
 
 		rest.NewUncaughtErrResponse(c, err)
 		return
