@@ -5,41 +5,27 @@ import (
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
-type GenerateAPIKeyInput struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+type SignInIntentInput struct {
+	Email string `json:"email"`
 }
 
-func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
-	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
+func (s *Service) SignInIntent(ctx context.Context, in SignInIntentInput) error {
+	ak, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
-		return "", custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
+		return custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
 	}
 
-	if apiKey.ID != "" {
-		return "", custom_err.NewErrResourceAlreadyExists("api key")
+	if ak.ID == "" {
+		return custom_err.NewErrResourceNotFound("api key")
 	}
-
-	ak := model.NewAPIKey(model.APIKeyInput{
-		FirstName: in.FirstName,
-		LastName:  in.LastName,
-		Email:     in.Email,
-		Key:       id.New(),
-	})
 
 	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
-		if err := tx.APIKeyRepo.Create(ctx, *ak); err != nil {
-			return custom_err.NewErrDatasourceOperationFailed("create api key", err)
-		}
-
 		otp, err := model.NewOTP(model.OTPInput{
 			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
 			CorrelationID: ak.ID,
@@ -66,16 +52,10 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 
-		ak.Status = model.API_KEY_STATUS_PENDING
-
-		if err := tx.APIKeyRepo.Update(ctx, *ak); err != nil {
-			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
-		}
-
 		return nil
 	}); err != nil {
-		return "", err
+		return err
 	}
 
-	return ak.ID, nil
+	return nil
 }
