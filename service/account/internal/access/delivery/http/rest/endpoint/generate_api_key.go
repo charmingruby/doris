@@ -47,5 +47,5 @@ func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
 		return
 	}
 
-	rest.NewCreatedResponse(c, id, "api key")
+	rest.NewCreatedResponse(c, "confirmation code sent", id, "api key")
 }
