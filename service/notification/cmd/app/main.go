@@ -14,8 +14,8 @@ import (
 	"github.com/charmingruby/doris/lib/persistence/dynamo"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification"
+	"github.com/charmingruby/doris/service/notification/internal/notification/provider/notifier"
 	"github.com/charmingruby/doris/service/notification/internal/platform"
-	"github.com/charmingruby/doris/service/notification/test/memory"
 	"github.com/gin-gonic/gin"
 )
 
@@ -80,7 +80,10 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, tableName st
 		return err
 	}
 
-	notifier := memory.NewNotifier()
+	notifier, err := notifier.NewSES(cfg.Custom.AWSRegion, cfg.Custom.SourceEmail)
+	if err != nil {
+		return err
+	}
 
 	notificationSvc := notification.NewService(logger, notificationDatasource, notifier)
 

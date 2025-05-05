@@ -26,6 +26,7 @@ func NewNotification(in NotificationInput) *Notification {
 		CorrelationID:    in.CorrelationID,
 		To:               in.To,
 		RecipientName:    in.RecipientName,
+		Content:          in.Content,
 		NotificationType: in.NotificationType,
 		CreatedAt:        time.Now(),
 	}
@@ -36,6 +37,7 @@ type Notification struct {
 	CorrelationID    string           `json:"correlation_id"`
 	To               string           `json:"to"`
 	RecipientName    string           `json:"recipient_name"`
+	Content          string           `json:"content"`
 	NotificationType NotificationType `json:"notification_type"`
 	CreatedAt        time.Time        `json:"created_at"`
 }

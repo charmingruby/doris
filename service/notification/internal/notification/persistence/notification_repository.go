@@ -37,6 +37,7 @@ func (r *NotificationRepository) Create(ctx context.Context, notification model.
 		"correlationId": notification.CorrelationID,
 		"to":            notification.To,
 		"recipientName": notification.RecipientName,
+		"content":       notification.Content,
 		"timestamp":     notification.CreatedAt.Unix(),
 		"createdAt":     notification.CreatedAt.Format(time.RFC3339),
 		"ttl":           ttl,

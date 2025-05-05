@@ -13,6 +13,7 @@ type CustomConfig struct {
 	NotificatiosnDynamoTable string `env:"NOTIFICATIONS_DYNAMO_TABLE,required"`
 	NatsStream               string `env:"NATS_STREAM,required"`
 	SendOTPNotificationTopic string `env:"SEND_OTP_NOTIFICATION_TOPIC,required"`
+	SourceEmail              string `env:"SOURCE_EMAIL,required"`
 }
 
 func New() (Config, error) {
