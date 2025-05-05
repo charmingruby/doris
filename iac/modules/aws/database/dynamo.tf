@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "notifications" {
-  name         = "Notifications"
+  name         = "notifications"
   billing_mode = "PAY_PER_REQUEST"
 
   hash_key  = "PK"
@@ -48,4 +48,8 @@ resource "aws_dynamodb_table" "notifications" {
     range_key       = "timestamp"
     projection_type = "ALL"
   }
+
+  tags = merge(var.tags, {
+    Name = "notifications"
+  })
 }
