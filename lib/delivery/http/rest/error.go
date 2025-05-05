@@ -24,6 +24,9 @@ func HandleHTTPError(c *gin.Context, logger *instrumentation.Logger, err error) 
 		NewUnprocessableEntityResponse(c, e.Error())
 	case *custom_err.ErrResourceAlreadyExists:
 		NewResourceAlreadyExistsResponse(c, e.Error())
+	case *custom_err.ErrOTPGenerationCooldown:
+		NewTooManyRequestsResponse(c, err.Error())
+
 	default:
 		logger.Error("uncaught error",
 			"error", err,

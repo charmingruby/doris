@@ -52,6 +52,12 @@ func NewResourceAlreadyExistsResponse(c *gin.Context, msg string) {
 	})
 }
 
+func NewTooManyRequestsResponse(c *gin.Context, msg string) {
+	c.JSON(http.StatusTooManyRequests, gin.H{
+		"error": msg,
+	})
+}
+
 func NewResourceNotFoundResponse(c *gin.Context, msg string) {
 	c.JSON(http.StatusNotFound, gin.H{
 		"error": msg,

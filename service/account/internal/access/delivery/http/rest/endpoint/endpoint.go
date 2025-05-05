@@ -35,11 +35,12 @@ func New(
 
 func (e *Endpoint) Register() {
 	api := e.r.Group("/api")
-	apiKey := api.Group("/api-key")
-	auth := api.Group("/sessions")
+	apiKey := api.Group("/api-keys")
+	session := api.Group("/sessions")
 
 	apiKey.POST("/generate", e.makeGenerateAPIKey)
 	apiKey.PATCH("/:id/activate", e.makeActivateAPIKey)
+	apiKey.POST("/:id/resend", e.makeResendAPIKeyActivation)
 	apiKey.PATCH("/:id/delegate",
 		e.mw.RBAC(
 			model.API_KEY_TIER_MANAGER,
@@ -48,6 +49,6 @@ func (e *Endpoint) Register() {
 		e.makeDelegateAPIKeyTier,
 	)
 
-	auth.POST("/", e.makeSignInIntent)
-	auth.POST("/confirm", e.makeVerifySignInIntent)
+	session.POST("/", e.makeSignInIntent)
+	session.POST("/confirm", e.makeVerifySignInIntent)
 }

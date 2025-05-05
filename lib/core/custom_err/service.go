@@ -75,3 +75,14 @@ func (e *ErrNothingToChange) Error() string {
 func NewErrNothingToChange() error {
 	return &ErrNothingToChange{}
 }
+
+// Represents an intent to modify something that does not change nothing.
+type ErrOTPGenerationCooldown struct{}
+
+func (e *ErrOTPGenerationCooldown) Error() string {
+	return "unable to generate new otp code yet"
+}
+
+func NewErrOTPGenerationCooldown() error {
+	return &ErrOTPGenerationCooldown{}
+}
