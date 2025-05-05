@@ -3,3 +3,9 @@ module "remote_state" {
 
   tags = local.tags
 }
+
+module "database" {
+  source = "./modules/aws/database"
+
+  tags = local.tags
+}
