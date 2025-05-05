@@ -1,4 +1,11 @@
-project     = "doris"
-environment = "dev"
-managed_by  = "terraform"
-created_at  = "01/05/2025"
+project      = "doris"
+environment  = "dev"
+managed_by   = "terraform"
+created_at   = "01/05/2025"
+sender_email = "sample@gmail.com"
+recipient_emails = [
+  "recipient_email1@gmail.com",
+  "recipient_email2@gmail.com",
+  "recipient_email3@gmail.com",
+  "recipient_email4@gmail.com"
+]
