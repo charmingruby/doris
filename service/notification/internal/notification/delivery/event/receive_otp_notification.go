@@ -30,11 +30,11 @@ func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 		h.logger.Debug("received otp notification", "message", &n)
 
 		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
-			CorrelationID: n.Id,
-			To:            n.To,
-			Content:       n.GetOtp().Code,
-			RecipientName: n.RecipientName,
-			MessageType:   model.OTPMessageType,
+			CorrelationID:    n.Id,
+			To:               n.To,
+			Content:          n.GetOtp().Code,
+			RecipientName:    n.RecipientName,
+			NotificationType: model.OTPNotification,
 		}); err != nil {
 			h.logger.Error("failed to dispatch notification", "error", err)
 

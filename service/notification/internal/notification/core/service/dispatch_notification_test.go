@@ -10,11 +10,11 @@ import (
 
 func (s *Suite) Test_DispatchNotification() {
 	validInput := DispatchNotificationInput{
-		CorrelationID: "123",
-		To:            "test@test.com",
-		RecipientName: "Test",
-		Content:       "Test",
-		MessageType:   model.OTPMessageType,
+		CorrelationID:    "123",
+		To:               "test@test.com",
+		RecipientName:    "Test",
+		Content:          "Test",
+		NotificationType: model.OTPNotification,
 	}
 
 	s.Run("it should dispatch a notification", func() {
@@ -28,13 +28,13 @@ func (s *Suite) Test_DispatchNotification() {
 		s.Equal(validInput.CorrelationID, storedNotification.CorrelationID)
 		s.Equal(validInput.To, storedNotification.To)
 		s.Equal(validInput.RecipientName, storedNotification.RecipientName)
-		s.Equal(validInput.MessageType, storedNotification.MessageType)
+		s.Equal(validInput.NotificationType, storedNotification.NotificationType)
 
 		s.Equal(1, len(s.notifierClient.Items))
 		s.Equal(validInput.CorrelationID, sentNotification.CorrelationID)
 		s.Equal(validInput.To, sentNotification.To)
 		s.Equal(validInput.RecipientName, sentNotification.RecipientName)
-		s.Equal(validInput.MessageType, sentNotification.MessageType)
+		s.Equal(validInput.NotificationType, sentNotification.NotificationType)
 	})
 
 	s.Run("it should be not able to dispatch a notification if the notification client fails", func() {
