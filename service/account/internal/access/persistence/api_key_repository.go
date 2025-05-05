@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
@@ -64,6 +65,9 @@ func (r *APIKeyRepo) statement(queryName string) (*sqlx.Stmt, error) {
 }
 
 func (r *APIKeyRepo) FindByID(ctx context.Context, id string) (model.APIKey, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(findAPIKeyByID)
 	if err != nil {
 		return model.APIKey{}, err
@@ -82,6 +86,9 @@ func (r *APIKeyRepo) FindByID(ctx context.Context, id string) (model.APIKey, err
 }
 
 func (r *APIKeyRepo) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(findAPIKeyByEmail)
 	if err != nil {
 		return model.APIKey{}, err
@@ -100,6 +107,9 @@ func (r *APIKeyRepo) FindByEmail(ctx context.Context, email string) (model.APIKe
 }
 
 func (r *APIKeyRepo) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(findAPIKeyByID)
 	if err != nil {
 		return model.APIKey{}, err
@@ -118,12 +128,16 @@ func (r *APIKeyRepo) FindByKey(ctx context.Context, key string) (model.APIKey, e
 }
 
 func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(createAPIKey)
 	if err != nil {
 		return err
 	}
 
-	if _, err := stmt.Exec(
+	if _, err := stmt.ExecContext(
+		ctx,
 		apiKey.ID,
 		apiKey.FirstName,
 		apiKey.LastName,
@@ -139,12 +153,15 @@ func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
 }
 
 func (r *APIKeyRepo) Update(ctx context.Context, apiKey model.APIKey) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(updateAPIKey)
 	if err != nil {
 		return err
 	}
 
-	if _, err := stmt.Exec(apiKey.Status, apiKey.Tier, apiKey.ID); err != nil {
+	if _, err := stmt.ExecContext(ctx, apiKey.Status, apiKey.Tier, apiKey.ID); err != nil {
 		return err
 	}
 

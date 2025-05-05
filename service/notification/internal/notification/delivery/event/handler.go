@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"time"
 
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
@@ -38,8 +37,7 @@ func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *s
 }
 
 func (h *Handler) Subscribe() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	if err := h.receiveOTPNotification(ctx); err != nil {
 		return err

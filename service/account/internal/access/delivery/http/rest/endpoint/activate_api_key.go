@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"context"
-	"time"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
@@ -18,9 +17,6 @@ type ActivateAPIKeyResponse struct {
 }
 
 func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
-	defer cancel()
-
 	var req ActivateAPIKeyRequest
 	if err := c.BindJSON(&req); err != nil {
 		reasons := e.val.UnwrapValidationErr(err)
@@ -35,7 +31,7 @@ func (e *Endpoint) makeActivateAPIKey(c *gin.Context) {
 		return
 	}
 
-	token, err := e.svc.ActivateAPIKey(ctx, service.ActivateAPIKeyInput{
+	token, err := e.svc.ActivateAPIKey(context.Background(), service.ActivateAPIKeyInput{
 		APIKeyID: apiKeyID,
 		OTP:      req.OTP,
 	})

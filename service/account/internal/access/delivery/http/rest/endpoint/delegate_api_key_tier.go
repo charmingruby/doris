@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"context"
-	"time"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
@@ -14,9 +13,6 @@ type DelegateAPIKeyTier struct {
 }
 
 func (e *Endpoint) makeDelegateAPIKeyTier(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
-	defer cancel()
-
 	var req DelegateAPIKeyTier
 	if err := c.BindJSON(&req); err != nil {
 		reasons := e.val.UnwrapValidationErr(err)
@@ -37,7 +33,7 @@ func (e *Endpoint) makeDelegateAPIKeyTier(c *gin.Context) {
 		return
 	}
 
-	if err := e.svc.DelegateAPIKeyTier(ctx, service.DelegateAPIKeyTierInput{
+	if err := e.svc.DelegateAPIKeyTier(context.Background(), service.DelegateAPIKeyTierInput{
 		ManagerAPIKeyID:  managerAPIKeyID,
 		APIKeyIDToChange: apiKeyID,
 		NewTier:          req.NewTier,

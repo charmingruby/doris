@@ -11,6 +11,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	"github.com/charmingruby/doris/lib/persistence/dynamo"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification"
 	"github.com/charmingruby/doris/service/notification/internal/platform"
@@ -43,9 +44,18 @@ func main() {
 
 	logger.Info("nats subscriber created successfully")
 
+	db, err := dynamo.New(logger, dynamo.ConnectionInput{
+		Region: cfg.Custom.AWSRegion,
+	})
+	if err != nil {
+		logger.Error("failed to create dynamo connection", "error", err)
+		return
+	}
+	logger.Info("dynamo connection created successfully")
+
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	if err := initModules(logger, cfg, router, sub); err != nil {
+	if err := initModules(logger, cfg, cfg.Custom.NotificatiosnDynamoTable, db, router, sub); err != nil {
 		logger.Error("failed to initialize modules", "error", err)
 		return
 	}
@@ -64,8 +74,8 @@ func main() {
 	gracefulShutdown(logger, server, sub)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber) error {
-	notificationDatasource, err := notification.NewDatasource()
+func initModules(logger *instrumentation.Logger, cfg config.Config, tableName string, db *dynamo.Client, r *gin.Engine, sub *nats.Subscriber) error {
+	notificationDatasource, err := notification.NewDatasource(tableName, db)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
@@ -58,12 +59,15 @@ func (r *OTPRepo) statement(queryName string) (*sqlx.Stmt, error) {
 }
 
 func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(createOTP)
 	if err != nil {
 		return err
 	}
 
-	if _, err := stmt.Exec(otp.ID, otp.CorrelationID, otp.Code, otp.Purpose, otp.ExpiresAt); err != nil {
+	if _, err := stmt.ExecContext(ctx, otp.ID, otp.CorrelationID, otp.Code, otp.Purpose, otp.ExpiresAt); err != nil {
 		return err
 	}
 
@@ -71,6 +75,9 @@ func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
 }
 
 func (r *OTPRepo) FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	stmt, err := r.statement(findOTPByCorrelationID)
 	if err != nil {
 		return model.OTP{}, err

@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"context"
-	"time"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
@@ -16,9 +15,6 @@ type GenerateAPIKeyRequest struct {
 }
 
 func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
-	defer cancel()
-
 	var req GenerateAPIKeyRequest
 	if err := c.BindJSON(&req); err != nil {
 		reasons := e.val.UnwrapValidationErr(err)
@@ -27,7 +23,7 @@ func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
 		return
 	}
 
-	id, err := e.svc.GenerateAPIKey(ctx, service.GenerateAPIKeyInput{
+	id, err := e.svc.GenerateAPIKey(context.Background(), service.GenerateAPIKeyInput{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,

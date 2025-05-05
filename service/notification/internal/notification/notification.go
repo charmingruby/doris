@@ -3,20 +3,21 @@ package notification
 import (
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	"github.com/charmingruby/doris/lib/persistence/dynamo"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/client"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/repository"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 	"github.com/charmingruby/doris/service/notification/internal/notification/delivery/event"
-	"github.com/charmingruby/doris/service/notification/test/memory"
+	"github.com/charmingruby/doris/service/notification/internal/notification/persistence"
 )
 
 type Datasource struct {
 	notificationRepo repository.NotificationRepository
 }
 
-func NewDatasource() (*Datasource, error) {
-	notificationRepo := memory.NewNotificationRepository()
+func NewDatasource(tableName string, db *dynamo.Client) (*Datasource, error) {
+	notificationRepo := persistence.NewNotificationRepository(db.Conn, tableName)
 
 	return &Datasource{
 		notificationRepo: notificationRepo,
