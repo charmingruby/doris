@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/lib/proto/gen/account"
+	"github.com/charmingruby/doris/lib/delivery/proto/gen/account"
 	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"

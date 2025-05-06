@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/lib/proto/gen/notification"
+	"github.com/charmingruby/doris/lib/delivery/proto/gen/notification"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/model"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 	"google.golang.org/protobuf/proto"

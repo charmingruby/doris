@@ -1,5 +1,5 @@
-PROTO_DIR := proto/domain
-GEN_DIR := proto/gen
+PROTO_DIR := delivery/proto/domain
+GEN_DIR := delivery/proto/gen
 
 .PHONY: gen-proto
 gen-proto: clean
