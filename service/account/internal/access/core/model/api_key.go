@@ -1,29 +1,18 @@
 package model
 
 import (
-	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/id"
+	"github.com/charmingruby/doris/lib/core/privilege"
 )
 
-// Represents the status of the API key
 const (
 	API_KEY_STATUS_PENDING   = "PENDING"
 	API_KEY_STATUS_ACTIVE    = "ACTIVE"
 	API_KEY_STATUS_DEFAULTER = "DEFAULTER"
 	API_KEY_STATUS_INACTIVE  = "INACTIVE"
 )
-
-// Represents the tier of the API key, it's used to determine the permissions of the API key
-const (
-	API_KEY_TIER_ROOKIE  = "ROOKIE"
-	API_KEY_TIER_PRO     = "PRO"
-	API_KEY_TIER_MANAGER = "MANAGER"
-	API_KEY_TIER_ADMIN   = "ADMIN"
-)
-
-var ErrInvalidTier = errors.New("invalid tier")
 
 type APIKeyInput struct {
 	FirstName string `json:"first_name"`
@@ -40,7 +29,7 @@ func NewAPIKey(in APIKeyInput) *APIKey {
 		Email:     in.Email,
 		Key:       in.Key,
 		Status:    API_KEY_STATUS_PENDING,
-		Tier:      API_KEY_TIER_ROOKIE,
+		Tier:      privilege.API_KEY_TIER_ROOKIE,
 		CreatedAt: time.Now(),
 	}
 }
@@ -57,20 +46,5 @@ type APIKey struct {
 }
 
 func (a *APIKey) Validate() error {
-	return a.validateTier()
-}
-
-func (a *APIKey) validateTier() error {
-	tiers := map[string]string{
-		API_KEY_TIER_ROOKIE:  API_KEY_TIER_ROOKIE,
-		API_KEY_TIER_PRO:     API_KEY_TIER_PRO,
-		API_KEY_TIER_MANAGER: API_KEY_TIER_MANAGER,
-		API_KEY_TIER_ADMIN:   API_KEY_TIER_ADMIN,
-	}
-
-	if _, ok := tiers[a.Tier]; !ok {
-		return ErrInvalidTier
-	}
-
-	return nil
+	return privilege.ValidateAPIKeyTier(a.Tier)
 }

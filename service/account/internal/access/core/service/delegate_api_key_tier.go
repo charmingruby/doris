@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/account/internal/access/core/event"
-	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
@@ -41,10 +41,10 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	isAdmin := managerAPIKey.Tier == model.API_KEY_TIER_ADMIN
+	isAdmin := managerAPIKey.Tier == privilege.API_KEY_TIER_ADMIN
 
 	if !isAdmin &&
-		(apiKey.Tier == model.API_KEY_TIER_ADMIN || in.NewTier == string(model.API_KEY_TIER_ADMIN)) {
+		(apiKey.Tier == privilege.API_KEY_TIER_ADMIN || in.NewTier == string(privilege.API_KEY_TIER_ADMIN)) {
 		return custom_err.NewErrInsufficientPermission()
 	}
 

@@ -1,10 +1,10 @@
 package endpoint
 
 import (
+	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 	"github.com/charmingruby/doris/service/account/internal/access/core/service"
 	"github.com/gin-gonic/gin"
 )
@@ -43,8 +43,8 @@ func (e *Endpoint) Register() {
 	apiKey.POST("/:id/resend", e.makeResendAPIKeyActivation)
 	apiKey.PATCH("/:id/delegate",
 		e.mw.RBAC(
-			model.API_KEY_TIER_MANAGER,
-			model.API_KEY_TIER_ADMIN,
+			privilege.API_KEY_TIER_MANAGER,
+			privilege.API_KEY_TIER_ADMIN,
 		),
 		e.makeDelegateAPIKeyTier,
 	)

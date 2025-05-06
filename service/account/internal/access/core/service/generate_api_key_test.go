@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
+	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
 )
 
@@ -38,7 +39,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		s.Equal(validInput.LastName, apiKey.LastName)
 		s.Equal(validInput.Email, apiKey.Email)
 		s.Equal(apiKey.Status, model.API_KEY_STATUS_PENDING)
-		s.Equal(apiKey.Tier, model.API_KEY_TIER_ROOKIE)
+		s.Equal(apiKey.Tier, privilege.API_KEY_TIER_ROOKIE)
 
 		expectedExpiration := time.Now().Add(expirationDelay)
 
