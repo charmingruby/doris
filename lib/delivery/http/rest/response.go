@@ -91,3 +91,9 @@ func NewUnauthorizedResponse(c *gin.Context) {
 func NewNoContentResponse(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
+
+func NewBadRequestResponse(c *gin.Context, msg string) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": msg,
+	})
+}

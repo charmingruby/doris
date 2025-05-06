@@ -12,6 +12,8 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence/dynamo"
+	"github.com/charmingruby/doris/lib/security"
+	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification"
 	"github.com/charmingruby/doris/service/notification/internal/notification/provider/notifier"
@@ -53,9 +55,11 @@ func main() {
 	}
 	logger.Info("dynamo connection created successfully")
 
+	val := validation.NewValidator()
+
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	if err := initModules(logger, cfg, cfg.Custom.NotificatiosnDynamoTable, db, router, sub); err != nil {
+	if err := initModules(logger, cfg, db, router, sub, val); err != nil {
 		logger.Error("failed to initialize modules", "error", err)
 		return
 	}
@@ -74,8 +78,8 @@ func main() {
 	gracefulShutdown(logger, server, sub)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, tableName string, db *dynamo.Client, r *gin.Engine, sub *nats.Subscriber) error {
-	notificationDatasource, err := notification.NewDatasource(tableName, db)
+func initModules(logger *instrumentation.Logger, cfg config.Config, db *dynamo.Client, r *gin.Engine, sub *nats.Subscriber, val *validation.Validator) error {
+	notificationDatasource, err := notification.NewDatasource(cfg, db)
 	if err != nil {
 		return err
 	}
@@ -85,9 +89,15 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, tableName st
 		return err
 	}
 
+	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
+
+	mw := rest.NewMiddleware(tokenClient)
+
 	notificationSvc := notification.NewService(logger, notificationDatasource, notifier)
 
 	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
+
+	notification.NewHTTPHandler(logger, r, mw, val, notificationSvc)
 
 	platform.NewHTTPHandler(r)
 

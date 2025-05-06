@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/id"
@@ -9,7 +10,8 @@ import (
 type NotificationType string
 
 const (
-	OTPNotification NotificationType = "otp"
+	UnknownNotification NotificationType = "UNKNOWN"
+	OTPNotification     NotificationType = "OTP"
 )
 
 type NotificationInput struct {
@@ -40,4 +42,13 @@ type Notification struct {
 	Content          string           `json:"content"`
 	NotificationType NotificationType `json:"notification_type"`
 	CreatedAt        time.Time        `json:"created_at"`
+}
+
+func ParseNotificationType(value string) (NotificationType, error) {
+	switch value {
+	case string(OTPNotification):
+		return OTPNotification, nil
+	default:
+		return "", fmt.Errorf("invalid notification type: %s", value)
+	}
 }

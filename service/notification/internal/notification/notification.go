@@ -1,23 +1,30 @@
 package notification
 
 import (
+	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence/dynamo"
+	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/client"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/repository"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
 	"github.com/charmingruby/doris/service/notification/internal/notification/delivery/event"
+	endpoint "github.com/charmingruby/doris/service/notification/internal/notification/delivery/http"
 	"github.com/charmingruby/doris/service/notification/internal/notification/persistence"
+	"github.com/gin-gonic/gin"
 )
 
 type Datasource struct {
 	notificationRepo repository.NotificationRepository
 }
 
-func NewDatasource(tableName string, db *dynamo.Client) (*Datasource, error) {
-	notificationRepo := persistence.NewNotificationRepository(db.Conn, tableName)
+func NewDatasource(cfg config.Config, db *dynamo.Client) (*Datasource, error) {
+	notificationRepo := persistence.NewNotificationRepository(db.Conn, persistence.NotificationRepositoryInput{
+		TableName:          cfg.Custom.NotificatiosnDynamoTable,
+		CorrelationIDIndex: cfg.Custom.CorrelationIDDynamoIndex,
+	})
 
 	return &Datasource{
 		notificationRepo: notificationRepo,
@@ -34,4 +41,8 @@ func NewEventHandler(logger *instrumentation.Logger, sub *nats.Subscriber, cfg c
 	})
 
 	evtHandler.Subscribe()
+}
+
+func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, svc *service.Service) {
+	endpoint.New(logger, r, mw, val, svc).Register()
 }
