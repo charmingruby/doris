@@ -59,7 +59,7 @@ func (r *NotificationRepository) Create(ctx context.Context, notification model.
 		"ttl":           ttl,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to marshal notification: %w", err)
+		return err
 	}
 
 	if _, err := r.client.PutItem(ctx, &dynamodb.PutItemInput{
@@ -97,7 +97,7 @@ func (r *NotificationRepository) FindManyByCorrelationID(ctx context.Context, co
 
 		result, err := r.client.Query(ctx, input)
 		if err != nil {
-			return nil, fmt.Errorf("failed to query notifications: %w", err)
+			return nil, err
 		}
 
 		lastEvaluatedKey = result.LastEvaluatedKey
@@ -113,7 +113,7 @@ func (r *NotificationRepository) FindManyByCorrelationID(ctx context.Context, co
 
 	result, err := r.client.Query(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query notifications: %w", err)
+		return nil, err
 	}
 
 	var notifications []model.Notification
@@ -121,7 +121,7 @@ func (r *NotificationRepository) FindManyByCorrelationID(ctx context.Context, co
 		var notification model.Notification
 
 		if err := attributevalue.UnmarshalMap(item, &notification); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal notification: %w", err)
+			return nil, err
 		}
 
 		if pkAttr, ok := item["PK"].(*types.AttributeValueMemberS); ok {

@@ -2,7 +2,6 @@ package notifier
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -20,7 +19,7 @@ type SES struct {
 func NewSES(region, sourceEmail string) (*SES, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config: %v", err)
+		return nil, err
 	}
 
 	cfg.Region = region
@@ -57,7 +56,7 @@ func (s *SES) Send(ctx context.Context, notification model.Notification) error {
 	}
 
 	if _, err := s.client.SendEmail(ctx, in); err != nil {
-		return fmt.Errorf("failed to send email: %v", err)
+		return err
 	}
 
 	return nil
