@@ -12,12 +12,8 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence/dynamo"
-	"github.com/charmingruby/doris/lib/security"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/notification/config"
-	"github.com/charmingruby/doris/service/notification/internal/notification"
-	"github.com/charmingruby/doris/service/notification/internal/notification/provider/notifier"
-	"github.com/charmingruby/doris/service/notification/internal/platform"
+	"github.com/charmingruby/doris/service/scribe/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -82,28 +78,6 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, db *dynamo.Client, r *gin.Engine, sub *nats.Subscriber, val *validation.Validator) error {
-	notificationDatasource, err := notification.NewDatasource(cfg, db)
-	if err != nil {
-		return err
-	}
-
-	notifier, err := notifier.NewSES(cfg.Custom.AWSRegion, cfg.Custom.SourceEmail)
-	if err != nil {
-		return err
-	}
-
-	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
-
-	mw := rest.NewMiddleware(tokenClient)
-
-	notificationSvc := notification.NewService(logger, notificationDatasource, notifier)
-
-	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
-
-	notification.NewHTTPHandler(logger, r, mw, val, notificationSvc)
-
-	platform.NewHTTPHandler(r)
-
 	return nil
 }
 
