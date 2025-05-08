@@ -2,7 +2,7 @@ package event
 
 import "time"
 
-type SendOTPNotificationMessage struct {
+type SendOTPNotification struct {
 	ID            string
 	To            string
 	RecipientName string

@@ -10,8 +10,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegatedMessage) error {
-	apiKeyDelegation := account.ApiKeyDelegated{
+func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegated) error {
+	apiKeyDelegation := account.ApiKeyDelegatedEvent{
 		Id:      event.ID,
 		NewTier: event.NewTier,
 		OldTier: event.OldTier,

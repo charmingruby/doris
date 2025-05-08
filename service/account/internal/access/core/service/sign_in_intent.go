@@ -46,7 +46,7 @@ func (s *Service) SignInIntent(ctx context.Context, in SignInIntentInput) error 
 			return custom_err.NewErrDatasourceOperationFailed("create otp", err)
 		}
 
-		event := event.SendOTPNotificationMessage{
+		event := event.SendOTPNotification{
 			ID:            ak.ID,
 			To:            ak.Email,
 			RecipientName: ak.FirstName + " " + ak.LastName,

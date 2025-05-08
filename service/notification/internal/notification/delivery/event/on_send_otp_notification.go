@@ -15,7 +15,7 @@ func (h *Handler) onSendOTPNotification(ctx context.Context) error {
 	topic := h.topics[sendOTPNotificationIdentifier]
 
 	return h.sub.Subscribe(ctx, topic, func(message []byte) error {
-		var n notification.Notification
+		var n notification.NotificationEvent
 
 		if err := proto.Unmarshal(message, &n); err != nil {
 			h.logger.Error("failed to unmarshal message", "error", err)

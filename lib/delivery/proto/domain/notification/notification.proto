@@ -15,7 +15,7 @@ message OTPContent {
   string code = 1;
 };
 
-message Notification {
+message NotificationEvent {
   string id = 1;
   string to = 2;
   NotificationType type = 3;      

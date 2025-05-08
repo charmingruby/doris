@@ -60,7 +60,7 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 		}
 
-		event := event.APIKeyDelegatedMessage{
+		event := event.APIKeyDelegated{
 			ID:      apiKey.ID,
 			NewTier: apiKey.Tier,
 			OldTier: oldTier,

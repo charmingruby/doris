@@ -60,7 +60,7 @@ func (s *Service) ResendAPIKeyActivation(ctx context.Context, in ResendAPIKeyAct
 			return custom_err.NewErrDatasourceOperationFailed("create otp", err)
 		}
 
-		event := event.SendOTPNotificationMessage{
+		event := event.SendOTPNotification{
 			ID:            ak.ID,
 			To:            ak.Email,
 			RecipientName: ak.FirstName + " " + ak.LastName,
