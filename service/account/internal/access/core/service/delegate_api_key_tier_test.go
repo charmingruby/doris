@@ -18,7 +18,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		Key:       id.New(),
 	})
 	dummyManagerAPIKey.Status = model.API_KEY_STATUS_ACTIVE
-	dummyManagerAPIKey.Tier = privilege.API_KEY_TIER_ADMIN
+	dummyManagerAPIKey.Tier = privilege.TIER_ADMIN
 
 	dummyAPIKey := *model.NewAPIKey(model.APIKeyInput{
 		FirstName: "John",
@@ -40,7 +40,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  dummyManagerAPIKey.ID,
 			APIKeyIDToChange: dummyAPIKey.ID,
-			NewTier:          privilege.API_KEY_TIER_PRO,
+			NewTier:          privilege.TIER_PRO,
 		}
 
 		err = s.svc.DelegateAPIKeyTier(ctx, input)
@@ -66,7 +66,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  dummyManagerAPIKey.ID,
 			APIKeyIDToChange: dummyAPIKey.ID,
-			NewTier:          privilege.API_KEY_TIER_PRO,
+			NewTier:          privilege.TIER_PRO,
 		}
 
 		err = s.svc.DelegateAPIKeyTier(ctx, input)
@@ -85,7 +85,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  dummyManagerAPIKey.ID,
 			APIKeyIDToChange: "invalid id",
-			NewTier:          privilege.API_KEY_TIER_PRO,
+			NewTier:          privilege.TIER_PRO,
 		}
 
 		err = s.svc.DelegateAPIKeyTier(ctx, input)
@@ -126,7 +126,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  "invalid id",
 			APIKeyIDToChange: dummyAPIKey.ID,
-			NewTier:          privilege.API_KEY_TIER_PRO,
+			NewTier:          privilege.TIER_PRO,
 		}
 
 		err = s.svc.DelegateAPIKeyTier(ctx, input)
@@ -140,7 +140,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		ctx := context.Background()
 
 		managerAPIKey := dummyManagerAPIKey
-		managerAPIKey.Tier = privilege.API_KEY_TIER_MANAGER
+		managerAPIKey.Tier = privilege.TIER_MANAGER
 
 		err := s.apiKeyRepo.Create(ctx, managerAPIKey)
 		s.NoError(err)
@@ -151,7 +151,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  managerAPIKey.ID,
 			APIKeyIDToChange: dummyAPIKey.ID,
-			NewTier:          privilege.API_KEY_TIER_ADMIN,
+			NewTier:          privilege.TIER_ADMIN,
 		}
 
 		err = s.svc.DelegateAPIKeyTier(ctx, input)
@@ -195,7 +195,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 		input := DelegateAPIKeyTierInput{
 			ManagerAPIKeyID:  dummyManagerAPIKey.ID,
 			APIKeyIDToChange: dummyAPIKey.ID,
-			NewTier:          privilege.API_KEY_TIER_PRO,
+			NewTier:          privilege.TIER_PRO,
 		}
 
 		s.evtHandler.Pub.IsHealthy = false

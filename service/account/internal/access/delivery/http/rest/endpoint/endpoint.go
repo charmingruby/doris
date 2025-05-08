@@ -43,8 +43,8 @@ func (e *Endpoint) Register() {
 	apiKey.POST("/:id/resend", e.makeResendAPIKeyActivation)
 	apiKey.PATCH("/:id/delegate",
 		e.mw.RBAC(
-			privilege.API_KEY_TIER_MANAGER,
-			privilege.API_KEY_TIER_ADMIN,
+			privilege.TIER_MANAGER,
+			privilege.TIER_ADMIN,
 		),
 		e.makeDelegateAPIKeyTier,
 	)

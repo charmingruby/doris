@@ -41,10 +41,10 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	isAdmin := managerAPIKey.Tier == privilege.API_KEY_TIER_ADMIN
+	isAdmin := managerAPIKey.Tier == privilege.TIER_ADMIN
 
 	if !isAdmin &&
-		(apiKey.Tier == privilege.API_KEY_TIER_ADMIN || in.NewTier == string(privilege.API_KEY_TIER_ADMIN)) {
+		(apiKey.Tier == privilege.TIER_ADMIN || in.NewTier == string(privilege.TIER_ADMIN)) {
 		return custom_err.NewErrInsufficientPermission()
 	}
 

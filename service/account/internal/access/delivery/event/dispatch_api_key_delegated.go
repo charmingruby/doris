@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/lib/delivery/proto/gen/account"
 	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"google.golang.org/protobuf/proto"
@@ -11,10 +12,20 @@ import (
 )
 
 func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegated) error {
+	newTier, err := privilege.MapTierToProto(event.NewTier)
+	if err != nil {
+		return err
+	}
+
+	oldTier, err := privilege.MapTierToProto(event.OldTier)
+	if err != nil {
+		return err
+	}
+
 	apiKeyDelegation := account.ApiKeyDelegatedEvent{
 		Id:      event.ID,
-		NewTier: event.NewTier,
-		OldTier: event.OldTier,
+		NewTier: newTier,
+		OldTier: oldTier,
 		SentAt:  timestamppb.New(event.SentAt),
 	}
 

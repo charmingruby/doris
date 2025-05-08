@@ -29,7 +29,7 @@ func NewAPIKey(in APIKeyInput) *APIKey {
 		Email:     in.Email,
 		Key:       in.Key,
 		Status:    API_KEY_STATUS_PENDING,
-		Tier:      privilege.API_KEY_TIER_ROOKIE,
+		Tier:      privilege.TIER_ROOKIE,
 		CreatedAt: time.Now(),
 	}
 }
@@ -46,5 +46,5 @@ type APIKey struct {
 }
 
 func (a *APIKey) Validate() error {
-	return privilege.ValidateAPIKeyTier(a.Tier)
+	return privilege.IsTierValid(a.Tier)
 }

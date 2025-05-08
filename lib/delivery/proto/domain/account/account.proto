@@ -6,9 +6,23 @@ option go_package = "github.com/charmingruby/doris/lib/proto/gen/account";
 
 import "google/protobuf/timestamp.proto";
 
+enum Tier {
+    UNSPECIFIED = 0;
+    ROOKIE = 1;
+    PRO = 2;
+    MANAGER = 3;
+    ADMIN = 4;
+};
+
 message ApiKeyDelegatedEvent {
     string id = 1;
-    string new_tier = 2;
-    string old_tier = 3;
+    Tier new_tier = 2;
+    Tier old_tier = 3;
     google.protobuf.Timestamp sent_at = 5;
+};
+
+message ApiKeyActivatedEvent {
+    string id = 1;
+    Tier tier = 2;
+    google.protobuf.Timestamp sent_at = 3;    
 };
