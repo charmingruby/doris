@@ -11,22 +11,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, message event.APIKeyDelegated) error {
-	newTier, err := privilege.MapTierToProto(message.NewTier)
+func (h *Handler) DispatchAPIKeyActivated(ctx context.Context, message event.APIKeyActivated) error {
+	tier, err := privilege.MapTierToProto(message.Tier)
 	if err != nil {
 		return err
 	}
 
-	oldTier, err := privilege.MapTierToProto(message.OldTier)
-	if err != nil {
-		return err
-	}
-
-	apiKeyDelegation := account.ApiKeyDelegatedEvent{
-		Id:      message.ID,
-		NewTier: newTier,
-		OldTier: oldTier,
-		SentAt:  timestamppb.New(message.SentAt),
+	apiKeyDelegation := account.ApiKeyActivatedEvent{
+		Id:     message.ID,
+		Tier:   tier,
+		SentAt: timestamppb.New(message.SentAt),
 	}
 
 	msgBytes, err := proto.Marshal(&apiKeyDelegation)
@@ -34,7 +28,7 @@ func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, message event.API
 		return custom_err.NewErrSerializationFailed(err)
 	}
 
-	topic := h.topics[apiKeyDelegatedIdentifier]
+	topic := h.topics[apiKeyActivatedIdentifier]
 
 	if err := h.pub.Publish(ctx, topic, msgBytes); err != nil {
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)

@@ -10,16 +10,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) DispatchSendOTPNotification(ctx context.Context, event event.SendOTPNotification) error {
+func (h *Handler) DispatchSendOTPNotification(ctx context.Context, message event.SendOTPNotification) error {
 	notification := notification.NotificationEvent{
-		Id:            event.ID,
-		To:            event.To,
-		RecipientName: event.RecipientName,
-		SentAt:        timestamppb.New(event.SentAt),
+		Id:            message.ID,
+		To:            message.To,
+		RecipientName: message.RecipientName,
+		SentAt:        timestamppb.New(message.SentAt),
 		Type:          notification.NotificationType_OTP,
 		Content: &notification.NotificationEvent_Otp{
 			Otp: &notification.OTPContent{
-				Code: event.Code,
+				Code: message.Code,
 			},
 		},
 	}
@@ -35,7 +35,7 @@ func (h *Handler) DispatchSendOTPNotification(ctx context.Context, event event.S
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)
 	}
 
-	h.logger.Debug("event sent", "topic", topic)
+	h.logger.Debug("event sent", "topic", topic, "message", message)
 
 	return nil
 }

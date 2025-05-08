@@ -27,7 +27,7 @@ func (h *EventHandler) DispatchSendOTPNotification(ctx context.Context, event ev
 		return err
 	}
 
-	return h.Pub.Publish(ctx, "send_otp_notification", msg)
+	return h.Pub.Publish(ctx, "notifications.otp.send", msg)
 }
 
 func (h *EventHandler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegated) error {
@@ -40,5 +40,18 @@ func (h *EventHandler) DispatchAPIKeyDelegated(ctx context.Context, event event.
 		return err
 	}
 
-	return h.Pub.Publish(ctx, "send_new_api_key_delegation", msg)
+	return h.Pub.Publish(ctx, "api-keys.delegated", msg)
+}
+
+func (h *EventHandler) DispatchAPIKeyActivated(ctx context.Context, event event.APIKeyActivated) error {
+	if !h.Pub.IsHealthy {
+		return ErrUnhealthyDatasource
+	}
+
+	msg, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	return h.Pub.Publish(ctx, "api-keys.activated", msg)
 }

@@ -6,7 +6,9 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/security"
+	"github.com/charmingruby/doris/service/account/internal/access/core/event"
 	"github.com/charmingruby/doris/service/account/internal/access/core/model"
+	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
 type ActivateAPIKeyInput struct {
@@ -47,10 +49,25 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (s
 		return "", custom_err.NewErrInvalidOTPCode("expired")
 	}
 
-	ak.Status = model.API_KEY_STATUS_ACTIVE
+	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+		ak.Status = model.API_KEY_STATUS_ACTIVE
+		if err := tx.APIKeyRepo.Update(ctx, ak); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		}
 
-	if err := s.apiKeyRepo.Update(ctx, ak); err != nil {
-		return "", custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		event := event.APIKeyActivated{
+			ID:     ak.ID,
+			Tier:   ak.Tier,
+			SentAt: time.Now(),
+		}
+
+		if err := s.event.DispatchAPIKeyActivated(ctx, event); err != nil {
+			return custom_err.NewErrMessagingWrapper(err)
+		}
+
+		return nil
+	}); err != nil {
+		return "", err
 	}
 
 	return s.tokenClient.Generate(ak.ID, security.Payload{

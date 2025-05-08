@@ -50,6 +50,7 @@ func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, cf
 	return event.NewHandler(logger, pub, event.TopicInput{
 		SendOTPNotification: cfg.Custom.SendOTPNotificationTopic,
 		APIKeyDelegated:     cfg.Custom.APIKeyDelegatedTopic,
+		APIKeyActivated:     cfg.Custom.APIKeyActivatedTopic,
 	})
 }
 

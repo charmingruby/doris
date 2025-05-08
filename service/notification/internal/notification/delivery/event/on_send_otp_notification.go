@@ -29,7 +29,7 @@ func (h *Handler) onSendOTPNotification(ctx context.Context) error {
 			return custom_err.NewErrSerializationFailed(errors.New("unsupported notification type"))
 		}
 
-		h.logger.Debug("event received", "topic", topic)
+		h.logger.Debug("event received", "topic", topic, "message", &n)
 
 		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
 			CorrelationID:    n.Id,

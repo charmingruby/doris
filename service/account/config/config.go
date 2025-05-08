@@ -19,7 +19,7 @@ type CustomConfig struct {
 	JWTIssuer                string `env:"JWT_ISSUER,required"`
 	NatsStream               string `env:"NATS_STREAM"`
 	SendOTPNotificationTopic string `env:"SEND_OTP_NOTIFICATION_TOPIC"`
-	APIKeyActivationTopic    string `env:"API_KEY_ACTIVATION_TOPIC"`
+	APIKeyActivatedTopic     string `env:"API_KEY_ACTIVATED_TOPIC"`
 	APIKeyDelegatedTopic     string `env:"API_KEY_DELEGATED_TOPIC"`
 }
 
