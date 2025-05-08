@@ -7,7 +7,7 @@ import (
 
 const (
 	sendOTPNotificationIdentifier = iota
-	apiKeyDelegationIdentifier
+	apiKeyDelegatedIdentifier
 )
 
 type Handler struct {
@@ -18,14 +18,14 @@ type Handler struct {
 
 type TopicInput struct {
 	SendOTPNotification string
-	APIKeyDelegation    string
+	APIKeyDelegated     string
 }
 
 func NewHandler(logger *instrumentation.Logger, pub messaging.Publisher, in TopicInput) *Handler {
 	topics := make(map[int]string, 2)
 
 	topics[sendOTPNotificationIdentifier] = in.SendOTPNotification
-	topics[apiKeyDelegationIdentifier] = in.APIKeyDelegation
+	topics[apiKeyDelegatedIdentifier] = in.SendOTPNotification
 
 	return &Handler{
 		logger: logger,

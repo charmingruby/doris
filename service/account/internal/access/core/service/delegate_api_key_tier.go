@@ -60,14 +60,14 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 		}
 
-		event := event.APIKeyDelegationMessage{
+		event := event.APIKeyDelegatedMessage{
 			ID:      apiKey.ID,
 			NewTier: apiKey.Tier,
 			OldTier: oldTier,
 			SentAt:  time.Now(),
 		}
 
-		if err := s.event.DispatchAPIKeyDelegation(ctx, event); err != nil {
+		if err := s.event.DispatchAPIKeyDelegated(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 

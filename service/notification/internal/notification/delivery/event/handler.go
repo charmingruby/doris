@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	otpNotificationIdentifier = iota
+	sendOTPNotificationIdentifier = iota
 )
 
 type Handler struct {
@@ -20,13 +20,13 @@ type Handler struct {
 }
 
 type TopicInput struct {
-	OTPNotification string
+	SendOTPNotification string
 }
 
 func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *service.Service, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
-	topics[otpNotificationIdentifier] = in.OTPNotification
+	topics[sendOTPNotificationIdentifier] = in.SendOTPNotification
 
 	return &Handler{
 		logger: logger,
@@ -39,7 +39,7 @@ func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *s
 func (h *Handler) Subscribe() error {
 	ctx := context.Background()
 
-	if err := h.receiveOTPNotification(ctx); err != nil {
+	if err := h.onSendOTPNotification(ctx); err != nil {
 		return err
 	}
 

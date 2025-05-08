@@ -37,7 +37,7 @@ func NewService(logger *instrumentation.Logger, datasource *Datasource, notifier
 
 func NewEventHandler(logger *instrumentation.Logger, sub *nats.Subscriber, cfg config.Config, svc *service.Service) {
 	evtHandler := event.NewHandler(logger, sub, svc, event.TopicInput{
-		OTPNotification: cfg.Custom.SendOTPNotificationTopic,
+		SendOTPNotification: cfg.Custom.SendOTPNotificationTopic,
 	})
 
 	evtHandler.Subscribe()

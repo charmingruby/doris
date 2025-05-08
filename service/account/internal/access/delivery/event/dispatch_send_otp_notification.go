@@ -35,7 +35,7 @@ func (h *Handler) DispatchSendOTPNotification(ctx context.Context, event event.S
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)
 	}
 
-	h.logger.Debug("sent otp notification event", "message", &notification)
+	h.logger.Debug("event sent", "topic", topic)
 
 	return nil
 }

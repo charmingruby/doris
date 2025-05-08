@@ -11,8 +11,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func (h *Handler) receiveOTPNotification(ctx context.Context) error {
-	return h.sub.Subscribe(ctx, h.topics[otpNotificationIdentifier], func(message []byte) error {
+func (h *Handler) onSendOTPNotification(ctx context.Context) error {
+	topic := h.topics[sendOTPNotificationIdentifier]
+
+	return h.sub.Subscribe(ctx, topic, func(message []byte) error {
 		var n notification.Notification
 
 		if err := proto.Unmarshal(message, &n); err != nil {
@@ -27,7 +29,7 @@ func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 			return custom_err.NewErrSerializationFailed(errors.New("unsupported notification type"))
 		}
 
-		h.logger.Debug("received otp notification", "message", &n)
+		h.logger.Debug("event received", "topic", topic)
 
 		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
 			CorrelationID:    n.Id,
@@ -40,8 +42,6 @@ func (h *Handler) receiveOTPNotification(ctx context.Context) error {
 
 			return err
 		}
-
-		h.logger.Debug("notification dispatched", "correlation_id", n.Id)
 
 		return nil
 	})

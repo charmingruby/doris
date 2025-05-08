@@ -49,7 +49,7 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, cfg config.Config) *event.Handler {
 	return event.NewHandler(logger, pub, event.TopicInput{
 		SendOTPNotification: cfg.Custom.SendOTPNotificationTopic,
-		APIKeyDelegation:    cfg.Custom.APIKeyDelegationTopic,
+		APIKeyDelegated:     cfg.Custom.APIKeyDelegatedTopic,
 	})
 }
 

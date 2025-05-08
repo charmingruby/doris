@@ -30,7 +30,7 @@ func (h *EventHandler) DispatchSendOTPNotification(ctx context.Context, event ev
 	return h.Pub.Publish(ctx, "send_otp_notification", msg)
 }
 
-func (h *EventHandler) DispatchAPIKeyDelegation(ctx context.Context, event event.APIKeyDelegationMessage) error {
+func (h *EventHandler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegatedMessage) error {
 	if !h.Pub.IsHealthy {
 		return ErrUnhealthyDatasource
 	}

@@ -6,7 +6,7 @@ option go_package = "github.com/charmingruby/doris/lib/proto/gen/account";
 
 import "google/protobuf/timestamp.proto";
 
-message ApiKeyDelegation {
+message ApiKeyDelegated {
     string id = 1;
     string new_tier = 2;
     string old_tier = 3;

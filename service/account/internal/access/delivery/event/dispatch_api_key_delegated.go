@@ -10,8 +10,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *Handler) DispatchAPIKeyDelegation(ctx context.Context, event event.APIKeyDelegationMessage) error {
-	apiKeyDelegation := account.ApiKeyDelegation{
+func (h *Handler) DispatchAPIKeyDelegated(ctx context.Context, event event.APIKeyDelegatedMessage) error {
+	apiKeyDelegation := account.ApiKeyDelegated{
 		Id:      event.ID,
 		NewTier: event.NewTier,
 		OldTier: event.OldTier,
@@ -23,13 +23,13 @@ func (h *Handler) DispatchAPIKeyDelegation(ctx context.Context, event event.APIK
 		return custom_err.NewErrSerializationFailed(err)
 	}
 
-	topic := h.topics[apiKeyDelegationIdentifier]
+	topic := h.topics[apiKeyDelegatedIdentifier]
 
 	if err := h.pub.Publish(ctx, topic, msgBytes); err != nil {
 		return custom_err.NewErrMessagingPublishFailed(topic, msgBytes, err)
 	}
 
-	h.logger.Debug("sent api key delegation event")
+	h.logger.Debug("event sent", "topic", topic)
 
 	return nil
 }

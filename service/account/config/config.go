@@ -20,7 +20,7 @@ type CustomConfig struct {
 	NatsStream               string `env:"NATS_STREAM"`
 	SendOTPNotificationTopic string `env:"SEND_OTP_NOTIFICATION_TOPIC"`
 	APIKeyActivationTopic    string `env:"API_KEY_ACTIVATION_TOPIC"`
-	APIKeyDelegationTopic    string `env:"API_KEY_DELEGATION_TOPIC"`
+	APIKeyDelegatedTopic     string `env:"API_KEY_DELEGATED_TOPIC"`
 }
 
 func New() (Config, error) {
