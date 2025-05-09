@@ -14,6 +14,7 @@ import (
 	"github.com/charmingruby/doris/lib/persistence/dynamo"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/scribe/config"
+	"github.com/charmingruby/doris/service/scribe/internal/platform"
 	"github.com/gin-gonic/gin"
 )
 
@@ -78,6 +79,8 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, db *dynamo.Client, r *gin.Engine, sub *nats.Subscriber, val *validation.Validator) error {
+	platform.NewHTTPHandler(r)
+
 	return nil
 }
 
