@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"testing"
@@ -17,7 +17,7 @@ type Suite struct {
 	txManager   *memory.TransactionManager
 	tokenClient *memory.TokenClient
 	evtHandler  *memory.EventHandler
-	svc         *Service
+	uc          *UseCase
 }
 
 func (s *Suite) SetupTest() {
@@ -35,7 +35,7 @@ func (s *Suite) SetupTest() {
 
 	s.tokenClient = memory.NewTokenClient()
 
-	s.svc = New(logger, s.apiKeyRepo, s.otpRepo, s.txManager, s.tokenClient, s.evtHandler)
+	s.uc = New(logger, s.apiKeyRepo, s.otpRepo, s.txManager, s.tokenClient, s.evtHandler)
 }
 
 func (s *Suite) SetupSubTest() {

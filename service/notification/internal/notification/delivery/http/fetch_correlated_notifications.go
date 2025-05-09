@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
-	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
+	"github.com/charmingruby/doris/service/notification/internal/notification/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +30,7 @@ func (e *Endpoint) makeFetchCorrelatedNotifications(c *gin.Context) {
 		page = convPage
 	}
 
-	notifications, err := e.svc.FetchCorrelatedNotifications(context.Background(), service.FetchCorrelatedNotificationsInput{
+	notifications, err := e.uc.FetchCorrelatedNotifications(context.Background(), usecase.FetchCorrelatedNotificationsInput{
 		CorrelationID: apiKeyID,
 		Page:          page,
 	})

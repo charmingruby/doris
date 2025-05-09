@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func (s *Suite) Test_SignInIntent() {
 		err := s.apiKeyRepo.Create(context.Background(), validAPIKey)
 		s.NoError(err)
 
-		err = s.svc.SignInIntent(context.Background(), validInput)
+		err = s.uc.SignInIntent(context.Background(), validInput)
 		s.NoError(err)
 		s.Len(s.otpRepo.Items, 1)
 		s.Len(s.evtHandler.Pub.Messages, 1)
@@ -53,7 +53,7 @@ func (s *Suite) Test_SignInIntent() {
 
 		s.evtHandler.Pub.IsHealthy = false
 
-		err = s.svc.SignInIntent(context.Background(), validInput)
+		err = s.uc.SignInIntent(context.Background(), validInput)
 
 		s.Error(err)
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
@@ -61,7 +61,7 @@ func (s *Suite) Test_SignInIntent() {
 	})
 
 	s.Run("it should be not able to dispatch an otp for sign in if the api key does not exists", func() {
-		err := s.svc.SignInIntent(context.Background(), validInput)
+		err := s.uc.SignInIntent(context.Background(), validInput)
 		s.Error(err)
 
 		var errResourceNotFound *custom_err.ErrResourceNotFound
@@ -77,7 +77,7 @@ func (s *Suite) Test_SignInIntent() {
 
 		s.otpRepo.IsHealthy = false
 
-		err = s.svc.SignInIntent(context.Background(), validInput)
+		err = s.uc.SignInIntent(context.Background(), validInput)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -93,7 +93,7 @@ func (s *Suite) Test_SignInIntent() {
 
 		s.evtHandler.Pub.IsHealthy = false
 
-		err = s.svc.SignInIntent(context.Background(), validInput)
+		err = s.uc.SignInIntent(context.Background(), validInput)
 		s.Error(err)
 		s.Equal(0, len(s.evtHandler.Pub.Messages))
 
@@ -108,7 +108,7 @@ func (s *Suite) Test_SignInIntent() {
 		err := s.apiKeyRepo.Create(context.Background(), invalidAPIKey)
 		s.NoError(err)
 
-		err = s.svc.SignInIntent(context.Background(), validInput)
+		err = s.uc.SignInIntent(context.Background(), validInput)
 		s.Error(err)
 
 		var errInsufficientPermission *custom_err.ErrInsufficientPermission

@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -16,8 +16,8 @@ type ActivateAPIKeyInput struct {
 	OTP      string `json:"otp"`
 }
 
-func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (string, error) {
-	ak, err := s.apiKeyRepo.FindByID(ctx, in.APIKeyID)
+func (uc *UseCase) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (string, error) {
+	ak, err := uc.apiKeyRepo.FindByID(ctx, in.APIKeyID)
 
 	if err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
@@ -31,7 +31,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (s
 		return "", custom_err.NewErrAPIKeyAlreadyActivated()
 	}
 
-	otp, err := s.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
+	otp, err := uc.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
 
 	if err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("find otp by correlation id", err)
@@ -49,7 +49,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (s
 		return "", custom_err.NewErrInvalidOTPCode("expired")
 	}
 
-	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
 		ak.Status = model.API_KEY_STATUS_ACTIVE
 		if err := tx.APIKeyRepo.Update(ctx, ak); err != nil {
 			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
@@ -61,7 +61,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (s
 			SentAt: time.Now(),
 		}
 
-		if err := s.event.DispatchAPIKeyActivated(ctx, event); err != nil {
+		if err := uc.event.DispatchAPIKeyActivated(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 
@@ -70,7 +70,7 @@ func (s *Service) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (s
 		return "", err
 	}
 
-	return s.tokenClient.Generate(ak.ID, security.Payload{
+	return uc.tokenClient.Generate(ak.ID, security.Payload{
 		Tier: ak.Tier,
 	})
 }

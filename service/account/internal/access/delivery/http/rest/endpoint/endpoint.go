@@ -5,7 +5,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +14,7 @@ type Endpoint struct {
 	r      *gin.Engine
 	mw     *rest.Middleware
 	val    *validation.Validator
-	svc    *service.Service
+	uc     *usecase.UseCase
 }
 
 func New(
@@ -22,14 +22,14 @@ func New(
 	r *gin.Engine,
 	mw *rest.Middleware,
 	val *validation.Validator,
-	svc *service.Service,
+	uc *usecase.UseCase,
 ) *Endpoint {
 	return &Endpoint{
 		logger: logger,
 		r:      r,
 		mw:     mw,
 		val:    val,
-		svc:    svc,
+		uc:     uc,
 	}
 }
 

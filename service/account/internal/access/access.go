@@ -9,7 +9,7 @@ import (
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/account/config"
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
-	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/usecase"
 	"github.com/charmingruby/doris/service/account/internal/access/delivery/event"
 	"github.com/charmingruby/doris/service/account/internal/access/delivery/http/rest/endpoint"
 	"github.com/charmingruby/doris/service/account/internal/access/persistence"
@@ -54,15 +54,15 @@ func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, cf
 	})
 }
 
-func NewService(
+func NewUseCase(
 	logger *instrumentation.Logger,
 	datasource *Datasource,
 	eventHandler *event.Handler,
 	tokenClient security.Token,
-) *service.Service {
-	return service.New(logger, datasource.apiKeyRepo, datasource.otpRepo, datasource.txManager, tokenClient, eventHandler)
+) *usecase.UseCase {
+	return usecase.New(logger, datasource.apiKeyRepo, datasource.otpRepo, datasource.txManager, tokenClient, eventHandler)
 }
 
-func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, svc *service.Service) {
-	endpoint.New(logger, r, mw, val, svc).Register()
+func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, uc *usecase.UseCase) {
+	endpoint.New(logger, r, mw, val, uc).Register()
 }

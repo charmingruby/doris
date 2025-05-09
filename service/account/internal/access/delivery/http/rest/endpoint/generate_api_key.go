@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
-	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +23,7 @@ func (e *Endpoint) makeGenerateAPIKey(c *gin.Context) {
 		return
 	}
 
-	id, err := e.svc.GenerateAPIKey(context.Background(), service.GenerateAPIKeyInput{
+	id, err := e.uc.GenerateAPIKey(context.Background(), usecase.GenerateAPIKeyInput{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,

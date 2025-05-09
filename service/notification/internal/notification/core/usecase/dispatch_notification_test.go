@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func (s *Suite) Test_DispatchNotification() {
 	}
 
 	s.Run("it should dispatch a notification", func() {
-		err := s.svc.DispatchNotification(context.Background(), validInput)
+		err := s.uc.DispatchNotification(context.Background(), validInput)
 		s.NoError(err)
 
 		storedNotification := s.notificationRepo.Items[0]
@@ -40,7 +40,7 @@ func (s *Suite) Test_DispatchNotification() {
 	s.Run("it should be not able to dispatch a notification if the notification client fails", func() {
 		s.notifierClient.IsHealthy = false
 
-		err := s.svc.DispatchNotification(context.Background(), validInput)
+		err := s.uc.DispatchNotification(context.Background(), validInput)
 
 		s.Error(err)
 		var errExternalService *custom_err.ErrExternalService
@@ -53,7 +53,7 @@ func (s *Suite) Test_DispatchNotification() {
 	s.Run("it should be not able to dispatch a notification if the notification storage fails", func() {
 		s.notificationRepo.IsHealthy = false
 
-		err := s.svc.DispatchNotification(context.Background(), validInput)
+		err := s.uc.DispatchNotification(context.Background(), validInput)
 		s.Error(err)
 
 		var errDatasourceOperationFailed *custom_err.ErrDatasourceOperationFailed

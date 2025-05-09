@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
@@ -8,7 +8,7 @@ import (
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
-type Service struct {
+type UseCase struct {
 	logger      *instrumentation.Logger
 	apiKeyRepo  repository.APIKeyRepository
 	otpRepo     repository.OTPRepository
@@ -24,8 +24,8 @@ func New(
 	txManager persistence.TransactionManager[repository.TransactionManager],
 	tokenClient security.Token,
 	event event.Handler,
-) *Service {
-	return &Service{
+) *UseCase {
+	return &UseCase{
 		logger:      logger,
 		apiKeyRepo:  apiKeyRepo,
 		otpRepo:     otpRepo,

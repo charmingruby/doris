@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -27,7 +27,7 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
-		err = s.svc.ResendAPIKeyActivation(context.Background(), validInput)
+		err = s.uc.ResendAPIKeyActivation(context.Background(), validInput)
 		s.NoError(err)
 
 		otp := s.otpRepo.Items[0]
@@ -40,7 +40,7 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 	})
 
 	s.Run("it should not be able to resend if api key is not found", func() {
-		err := s.svc.ResendAPIKeyActivation(context.Background(), validInput)
+		err := s.uc.ResendAPIKeyActivation(context.Background(), validInput)
 		s.Error(err)
 
 		var errResourceNotFound *custom_err.ErrResourceNotFound
@@ -53,7 +53,7 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 
 		s.apiKeyRepo.IsHealthy = false
 
-		err = s.svc.ResendAPIKeyActivation(context.Background(), validInput)
+		err = s.uc.ResendAPIKeyActivation(context.Background(), validInput)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -66,7 +66,7 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 
 		s.evtHandler.Pub.IsHealthy = false
 
-		err = s.svc.ResendAPIKeyActivation(context.Background(), validInput)
+		err = s.uc.ResendAPIKeyActivation(context.Background(), validInput)
 		s.Error(err)
 
 		var errMessaging *custom_err.ErrMessagingWrapper
@@ -77,7 +77,6 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
-		// Create an OTP that was just created (within cooldown period)
 		otp, err := model.NewOTP(model.OTPInput{
 			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
 			CorrelationID: dummyAPIKey.ID,
@@ -88,7 +87,7 @@ func (s *Suite) Test_ResendAPIKeyActivation() {
 		err = s.otpRepo.Create(context.Background(), *otp)
 		s.NoError(err)
 
-		err = s.svc.ResendAPIKeyActivation(context.Background(), validInput)
+		err = s.uc.ResendAPIKeyActivation(context.Background(), validInput)
 		s.Error(err)
 
 		var errOTPCooldown *custom_err.ErrOTPGenerationCooldown

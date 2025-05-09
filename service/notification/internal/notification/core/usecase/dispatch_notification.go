@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type DispatchNotificationInput struct {
 	NotificationType model.NotificationType
 }
 
-func (s *Service) DispatchNotification(ctx context.Context, in DispatchNotificationInput) error {
+func (uc *UseCase) DispatchNotification(ctx context.Context, in DispatchNotificationInput) error {
 	notification := model.NewNotification(model.NotificationInput{
 		CorrelationID:    in.CorrelationID,
 		To:               in.To,
@@ -24,11 +24,11 @@ func (s *Service) DispatchNotification(ctx context.Context, in DispatchNotificat
 		NotificationType: in.NotificationType,
 	})
 
-	if err := s.notifier.Send(ctx, *notification); err != nil {
+	if err := uc.notifier.Send(ctx, *notification); err != nil {
 		return custom_err.NewErrExternalService(err)
 	}
 
-	if err := s.repo.Create(ctx, *notification); err != nil {
+	if err := uc.repo.Create(ctx, *notification); err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("create notification", err)
 	}
 

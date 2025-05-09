@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
-	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,7 +33,7 @@ func (e *Endpoint) makeDelegateAPIKeyTier(c *gin.Context) {
 		return
 	}
 
-	if err := e.svc.DelegateAPIKeyTier(context.Background(), service.DelegateAPIKeyTierInput{
+	if err := e.uc.DelegateAPIKeyTier(context.Background(), usecase.DelegateAPIKeyTierInput{
 		ManagerAPIKeyID:  managerAPIKeyID,
 		APIKeyIDToChange: apiKeyID,
 		NewTier:          req.NewTier,

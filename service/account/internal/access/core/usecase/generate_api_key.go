@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -17,8 +17,8 @@ type GenerateAPIKeyInput struct {
 	Email     string `json:"email"`
 }
 
-func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
-	apiKey, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
+func (uc *UseCase) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (string, error) {
+	apiKey, err := uc.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
@@ -35,7 +35,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 		Key:       id.New(),
 	})
 
-	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
 		if err := tx.APIKeyRepo.Create(ctx, *ak); err != nil {
 			return custom_err.NewErrDatasourceOperationFailed("create api key", err)
 		}
@@ -62,7 +62,7 @@ func (s *Service) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (s
 			SentAt:        time.Now(),
 		}
 
-		if err := s.event.DispatchSendOTPNotification(ctx, event); err != nil {
+		if err := uc.event.DispatchSendOTPNotification(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 

@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -16,8 +16,8 @@ type FetchCorrelatedNotificationsOutput struct {
 	Notifications []model.Notification `json:"notifications"`
 }
 
-func (s *Service) FetchCorrelatedNotifications(ctx context.Context, in FetchCorrelatedNotificationsInput) (FetchCorrelatedNotificationsOutput, error) {
-	notifications, err := s.repo.FindManyByCorrelationID(ctx, in.CorrelationID, in.Page)
+func (uc *UseCase) FetchCorrelatedNotifications(ctx context.Context, in FetchCorrelatedNotificationsInput) (FetchCorrelatedNotificationsOutput, error) {
+	notifications, err := uc.repo.FindManyByCorrelationID(ctx, in.CorrelationID, in.Page)
 	if err != nil {
 		return FetchCorrelatedNotificationsOutput{}, custom_err.NewErrDatasourceOperationFailed("find many notifications by correlation_id", err)
 	}

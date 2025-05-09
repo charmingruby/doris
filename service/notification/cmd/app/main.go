@@ -96,11 +96,11 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, db *dynamo.C
 
 	mw := rest.NewMiddleware(tokenClient)
 
-	notificationSvc := notification.NewService(logger, notificationDatasource, notifier)
+	notificationUc := notification.NewUseCase(logger, notificationDatasource, notifier)
 
-	notification.NewEventHandler(logger, sub, cfg, notificationSvc)
+	notification.NewEventHandler(logger, sub, cfg, notificationUc)
 
-	notification.NewHTTPHandler(logger, r, mw, val, notificationSvc)
+	notification.NewHTTPHandler(logger, r, mw, val, notificationUc)
 
 	platform.NewHTTPHandler(r)
 

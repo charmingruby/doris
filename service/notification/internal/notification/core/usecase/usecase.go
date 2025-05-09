@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
@@ -6,14 +6,14 @@ import (
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/repository"
 )
 
-type Service struct {
+type UseCase struct {
 	logger   *instrumentation.Logger
 	repo     repository.NotificationRepository
 	notifier client.Notifier
 }
 
-func New(logger *instrumentation.Logger, repo repository.NotificationRepository, notifier client.Notifier) *Service {
-	return &Service{
+func New(logger *instrumentation.Logger, repo repository.NotificationRepository, notifier client.Notifier) *UseCase {
+	return &UseCase{
 		logger:   logger,
 		repo:     repo,
 		notifier: notifier,

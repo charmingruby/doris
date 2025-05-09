@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -14,8 +14,8 @@ type VerifySignInIntentInput struct {
 	OTP   string `json:"otp"`
 }
 
-func (s *Service) VerifySignInIntent(ctx context.Context, in VerifySignInIntentInput) (string, error) {
-	ak, err := s.apiKeyRepo.FindByEmail(ctx, in.Email)
+func (uc *UseCase) VerifySignInIntent(ctx context.Context, in VerifySignInIntentInput) (string, error) {
+	ak, err := uc.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
@@ -31,7 +31,7 @@ func (s *Service) VerifySignInIntent(ctx context.Context, in VerifySignInIntentI
 		return "", custom_err.NewErrInsufficientPermission()
 	}
 
-	otp, err := s.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
+	otp, err := uc.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
 
 	if err != nil {
 		return "", custom_err.NewErrDatasourceOperationFailed("find otp by correlation id", err)
@@ -49,7 +49,7 @@ func (s *Service) VerifySignInIntent(ctx context.Context, in VerifySignInIntentI
 		return "", custom_err.NewErrInvalidOTPCode("expired")
 	}
 
-	return s.tokenClient.Generate(ak.ID, security.Payload{
+	return uc.tokenClient.Generate(ak.ID, security.Payload{
 		Tier: ak.Tier,
 	})
 }

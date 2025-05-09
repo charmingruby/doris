@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          privilege.TIER_PRO,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.NoError(err)
 
 		modifiedAPIKey, err := s.apiKeyRepo.FindByID(ctx, dummyAPIKey.ID)
@@ -69,7 +69,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          privilege.TIER_PRO,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -88,7 +88,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          privilege.TIER_PRO,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrResourceNotFound
@@ -110,7 +110,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          dummyAPIKey.Tier,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrNothingToChange
@@ -129,7 +129,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          privilege.TIER_PRO,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrResourceNotFound
@@ -154,7 +154,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          privilege.TIER_ADMIN,
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrInsufficientPermission
@@ -176,7 +176,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 			NewTier:          "INVALID",
 		}
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrInvalidEntity
@@ -200,7 +200,7 @@ func (s *Suite) Test_DelegateAPIKeyTier() {
 
 		s.evtHandler.Pub.IsHealthy = false
 
-		err = s.svc.DelegateAPIKeyTier(ctx, input)
+		err = s.uc.DelegateAPIKeyTier(ctx, input)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrMessagingWrapper

@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -54,7 +54,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		token, err := s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		token, err := s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   dummyOTP.Code,
 		})
@@ -95,7 +95,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.apiKeyRepo.IsHealthy = false
 
-		token, err := s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		token, err := s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   dummyOTP.Code,
 		})
@@ -110,7 +110,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 	s.Run("it should be not able verify a sign in intent if the api key is not found", func() {
 		ctx := context.Background()
 
-		_, err := s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		_, err := s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: "invalid email",
 			OTP:   dummyOTP.Code,
 		})
@@ -130,7 +130,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 		err := s.apiKeyRepo.Create(ctx, validAPIKey)
 		s.NoError(err)
 
-		_, err = s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		_, err = s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   dummyOTP.Code,
 		})
@@ -166,7 +166,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		_, err = s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		_, err = s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   "invalid-code",
 		})
@@ -205,7 +205,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		_, err = s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		_, err = s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   expiredOTP.Code,
 		})
@@ -247,7 +247,7 @@ func (s *Suite) Test_VerifySignInIntent() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		token, err := s.svc.VerifySignInIntent(ctx, VerifySignInIntentInput{
+		token, err := s.uc.VerifySignInIntent(ctx, VerifySignInIntentInput{
 			Email: validAPIKey.Email,
 			OTP:   dummyOTP.Code,
 		})

@@ -96,9 +96,9 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, val *validat
 
 	accessEvtHandler := access.NewEventHandler(logger, pub, cfg)
 
-	accessSvc := access.NewService(logger, accessDatasource, accessEvtHandler, tokenClient)
+	accessUc := access.NewUseCase(logger, accessDatasource, accessEvtHandler, tokenClient)
 
-	access.NewHTTPHandler(logger, r, mw, val, accessSvc)
+	access.NewHTTPHandler(logger, r, mw, val, accessUc)
 
 	platform.NewHTTPHandler(r)
 

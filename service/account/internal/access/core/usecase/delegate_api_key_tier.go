@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -16,8 +16,8 @@ type DelegateAPIKeyTierInput struct {
 	NewTier          string `json:"new_tier"`
 }
 
-func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierInput) error {
-	apiKey, err := s.apiKeyRepo.FindByID(ctx, in.APIKeyIDToChange)
+func (uc *UseCase) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierInput) error {
+	apiKey, err := uc.apiKeyRepo.FindByID(ctx, in.APIKeyIDToChange)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
@@ -31,7 +31,7 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 		return custom_err.NewErrNothingToChange()
 	}
 
-	managerAPIKey, err := s.apiKeyRepo.FindByID(ctx, in.ManagerAPIKeyID)
+	managerAPIKey, err := uc.apiKeyRepo.FindByID(ctx, in.ManagerAPIKeyID)
 
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
@@ -55,7 +55,7 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 		return custom_err.NewErrInvalidEntity(err.Error())
 	}
 
-	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
 		if err := tx.APIKeyRepo.Update(ctx, apiKey); err != nil {
 			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
 		}
@@ -67,7 +67,7 @@ func (s *Service) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTierI
 			SentAt:  time.Now(),
 		}
 
-		if err := s.event.DispatchAPIKeyDelegated(ctx, event); err != nil {
+		if err := uc.event.DispatchAPIKeyDelegated(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 

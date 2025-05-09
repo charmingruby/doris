@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		token, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		token, err := s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -72,7 +72,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.apiKeyRepo.IsHealthy = false
 
-		_, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err := s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -86,7 +86,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 	s.Run("it should be not able to activate the api key if the api key is not found", func() {
 		ctx := context.Background()
 
-		_, err := s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err := s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -103,7 +103,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 		err := s.apiKeyRepo.Create(ctx, dummyAPIKey)
 		s.NoError(err)
 
-		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
@@ -136,7 +136,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      "invalid-code",
 		})
@@ -172,7 +172,7 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      expiredOTP.Code,
 		})
@@ -205,13 +205,13 @@ func (s *Suite) Test_ActivateAPIKey() {
 
 		s.Equal(1, len(s.evtHandler.Pub.Messages))
 
-		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})
 		s.NoError(err)
 
-		_, err = s.svc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
+		_, err = s.uc.ActivateAPIKey(ctx, ActivateAPIKeyInput{
 			APIKeyID: dummyAPIKey.ID,
 			OTP:      dummyOTP.Code,
 		})

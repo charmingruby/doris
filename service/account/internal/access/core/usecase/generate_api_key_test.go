@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 	})
 
 	s.Run("it should create a new api key", func() {
-		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		id, err := s.uc.GenerateAPIKey(context.Background(), validInput)
 		s.NoError(err)
 
 		apiKey := s.apiKeyRepo.Items[0]
@@ -53,7 +53,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 	s.Run("it should be not able to create a new api key if datasource fails", func() {
 		s.apiKeyRepo.IsHealthy = false
 
-		_, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		_, err := s.uc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var dsErr *custom_err.ErrDatasourceOperationFailed
@@ -64,7 +64,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 		err := s.apiKeyRepo.Create(context.Background(), dummyAPIKey)
 		s.NoError(err)
 
-		_, err = s.svc.GenerateAPIKey(context.Background(), validInput)
+		_, err = s.uc.GenerateAPIKey(context.Background(), validInput)
 		s.Error(err)
 
 		var errResourceAlreadyExists *custom_err.ErrResourceAlreadyExists
@@ -74,7 +74,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 	s.Run("it should be not able to create a new api key if the messaging fails", func() {
 		s.evtHandler.Pub.IsHealthy = false
 
-		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		id, err := s.uc.GenerateAPIKey(context.Background(), validInput)
 
 		s.Empty(id)
 		s.Error(err)
@@ -87,7 +87,7 @@ func (s *Suite) Test_GenerateAPIKey() {
 	s.Run("it should be not able to create a new api key if there is an error inside the transaction", func() {
 		s.evtHandler.Pub.IsHealthy = false
 
-		id, err := s.svc.GenerateAPIKey(context.Background(), validInput)
+		id, err := s.uc.GenerateAPIKey(context.Background(), validInput)
 
 		s.Empty(id)
 		s.Error(err)

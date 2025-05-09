@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
-	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
+	"github.com/charmingruby/doris/service/notification/internal/notification/core/usecase"
 )
 
 const (
@@ -16,14 +16,14 @@ type Handler struct {
 	sub    messaging.Subscriber
 	logger *instrumentation.Logger
 	topics map[int]string
-	svc    *service.Service
+	uc     *usecase.UseCase
 }
 
 type TopicInput struct {
 	SendOTPNotification string
 }
 
-func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *service.Service, in TopicInput) *Handler {
+func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, uc *usecase.UseCase, in TopicInput) *Handler {
 	topics := make(map[int]string, 1)
 
 	topics[sendOTPNotificationIdentifier] = in.SendOTPNotification
@@ -32,7 +32,7 @@ func NewHandler(logger *instrumentation.Logger, sub messaging.Subscriber, svc *s
 		logger: logger,
 		sub:    sub,
 		topics: topics,
-		svc:    svc,
+		uc:     uc,
 	}
 }
 

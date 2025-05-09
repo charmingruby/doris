@@ -7,7 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/proto/gen/notification"
 	"github.com/charmingruby/doris/service/notification/internal/notification/core/model"
-	"github.com/charmingruby/doris/service/notification/internal/notification/core/service"
+	"github.com/charmingruby/doris/service/notification/internal/notification/core/usecase"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -31,7 +31,7 @@ func (h *Handler) onSendOTPNotification(ctx context.Context) error {
 
 		h.logger.Debug("event received", "topic", topic, "message", &n)
 
-		if err := h.svc.DispatchNotification(ctx, service.DispatchNotificationInput{
+		if err := h.uc.DispatchNotification(ctx, usecase.DispatchNotificationInput{
 			CorrelationID:    n.Id,
 			To:               n.To,
 			Content:          n.GetOtp().Code,

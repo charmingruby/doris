@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -30,7 +30,7 @@ func (s *Suite) Test_FetchCorrelatedNotifications() {
 		err := s.notificationRepo.Create(context.Background(), dummyNotification)
 		s.NoError(err)
 
-		output, err := s.svc.FetchCorrelatedNotifications(context.Background(), validInput)
+		output, err := s.uc.FetchCorrelatedNotifications(context.Background(), validInput)
 		s.NoError(err)
 		s.Equal(1, len(output.Notifications))
 		s.Equal(dummyNotification.ID, output.Notifications[0].ID)
@@ -42,7 +42,7 @@ func (s *Suite) Test_FetchCorrelatedNotifications() {
 	})
 
 	s.Run("it should return empty list when no notifications found", func() {
-		output, err := s.svc.FetchCorrelatedNotifications(context.Background(), validInput)
+		output, err := s.uc.FetchCorrelatedNotifications(context.Background(), validInput)
 		s.NoError(err)
 		s.Equal(0, len(output.Notifications))
 	})
@@ -50,7 +50,7 @@ func (s *Suite) Test_FetchCorrelatedNotifications() {
 	s.Run("it should not be able to fetch notifications if datasource fails", func() {
 		s.notificationRepo.IsHealthy = false
 
-		output, err := s.svc.FetchCorrelatedNotifications(context.Background(), validInput)
+		output, err := s.uc.FetchCorrelatedNotifications(context.Background(), validInput)
 		s.Error(err)
 		s.Equal(0, len(output.Notifications))
 
@@ -73,12 +73,12 @@ func (s *Suite) Test_FetchCorrelatedNotifications() {
 			s.NoError(err)
 		}
 
-		output, err := s.svc.FetchCorrelatedNotifications(context.Background(), validInput)
+		output, err := s.uc.FetchCorrelatedNotifications(context.Background(), validInput)
 		s.NoError(err)
 		s.Equal(pagination.MAX_ITEMS_PER_PAGE, len(output.Notifications))
 
 		validInput.Page = 2
-		output, err = s.svc.FetchCorrelatedNotifications(context.Background(), validInput)
+		output, err = s.uc.FetchCorrelatedNotifications(context.Background(), validInput)
 		s.NoError(err)
 		s.Equal(5, len(output.Notifications))
 	})

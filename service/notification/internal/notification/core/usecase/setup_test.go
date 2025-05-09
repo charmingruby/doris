@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ type Suite struct {
 
 	notificationRepo *memory.NotificationRepository
 	notifierClient   *memory.Notifier
-	svc              *Service
+	uc               *UseCase
 }
 
 func (s *Suite) SetupTest() {
@@ -24,7 +24,7 @@ func (s *Suite) SetupTest() {
 
 	s.notifierClient = memory.NewNotifier()
 
-	s.svc = New(logger, s.notificationRepo, s.notifierClient)
+	s.uc = New(logger, s.notificationRepo, s.notifierClient)
 }
 
 func (s *Suite) SetupSubTest() {

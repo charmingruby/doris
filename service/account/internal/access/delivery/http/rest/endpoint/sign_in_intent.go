@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
-	"github.com/charmingruby/doris/service/account/internal/access/core/service"
+	"github.com/charmingruby/doris/service/account/internal/access/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +21,7 @@ func (e *Endpoint) makeSignInIntent(c *gin.Context) {
 		return
 	}
 
-	err := e.svc.SignInIntent(context.Background(), service.SignInIntentInput{
+	err := e.uc.SignInIntent(context.Background(), usecase.SignInIntentInput{
 		Email: req.Email,
 	})
 	if err != nil {

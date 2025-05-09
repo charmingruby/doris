@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -10,42 +10,28 @@ import (
 	"github.com/charmingruby/doris/service/account/internal/access/core/repository"
 )
 
-type ResendAPIKeyActivationInput struct {
-	APIKeyID string `json:"api_key_id"`
+type SignInIntentInput struct {
+	Email string `json:"email"`
 }
 
-func (s *Service) ResendAPIKeyActivation(ctx context.Context, in ResendAPIKeyActivationInput) error {
-	ak, err := s.apiKeyRepo.FindByID(ctx, in.APIKeyID)
+func (uc *UseCase) SignInIntent(ctx context.Context, in SignInIntentInput) error {
+	ak, err := uc.apiKeyRepo.FindByEmail(ctx, in.Email)
 
 	if err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("find api key by id", err)
+		return custom_err.NewErrDatasourceOperationFailed("find api key by email", err)
 	}
 
 	if ak.ID == "" {
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	isOTPAlreadySent := true
+	hasSufficientPermission := ak.Status == model.API_KEY_STATUS_ACTIVE || ak.Status == model.API_KEY_STATUS_DEFAULTER
 
-	otp, err := s.otpRepo.FindMostRecentByCorrelationID(ctx, ak.ID)
-
-	if err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("find otp by correlation id", err)
+	if !hasSufficientPermission {
+		return custom_err.NewErrInsufficientPermission()
 	}
 
-	if otp.ID == "" {
-		isOTPAlreadySent = false
-	}
-
-	if isOTPAlreadySent {
-		otpGenerationDelay := time.Second * 30
-
-		if otp.CreatedAt.Add(otpGenerationDelay).After(time.Now()) {
-			return custom_err.NewErrOTPGenerationCooldown()
-		}
-	}
-
-	if err := s.txManager.Transact(func(tx repository.TransactionManager) error {
+	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
 		otp, err := model.NewOTP(model.OTPInput{
 			Purpose:       model.OTP_PURPOSE_API_KEY_ACTIVATION,
 			CorrelationID: ak.ID,
@@ -68,7 +54,7 @@ func (s *Service) ResendAPIKeyActivation(ctx context.Context, in ResendAPIKeyAct
 			SentAt:        time.Now(),
 		}
 
-		if err := s.event.DispatchSendOTPNotification(ctx, event); err != nil {
+		if err := uc.event.DispatchSendOTPNotification(ctx, event); err != nil {
 			return custom_err.NewErrMessagingWrapper(err)
 		}
 
