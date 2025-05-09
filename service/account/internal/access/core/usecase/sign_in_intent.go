@@ -25,7 +25,7 @@ func (uc *UseCase) SignInIntent(ctx context.Context, in SignInIntentInput) error
 		return custom_err.NewErrResourceNotFound("api key")
 	}
 
-	hasSufficientPermission := ak.Status == model.API_KEY_STATUS_ACTIVE || ak.Status == model.API_KEY_STATUS_DEFAULTER
+	hasSufficientPermission := ak.Status == model.API_KEY_STATUS_ACTIVE
 
 	if !hasSufficientPermission {
 		return custom_err.NewErrInsufficientPermission()
