@@ -1,0 +1,43 @@
+package memory
+
+import (
+	"context"
+
+	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+)
+
+type QuotaRepository struct {
+	Items     []model.Quota
+	IsHealthy bool
+}
+
+func NewQuotaRepository() *QuotaRepository {
+	return &QuotaRepository{
+		Items:     []model.Quota{},
+		IsHealthy: true,
+	}
+}
+
+func (r *QuotaRepository) FindByTier(ctx context.Context, tier string) (model.Quota, error) {
+	if !r.IsHealthy {
+		return model.Quota{}, ErrUnhealthyDatasource
+	}
+
+	for _, i := range r.Items {
+		if i.Tier == tier {
+			return i, nil
+		}
+	}
+
+	return model.Quota{}, nil
+}
+
+func (r *QuotaRepository) Create(ctx context.Context, quota model.Quota) error {
+	if !r.IsHealthy {
+		return ErrUnhealthyDatasource
+	}
+
+	r.Items = append(r.Items, quota)
+
+	return nil
+}
