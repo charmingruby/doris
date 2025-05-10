@@ -54,3 +54,17 @@ func (r *QuotaRepository) Create(ctx context.Context, quota model.Quota) error {
 
 	return nil
 }
+
+func (r *QuotaRepository) Save(ctx context.Context, quota model.Quota) error {
+	if !r.IsHealthy {
+		return ErrUnhealthyDatasource
+	}
+
+	for idx, i := range r.Items {
+		if i.ID == quota.ID {
+			r.Items[idx] = quota
+		}
+	}
+
+	return nil
+}
