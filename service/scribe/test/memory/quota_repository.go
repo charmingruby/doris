@@ -17,6 +17,19 @@ func NewQuotaRepository() *QuotaRepository {
 		IsHealthy: true,
 	}
 }
+func (r *QuotaRepository) FindByID(ctx context.Context, id string) (model.Quota, error) {
+	if !r.IsHealthy {
+		return model.Quota{}, ErrUnhealthyDatasource
+	}
+
+	for _, i := range r.Items {
+		if i.ID == id {
+			return i, nil
+		}
+	}
+
+	return model.Quota{}, nil
+}
 
 func (r *QuotaRepository) FindByTier(ctx context.Context, tier string) (model.Quota, error) {
 	if !r.IsHealthy {

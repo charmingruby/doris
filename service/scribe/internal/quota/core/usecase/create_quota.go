@@ -21,7 +21,7 @@ func (uc *UseCase) CreateQuota(ctx context.Context, in CreateQuotaInput) (string
 		return "", custom_err.NewErrResourceAlreadyExists("quota")
 	}
 
-	q, err := model.NewQuota(&model.QuotaInput{Tier: in.Tier})
+	q, err := model.NewQuota(model.QuotaInput{Tier: in.Tier})
 	if err != nil {
 		return "", custom_err.NewErrInvalidEntity(err.Error())
 	}

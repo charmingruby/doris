@@ -43,7 +43,7 @@ func (s *Suite) Test_CreateQuota() {
 
 		tier := privilege.TIER_ROOKIE
 
-		quota, err := model.NewQuota(&model.QuotaInput{
+		quota, err := model.NewQuota(model.QuotaInput{
 			Tier: tier,
 		})
 		s.NoError(err)

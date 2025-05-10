@@ -17,7 +17,7 @@ type QuotaInput struct {
 	Tier string
 }
 
-func NewQuota(in *QuotaInput) (*Quota, error) {
+func NewQuota(in QuotaInput) (*Quota, error) {
 	if err := privilege.IsTierValid(in.Tier); err != nil {
 		return nil, err
 	}

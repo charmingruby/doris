@@ -12,20 +12,25 @@ import (
 type Suite struct {
 	suite.Suite
 
-	quotaRepo *memory.QuotaRepository
-	uc        *UseCase
+	quotaRepo      *memory.QuotaRepository
+	quotaLimitRepo *memory.QuotaLimitRepository
+	uc             *UseCase
 }
 
 func (s *Suite) SetupTest() {
 	logger := instrumentation.New(instrumentation.LOG_LEVEL_DEBUG)
 	s.quotaRepo = memory.NewQuotaRepository()
+	s.quotaLimitRepo = memory.NewQuotaLimitRepository()
 
-	s.uc = New(logger, s.quotaRepo)
+	s.uc = New(logger, s.quotaRepo, s.quotaLimitRepo)
 }
 
 func (s *Suite) SetupSubTest() {
 	s.quotaRepo.Items = []model.Quota{}
 	s.quotaRepo.IsHealthy = true
+
+	s.quotaLimitRepo.Items = []model.QuotaLimit{}
+	s.quotaLimitRepo.IsHealthy = true
 }
 
 func TestSuite(t *testing.T) {
