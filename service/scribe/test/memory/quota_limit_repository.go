@@ -17,6 +17,21 @@ func NewQuotaLimitRepository() *QuotaLimitRepository {
 		IsHealthy: true,
 	}
 }
+
+func (r *QuotaLimitRepository) FindByID(ctx context.Context, id string) (model.QuotaLimit, error) {
+	if !r.IsHealthy {
+		return model.QuotaLimit{}, ErrUnhealthyDatasource
+	}
+
+	for _, i := range r.Items {
+		if i.ID == id {
+			return i, nil
+		}
+	}
+
+	return model.QuotaLimit{}, nil
+}
+
 func (r *QuotaLimitRepository) FindByQuotaIDAndKind(ctx context.Context, quotaID, kind string) (model.QuotaLimit, error) {
 	if !r.IsHealthy {
 		return model.QuotaLimit{}, ErrUnhealthyDatasource

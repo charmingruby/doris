@@ -7,14 +7,14 @@ import (
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
 )
 
-type CreateQuotaLimtInput struct {
+type CreateQuotaLimitInput struct {
 	QuotaID  string
 	Kind     string
 	MaxValue int
 	Unit     string
 }
 
-func (uc *UseCase) CreateQuotaLimit(ctx context.Context, in CreateQuotaLimtInput) (string, error) {
+func (uc *UseCase) CreateQuotaLimit(ctx context.Context, in CreateQuotaLimitInput) (string, error) {
 	quota, err := uc.quotaRepo.FindByID(ctx, in.QuotaID)
 
 	if err != nil {

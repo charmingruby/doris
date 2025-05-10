@@ -15,7 +15,7 @@ func (s *Suite) Test_CreateQuotaLimit() {
 	})
 	s.NoError(err)
 
-	validInput := CreateQuotaLimtInput{
+	validInput := CreateQuotaLimitInput{
 		QuotaID:  validQuota.ID,
 		Kind:     model.QUOTA_LIMIT_KIND_DOCUMENT,
 		MaxValue: 10,

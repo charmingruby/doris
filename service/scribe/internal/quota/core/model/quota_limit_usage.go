@@ -1,6 +1,27 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/charmingruby/doris/lib/core/id"
+)
+
+type QuotaLimitUsageInput struct {
+	CorrelationID string
+	QuotaLimitID  string
+}
+
+func NewQuotaLimitUsage(in QuotaLimitUsageInput) *QuotaLimitUsage {
+	return &QuotaLimitUsage{
+		ID:            id.New(),
+		CorrelationID: in.CorrelationID,
+		QuotaLimitID:  in.QuotaLimitID,
+		CurrentUsage:  0,
+		CreatedAt:     time.Now(),
+		LastResetAt:   nil,
+		UpdatedAt:     nil,
+	}
+}
 
 type QuotaLimitUsage struct {
 	ID            string     `json:"id" db:"id"`

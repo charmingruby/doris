@@ -6,19 +6,22 @@ import (
 )
 
 type UseCase struct {
-	logger         *instrumentation.Logger
-	quotaRepo      repository.QuotaRepository
-	quotaLimitRepo repository.QuotaLimitRepository
+	logger              *instrumentation.Logger
+	quotaRepo           repository.QuotaRepository
+	quotaLimitRepo      repository.QuotaLimitRepository
+	quotaLimitUsageRepo repository.QuotaLimitUsageRepository
 }
 
 func New(
 	logger *instrumentation.Logger,
 	quotaRepo repository.QuotaRepository,
 	quotaLimitRepo repository.QuotaLimitRepository,
+	quotaLimitUsageRepo repository.QuotaLimitUsageRepository,
 ) *UseCase {
 	return &UseCase{
-		logger:         logger,
-		quotaRepo:      quotaRepo,
-		quotaLimitRepo: quotaLimitRepo,
+		logger:              logger,
+		quotaRepo:           quotaRepo,
+		quotaLimitRepo:      quotaLimitRepo,
+		quotaLimitUsageRepo: quotaLimitUsageRepo,
 	}
 }
