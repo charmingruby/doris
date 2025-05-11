@@ -55,3 +55,17 @@ func (r *QuotaLimitRepository) Create(ctx context.Context, quotaLimit model.Quot
 
 	return nil
 }
+
+func (r *QuotaLimitRepository) Save(ctx context.Context, quotaLimit model.QuotaLimit) error {
+	if !r.IsHealthy {
+		return ErrUnhealthyDatasource
+	}
+
+	for idx, i := range r.Items {
+		if i.ID == quotaLimit.ID {
+			r.Items[idx] = quotaLimit
+		}
+	}
+
+	return nil
+}
