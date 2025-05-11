@@ -42,12 +42,10 @@ func (e *Endpoint) Register() {
 	))
 
 	quota.POST("/", e.makeCreateQuota)
+	quota.POST("/:id/limits", e.makeCreateQuotaLimit)
 
 	// TODO
 	// quota.PATCH("/", e.makeCreateQuota)
-
-	// TODO
-	// quota.POST("/:id/limits", e.makeCreateQuota)
 
 	// TODO
 	// quota.PATCH("/:id/limits", e.makeCreateQuota)
