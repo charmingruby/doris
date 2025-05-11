@@ -17,7 +17,7 @@ func HandleHTTPError(c *gin.Context, logger *instrumentation.Logger, err error) 
 	case *custom_err.ErrAPIKeyAlreadyActivated:
 		NewConflictResponse(c, e.Error())
 	case *custom_err.ErrNothingToChange:
-		NewNoContentResponse(c)
+		NewUnprocessableEntityResponse(c, e.Error())
 	case *custom_err.ErrInsufficientPermission:
 		NewForbiddenResponse(c)
 	case *custom_err.ErrInvalidEntity:

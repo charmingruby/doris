@@ -65,19 +65,47 @@ type ModifyQuotaLimitInput struct {
 }
 
 func (q *QuotaLimit) Modify(in ModifyQuotaLimitInput) error {
-	hasChange := in.Kind != q.Kind ||
-		in.MaxValue != q.MaxValue ||
-		in.Unit != q.Unit ||
-		in.IsActive != q.IsActive
+	hasChange := false
+
+	if in.Kind != "" && in.Kind != q.Kind {
+		if _, ok := validKinds[in.Kind]; !ok {
+			return ErrInvalidKind
+		}
+
+		hasChange = true
+	}
+
+	if in.MaxValue != 0 && in.MaxValue != q.MaxValue {
+		hasChange = true
+	}
+
+	if in.Unit != "" && in.Unit != q.Unit {
+		hasChange = true
+	}
+
+	if in.IsActive != q.IsActive {
+		hasChange = true
+	}
 
 	if !hasChange {
 		return custom_err.NewErrNothingToChange()
 	}
 
-	q.Kind = in.Kind
-	q.MaxValue = in.MaxValue
-	q.Unit = in.Unit
-	q.IsActive = in.IsActive
+	if in.Kind != "" && in.Kind != q.Kind {
+		q.Kind = in.Kind
+	}
+
+	if in.MaxValue != 0 && in.MaxValue != q.MaxValue {
+		q.MaxValue = in.MaxValue
+	}
+
+	if in.Unit != "" && in.Unit != q.Unit {
+		q.Unit = in.Unit
+	}
+
+	if in.IsActive != q.IsActive {
+		q.IsActive = in.IsActive
+	}
 
 	now := time.Now()
 	q.UpdatedAt = &now

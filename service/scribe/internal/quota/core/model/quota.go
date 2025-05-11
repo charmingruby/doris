@@ -57,22 +57,35 @@ type ModifyQuotaInput struct {
 }
 
 func (q *Quota) Modify(in ModifyQuotaInput) error {
-	hasChange := in.Tier != q.Tier || in.Status != q.Status
+	hasChange := false
+
+	if in.Tier != "" && in.Tier != q.Tier {
+		if err := privilege.IsTierValid(in.Tier); err != nil {
+			return custom_err.NewErrInvalidEntity(err.Error())
+		}
+
+		hasChange = true
+	}
+
+	if in.Status != "" && in.Status != q.Status {
+		if _, ok := validQuotaStatus[in.Status]; !ok {
+			return custom_err.NewErrInvalidEntity(ErrInvalidQuotaStatus.Error())
+		}
+
+		hasChange = true
+	}
 
 	if !hasChange {
 		return custom_err.NewErrNothingToChange()
 	}
 
-	if err := privilege.IsTierValid(in.Tier); err != nil {
-		return custom_err.NewErrInvalidEntity(err.Error())
+	if in.Tier != "" {
+		q.Tier = in.Tier
 	}
 
-	if _, exists := validQuotaStatus[in.Status]; !exists {
-		return custom_err.NewErrInvalidEntity(ErrInvalidQuotaStatus.Error())
+	if in.Status != "" {
+		q.Status = in.Status
 	}
-
-	q.Tier = in.Tier
-	q.Status = in.Status
 
 	now := time.Now()
 	q.UpdatedAt = &now
