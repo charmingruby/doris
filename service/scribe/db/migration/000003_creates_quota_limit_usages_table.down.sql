@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS quota_limit_usages;

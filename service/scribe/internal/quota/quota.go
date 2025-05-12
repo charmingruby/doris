@@ -12,20 +12,14 @@ import (
 )
 
 type Datasource struct {
-	quotaRepo           repository.QuotaRepository
-	quotaLimitRepo      repository.QuotaLimitRepository
-	quotaLimitUsageRepo repository.QuotaLimitUsageRepository
+	quotaRepo repository.QuotaRepository
 }
 
 func NewDatasource() (*Datasource, error) {
 	quotaRepo := memory.NewQuotaRepository()
-	quotaLimitRepo := memory.NewQuotaLimitRepository()
-	quotaLimitUsageRepo := memory.NewQuotaLimitUsageRepository()
 
 	return &Datasource{
-		quotaRepo:           quotaRepo,
-		quotaLimitRepo:      quotaLimitRepo,
-		quotaLimitUsageRepo: quotaLimitUsageRepo,
+		quotaRepo: quotaRepo,
 	}, nil
 }
 
@@ -36,8 +30,6 @@ func NewUseCase(
 	return usecase.New(
 		logger,
 		datasource.quotaRepo,
-		datasource.quotaLimitRepo,
-		datasource.quotaLimitUsageRepo,
 	)
 }
 

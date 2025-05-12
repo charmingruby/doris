@@ -14,7 +14,10 @@ func (s *Suite) Test_ModifyQuota() {
 		ctx := context.Background()
 
 		quota, err := model.NewQuota(model.QuotaInput{
-			Tier: privilege.TIER_ROOKIE,
+			Tier:     privilege.TIER_ROOKIE,
+			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.NoError(err)
 
@@ -24,8 +27,10 @@ func (s *Suite) Test_ModifyQuota() {
 		input := ModifyQuotaInput{
 			ID: quota.ID,
 			NewState: model.ModifyQuotaInput{
-				Tier:   privilege.TIER_PRO,
-				Status: model.QUOTA_STATUS_ENABLED,
+				Tier:     privilege.TIER_PRO,
+				Status:   model.QUOTA_STATUS_ENABLED,
+				MaxValue: 200,
+				Unit:     "request",
 			},
 		}
 
@@ -35,6 +40,8 @@ func (s *Suite) Test_ModifyQuota() {
 		storedQuota := s.quotaRepo.Items[0]
 		s.Equal(input.NewState.Tier, storedQuota.Tier)
 		s.Equal(input.NewState.Status, storedQuota.Status)
+		s.Equal(input.NewState.MaxValue, storedQuota.MaxValue)
+		s.Equal(input.NewState.Unit, storedQuota.Unit)
 	})
 
 	s.Run("it should not be able to modify if quota does not exist", func() {
@@ -43,8 +50,10 @@ func (s *Suite) Test_ModifyQuota() {
 		input := ModifyQuotaInput{
 			ID: "non-existent-id",
 			NewState: model.ModifyQuotaInput{
-				Tier:   privilege.TIER_PRO,
-				Status: model.QUOTA_STATUS_ENABLED,
+				Tier:     privilege.TIER_PRO,
+				Status:   model.QUOTA_STATUS_ENABLED,
+				MaxValue: 200,
+				Unit:     "request",
 			},
 		}
 
@@ -63,8 +72,10 @@ func (s *Suite) Test_ModifyQuota() {
 		input := ModifyQuotaInput{
 			ID: "some-id",
 			NewState: model.ModifyQuotaInput{
-				Tier:   privilege.TIER_PRO,
-				Status: model.QUOTA_STATUS_ENABLED,
+				Tier:     privilege.TIER_PRO,
+				Status:   model.QUOTA_STATUS_ENABLED,
+				MaxValue: 200,
+				Unit:     "request",
 			},
 		}
 
@@ -79,7 +90,10 @@ func (s *Suite) Test_ModifyQuota() {
 		ctx := context.Background()
 
 		quota, err := model.NewQuota(model.QuotaInput{
-			Tier: privilege.TIER_PRO,
+			Tier:     privilege.TIER_PRO,
+			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.NoError(err)
 
@@ -91,8 +105,10 @@ func (s *Suite) Test_ModifyQuota() {
 		input := ModifyQuotaInput{
 			ID: quota.ID,
 			NewState: model.ModifyQuotaInput{
-				Tier:   quota.Tier,
-				Status: quota.Status,
+				Tier:     quota.Tier,
+				Status:   quota.Status,
+				MaxValue: quota.MaxValue,
+				Unit:     quota.Unit,
 			},
 		}
 
@@ -101,5 +117,36 @@ func (s *Suite) Test_ModifyQuota() {
 
 		var nothingToChangeErr *custom_err.ErrNothingToChange
 		s.True(errors.As(err, &nothingToChangeErr), "error should be of type ErrNothingToChange")
+	})
+
+	s.Run("it should not be able to modify if tier is invalid", func() {
+		ctx := context.Background()
+
+		quota, err := model.NewQuota(model.QuotaInput{
+			Tier:     privilege.TIER_ROOKIE,
+			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			MaxValue: 100,
+			Unit:     "request",
+		})
+		s.NoError(err)
+
+		err = s.quotaRepo.Create(ctx, *quota)
+		s.NoError(err)
+
+		input := ModifyQuotaInput{
+			ID: quota.ID,
+			NewState: model.ModifyQuotaInput{
+				Tier:     privilege.TIER_ROOKIE + "-invalid",
+				Status:   model.QUOTA_STATUS_ENABLED,
+				MaxValue: 200,
+				Unit:     "request",
+			},
+		}
+
+		err = s.uc.ModifyQuota(ctx, input)
+		s.Error(err)
+
+		var invalidEntityErr *custom_err.ErrInvalidEntity
+		s.True(errors.As(err, &invalidEntityErr), "error should be of type ErrInvalidEntity")
 	})
 }

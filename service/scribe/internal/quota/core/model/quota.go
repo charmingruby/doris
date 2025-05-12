@@ -13,20 +13,32 @@ const (
 	QUOTA_STATUS_DRAFT    = "DRAFT"
 	QUOTA_STATUS_DISABLED = "DISABLED"
 	QUOTA_STATUS_ENABLED  = "ENABLED"
+
+	QUOTA_LIMIT_KIND_DOCUMENT = "DOCUMENT"
+	QUOTA_LIMIT_KIND_REQUEST  = "REQUEST"
 )
 
 var (
 	ErrInvalidQuotaStatus = errors.New("invalid quota status")
+	ErrInvalidKind        = errors.New("invalid kind")
 
 	validQuotaStatus = map[string]struct{}{
 		QUOTA_STATUS_DRAFT:    {},
 		QUOTA_STATUS_DISABLED: {},
 		QUOTA_STATUS_ENABLED:  {},
 	}
+
+	validKinds = map[string]struct{}{
+		QUOTA_LIMIT_KIND_DOCUMENT: {},
+		QUOTA_LIMIT_KIND_REQUEST:  {},
+	}
 )
 
 type QuotaInput struct {
-	Tier string
+	Tier     string
+	Kind     string
+	MaxValue int
+	Unit     string
 }
 
 func NewQuota(in QuotaInput) (*Quota, error) {
@@ -34,9 +46,16 @@ func NewQuota(in QuotaInput) (*Quota, error) {
 		return nil, err
 	}
 
+	if _, ok := validKinds[in.Kind]; !ok {
+		return nil, ErrInvalidKind
+	}
+
 	return &Quota{
 		ID:        id.New(),
 		Tier:      in.Tier,
+		Kind:      in.Kind,
+		MaxValue:  in.MaxValue,
+		Unit:      in.Unit,
 		Status:    QUOTA_STATUS_DRAFT,
 		CreatedAt: time.Now(),
 		UpdatedAt: nil,
@@ -46,14 +65,20 @@ func NewQuota(in QuotaInput) (*Quota, error) {
 type Quota struct {
 	ID        string     `json:"id" db:"id"`
 	Tier      string     `json:"tier" db:"tier"`
+	Kind      string     `json:"kind" db:"kind"`
+	MaxValue  int        `json:"max_value" db:"max_value"`
+	Unit      string     `json:"unit" db:"unit"`
 	Status    string     `json:"status" db:"status"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type ModifyQuotaInput struct {
-	Tier   string
-	Status string
+	Tier     string
+	Kind     string
+	MaxValue int
+	Unit     string
+	Status   string
 }
 
 func (q *Quota) Modify(in ModifyQuotaInput) error {
@@ -75,8 +100,36 @@ func (q *Quota) Modify(in ModifyQuotaInput) error {
 		hasChange = true
 	}
 
+	if in.Kind != "" && in.Kind != q.Kind {
+		if _, ok := validKinds[in.Kind]; !ok {
+			return ErrInvalidKind
+		}
+
+		hasChange = true
+	}
+
+	if in.MaxValue != 0 && in.MaxValue != q.MaxValue {
+		hasChange = true
+	}
+
+	if in.Unit != "" && in.Unit != q.Unit {
+		hasChange = true
+	}
+
 	if !hasChange {
 		return custom_err.NewErrNothingToChange()
+	}
+
+	if in.Kind != "" && in.Kind != q.Kind {
+		q.Kind = in.Kind
+	}
+
+	if in.MaxValue != 0 && in.MaxValue != q.MaxValue {
+		q.MaxValue = in.MaxValue
+	}
+
+	if in.Unit != "" && in.Unit != q.Unit {
+		q.Unit = in.Unit
 	}
 
 	if in.Tier != "" {

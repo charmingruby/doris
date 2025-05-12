@@ -12,9 +12,15 @@ import (
 func (s *Suite) Test_CreateQuota() {
 	s.Run("it should be able to create a quota", func() {
 		tier := privilege.TIER_ROOKIE
+		kind := model.QUOTA_LIMIT_KIND_REQUEST
+		maxValue := 100
+		unit := "request"
 
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
-			Tier: tier,
+			Tier:     tier,
+			Kind:     kind,
+			MaxValue: maxValue,
+			Unit:     unit,
 		})
 		s.NoError(err)
 
@@ -23,13 +29,19 @@ func (s *Suite) Test_CreateQuota() {
 		s.Equal(storedQuota.ID, id)
 		s.Equal(storedQuota.Status, model.QUOTA_STATUS_DRAFT)
 		s.Equal(storedQuota.Tier, tier)
+		s.Equal(storedQuota.Kind, kind)
+		s.Equal(storedQuota.MaxValue, maxValue)
+		s.Equal(storedQuota.Unit, unit)
 	})
 
 	s.Run("it should be not able to create a quota if datasource fails", func() {
 		s.quotaRepo.IsHealthy = false
 
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
-			Tier: privilege.TIER_ROOKIE,
+			Tier:     privilege.TIER_ROOKIE,
+			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.Empty(id)
 		s.Error(err)
@@ -42,9 +54,13 @@ func (s *Suite) Test_CreateQuota() {
 		ctx := context.Background()
 
 		tier := privilege.TIER_ROOKIE
+		kind := model.QUOTA_LIMIT_KIND_REQUEST
 
 		quota, err := model.NewQuota(model.QuotaInput{
-			Tier: tier,
+			Tier:     tier,
+			Kind:     kind,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.NoError(err)
 
@@ -52,7 +68,10 @@ func (s *Suite) Test_CreateQuota() {
 		s.NoError(err)
 
 		id, err := s.uc.CreateQuota(ctx, CreateQuotaInput{
-			Tier: tier,
+			Tier:     tier,
+			Kind:     kind,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.Empty(id)
 		s.Error(err)
@@ -63,7 +82,10 @@ func (s *Suite) Test_CreateQuota() {
 
 	s.Run("it should be not able to create a quota if tier is invalid", func() {
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
-			Tier: privilege.TIER_ROOKIE + "-invalid",
+			Tier:     privilege.TIER_ROOKIE + "-invalid",
+			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			MaxValue: 100,
+			Unit:     "request",
 		})
 		s.Empty(id)
 		s.Error(err)
