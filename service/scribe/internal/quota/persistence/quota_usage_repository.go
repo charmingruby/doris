@@ -22,7 +22,7 @@ func quotaUsageQueries() map[string]string {
 		createQuotaUsage:                        `INSERT INTO quota_usages (id, correlation_id, quota_id, current_usage, is_active, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
 		saveQuotaUsage:                          `UPDATE quota_usages SET current_usage = $1, is_active = $2, updated_at = $3 WHERE id = $4`,
 		findQuotaUsageByCorrelationIDAndQuotaID: `SELECT * FROM quota_usages WHERE correlation_id = $1 AND quota_id = $2`,
-		updateAllCurrentUsages:                  `UPDATE quota_usages SET current_usage = 0, last_reset_at = $1, updated_at = $2`,
+		updateAllCurrentUsages:                  `UPDATE quota_usages SET current_usage = 0, last_reset_at = $1, updated_at = $1`,
 	}
 }
 

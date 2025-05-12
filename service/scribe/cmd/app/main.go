@@ -18,6 +18,7 @@ import (
 	"github.com/charmingruby/doris/service/scribe/internal/platform"
 	"github.com/charmingruby/doris/service/scribe/internal/quota"
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -65,10 +66,13 @@ func main() {
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	if err := initModules(logger, cfg, router, db, sub, val); err != nil {
+	resetAllQuotaUsagesFn, err := initModules(logger, cfg, router, db, sub, val)
+	if err != nil {
 		logger.Error("failed to initialize modules", "error", err)
 		return
 	}
+
+	monthlyQuotaUsageResetCronJob(logger, resetAllQuotaUsagesFn)
 
 	logger.Info("modules initialized successfully")
 
@@ -84,10 +88,10 @@ func main() {
 	gracefulShutdown(logger, server, sub, db)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, db *postgres.Client, sub *nats.Subscriber, val *validation.Validator) error {
+func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, db *postgres.Client, sub *nats.Subscriber, val *validation.Validator) (func(context.Context) error, error) {
 	quotaDatasource, err := quota.NewDatasource(db.Conn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
@@ -102,7 +106,7 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engin
 
 	platform.NewHTTPHandler(r)
 
-	return nil
+	return quotaUseCase.ResetAllQuotaUsages, nil
 }
 
 func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nats.Subscriber, db *postgres.Client) {
@@ -126,4 +130,25 @@ func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nat
 	}
 
 	logger.Info("shutdown complete")
+}
+
+func monthlyQuotaUsageResetCronJob(logger *instrumentation.Logger, fn func(context.Context) error) {
+	c := cron.New(cron.WithSeconds())
+
+	_, err := c.AddFunc("0 0 0 1 * *", func() {
+		logger.Info("cron job: reset all the quota usages", "time", time.Now())
+
+		if err := fn(context.Background()); err != nil {
+			logger.Error(err.Error())
+		} else {
+			logger.Info("cron job: reset all the quota changes successfully")
+		}
+	})
+
+	if err != nil {
+		logger.Error("failed to register cron job", "err", err)
+		return
+	}
+
+	c.Start()
 }
