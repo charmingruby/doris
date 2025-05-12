@@ -14,6 +14,7 @@ const (
 	findQuotaUsageByCorrelationIDAndQuotaID = "find quota usage by correlation id and quota id"
 	createQuotaUsage                        = "create quota usage"
 	saveQuotaUsage                          = "save quota usage"
+	updateAllCurrentUsages                  = "update all current usages"
 )
 
 func quotaUsageQueries() map[string]string {
@@ -21,6 +22,7 @@ func quotaUsageQueries() map[string]string {
 		createQuotaUsage:                        `INSERT INTO quota_usages (id, correlation_id, quota_id, current_usage, is_active, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
 		saveQuotaUsage:                          `UPDATE quota_usages SET current_usage = $1, is_active = $2, updated_at = $3 WHERE id = $4`,
 		findQuotaUsageByCorrelationIDAndQuotaID: `SELECT * FROM quota_usages WHERE correlation_id = $1 AND quota_id = $2`,
+		updateAllCurrentUsages:                  `UPDATE quota_usages SET current_usage = 0, last_reset_at = $1, updated_at = $2`,
 	}
 }
 
@@ -138,6 +140,20 @@ func (r *QuotaUsageRepository) Save(ctx context.Context, quotaUsage model.QuotaU
 		quotaUsage.UpdatedAt,
 		quotaUsage.ID,
 	)
+
+	return err
+}
+
+func (r *QuotaUsageRepository) UpdateAllCurrentUsages(ctx context.Context, now time.Time) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(updateAllCurrentUsages)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.ExecContext(ctx, now)
 
 	return err
 }

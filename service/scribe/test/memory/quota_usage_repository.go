@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"time"
 
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
 )
@@ -51,6 +52,20 @@ func (r *QuotaUsageRepository) Save(ctx context.Context, quotaUsage model.QuotaU
 		if i.ID == quotaUsage.ID {
 			r.Items[idx] = quotaUsage
 		}
+	}
+
+	return nil
+}
+
+func (r *QuotaUsageRepository) UpdateAllCurrentUsages(ctx context.Context, now time.Time) error {
+	if !r.IsHealthy {
+		return ErrUnhealthyDatasource
+	}
+
+	for idx := range r.Items {
+		r.Items[idx].CurrentUsage = 0
+		r.Items[idx].LastResetAt = &now
+		r.Items[idx].UpdatedAt = &now
 	}
 
 	return nil
