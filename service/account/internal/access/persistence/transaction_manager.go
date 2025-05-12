@@ -18,12 +18,12 @@ type TransactionManager struct {
 
 func (p *TransactionManager) Transact(txFunc func(params repository.TransactionManager) error) error {
 	return postgres.RunInTx(p.db, func(tx *sqlx.Tx) error {
-		apiKeyRepo, err := NewAPIKeyRepo(tx)
+		apiKeyRepo, err := NewAPIKeyRepository(tx)
 		if err != nil {
 			return err
 		}
 
-		otpRepo, err := NewOTPRepo(tx)
+		otpRepo, err := NewOTPRepository(tx)
 		if err != nil {
 			return err
 		}

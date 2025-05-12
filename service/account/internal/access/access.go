@@ -24,12 +24,12 @@ type Datasource struct {
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
-	apiKeyRepo, err := persistence.NewAPIKeyRepo(db)
+	apiKeyRepo, err := persistence.NewAPIKeyRepository(db)
 	if err != nil {
 		return nil, err
 	}
 
-	otpRepo, err := persistence.NewOTPRepo(db)
+	otpRepo, err := persistence.NewOTPRepository(db)
 	if err != nil {
 		return nil, err
 	}

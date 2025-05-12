@@ -23,42 +23,42 @@ func otpQueries() map[string]string {
 	}
 }
 
-type OTPRepo struct {
+type OTPRepository struct {
 	db    postgres.Database
 	stmts map[string]*sqlx.Stmt
 }
 
-func NewOTPRepo(db postgres.Database) (*OTPRepo, error) {
+func NewOTPRepository(db postgres.Database) (*OTPRepository, error) {
 	stmts := make(map[string]*sqlx.Stmt)
 
 	for queryName, statement := range otpQueries() {
 		stmt, err := db.Preparex(statement)
 		if err != nil {
 			return nil,
-				postgres.NewPreparationErr(queryName, "api key", err)
+				postgres.NewPreparationErr(queryName, "otp", err)
 		}
 
 		stmts[queryName] = stmt
 	}
 
-	return &OTPRepo{
+	return &OTPRepository{
 		db:    db,
 		stmts: stmts,
 	}, nil
 }
 
-func (r *OTPRepo) statement(queryName string) (*sqlx.Stmt, error) {
+func (r *OTPRepository) statement(queryName string) (*sqlx.Stmt, error) {
 	stmt, ok := r.stmts[queryName]
 
 	if !ok {
 		return nil,
-			postgres.NewStatementNotPreparedErr(queryName, "api key")
+			postgres.NewStatementNotPreparedErr(queryName, "otp")
 	}
 
 	return stmt, nil
 }
 
-func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
+func (r *OTPRepository) Create(ctx context.Context, otp model.OTP) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -74,7 +74,7 @@ func (r *OTPRepo) Create(ctx context.Context, otp model.OTP) error {
 	return nil
 }
 
-func (r *OTPRepo) FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
+func (r *OTPRepository) FindMostRecentByCorrelationID(ctx context.Context, correlationID string) (model.OTP, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 

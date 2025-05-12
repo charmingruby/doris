@@ -29,12 +29,12 @@ func apiKeyQueries() map[string]string {
 	}
 }
 
-type APIKeyRepo struct {
+type APIKeyRepository struct {
 	db    postgres.Database
 	stmts map[string]*sqlx.Stmt
 }
 
-func NewAPIKeyRepo(db postgres.Database) (*APIKeyRepo, error) {
+func NewAPIKeyRepository(db postgres.Database) (*APIKeyRepository, error) {
 	stmts := make(map[string]*sqlx.Stmt)
 
 	for queryName, statement := range apiKeyQueries() {
@@ -47,13 +47,13 @@ func NewAPIKeyRepo(db postgres.Database) (*APIKeyRepo, error) {
 		stmts[queryName] = stmt
 	}
 
-	return &APIKeyRepo{
+	return &APIKeyRepository{
 		db:    db,
 		stmts: stmts,
 	}, nil
 }
 
-func (r *APIKeyRepo) statement(queryName string) (*sqlx.Stmt, error) {
+func (r *APIKeyRepository) statement(queryName string) (*sqlx.Stmt, error) {
 	stmt, ok := r.stmts[queryName]
 
 	if !ok {
@@ -64,7 +64,7 @@ func (r *APIKeyRepo) statement(queryName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-func (r *APIKeyRepo) FindByID(ctx context.Context, id string) (model.APIKey, error) {
+func (r *APIKeyRepository) FindByID(ctx context.Context, id string) (model.APIKey, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -85,7 +85,7 @@ func (r *APIKeyRepo) FindByID(ctx context.Context, id string) (model.APIKey, err
 	return apiKey, nil
 }
 
-func (r *APIKeyRepo) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
+func (r *APIKeyRepository) FindByEmail(ctx context.Context, email string) (model.APIKey, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -106,7 +106,7 @@ func (r *APIKeyRepo) FindByEmail(ctx context.Context, email string) (model.APIKe
 	return apiKey, nil
 }
 
-func (r *APIKeyRepo) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
+func (r *APIKeyRepository) FindByKey(ctx context.Context, key string) (model.APIKey, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -127,7 +127,7 @@ func (r *APIKeyRepo) FindByKey(ctx context.Context, key string) (model.APIKey, e
 	return apiKey, nil
 }
 
-func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepository) Create(ctx context.Context, apiKey model.APIKey) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -152,7 +152,7 @@ func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
 	return nil
 }
 
-func (r *APIKeyRepo) Save(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepository) Save(ctx context.Context, apiKey model.APIKey) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
