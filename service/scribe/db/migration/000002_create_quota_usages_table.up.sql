@@ -3,6 +3,7 @@ CREATE TABLE quota_usages (
     correlation_id VARCHAR NOT NULL,
     quota_id VARCHAR NOT NULL,
     current_usage INT NOT NULL,
+    is_active BOOLEAN NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_reset_at TIMESTAMP,
     updated_at TIMESTAMP,

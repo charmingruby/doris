@@ -7,5 +7,7 @@ import (
 )
 
 type QuotaUsageRepository interface {
+	FindByCorrelationIDAndQuotaID(ctx context.Context, correlationID, quotaID string) (model.QuotaUsage, error)
 	Create(ctx context.Context, quotaUsage model.QuotaUsage) error
+	Save(ctx context.Context, quotaUsage model.QuotaUsage) error
 }

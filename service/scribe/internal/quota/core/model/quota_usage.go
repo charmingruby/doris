@@ -17,6 +17,7 @@ func NewQuotaUsage(in QuotaUsageInput) *QuotaUsage {
 		CorrelationID: in.CorrelationID,
 		QuotaID:       in.QuotaID,
 		CurrentUsage:  0,
+		IsActive:      true,
 		CreatedAt:     time.Now(),
 		LastResetAt:   nil,
 		UpdatedAt:     nil,
@@ -28,6 +29,7 @@ type QuotaUsage struct {
 	CorrelationID string     `json:"correlation_id" db:"correlation_id"`
 	QuotaID       string     `json:"quota_id" db:"quota_id"`
 	CurrentUsage  int        `json:"current_usage" db:"current_usage"`
+	IsActive      bool       `json:"is_active" db:"is_active"`
 	CreatedAt     time.Time  `json:"created_at" db:"created_at"`
 	LastResetAt   *time.Time `json:"last_reset_at" db:"last_reset_at"`
 	UpdatedAt     *time.Time `json:"updated_at" db:"updated_at"`
