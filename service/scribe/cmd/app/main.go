@@ -92,6 +92,8 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engin
 
 	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
 
+	quota.NewEventHandler(logger, sub, cfg, quotaUseCase)
+
 	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
 
 	mw := rest.NewMiddleware(tokenClient)
