@@ -3,6 +3,7 @@ package persistence
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
@@ -12,6 +13,7 @@ import (
 
 const (
 	findQuotaByID          = "find quota by id"
+	findManyQuotasByTier   = "find many quotas by tier"
 	findQuotaByTierAndKind = "find quota by tier and kind"
 	createQuota            = "create quota"
 	saveQuota              = "update quota"
@@ -20,6 +22,7 @@ const (
 func quotaQueries() map[string]string {
 	return map[string]string{
 		findQuotaByID:          `SELECT * FROM quotas WHERE id = $1`,
+		findManyQuotasByTier:   `SELECT * FROM quotas WHERE tier = $1`,
 		findQuotaByTierAndKind: `SELECT * FROM quotas WHERE tier = $1 AND kind = $2`,
 		createQuota:            `INSERT INTO quotas (id, tier, kind, max_value, unit, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
 		saveQuota:              `UPDATE quotas SET status = $1, tier = $2, kind = $3, max_value = $4, unit = $5, updated_at = $6 WHERE id = $7`,
@@ -98,6 +101,9 @@ func (r *QuotaRepository) FindByID(ctx context.Context, id string) (model.Quota,
 }
 
 func (r *QuotaRepository) FindByTierAndKind(ctx context.Context, tier, kind string) (model.Quota, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
 	var quota model.Quota
 	var updatedAt sql.NullTime
 
@@ -128,6 +134,25 @@ func (r *QuotaRepository) FindByTierAndKind(ctx context.Context, tier, kind stri
 	}
 
 	return quota, nil
+}
+
+func (r *QuotaRepository) FindManyByTier(ctx context.Context, tier string) ([]model.Quota, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(findManyQuotasByTier)
+	if err != nil {
+		return nil, err
+	}
+
+	var quotas []model.Quota
+
+	if err := stmt.SelectContext(ctx, &quotas, tier); err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	return quotas, nil
 }
 
 func (r *QuotaRepository) Create(ctx context.Context, quota model.Quota) error {

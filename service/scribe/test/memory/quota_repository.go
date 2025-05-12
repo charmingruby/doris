@@ -17,6 +17,7 @@ func NewQuotaRepository() *QuotaRepository {
 		IsHealthy: true,
 	}
 }
+
 func (r *QuotaRepository) FindByID(ctx context.Context, id string) (model.Quota, error) {
 	if !r.IsHealthy {
 		return model.Quota{}, ErrUnhealthyDatasource
@@ -29,6 +30,21 @@ func (r *QuotaRepository) FindByID(ctx context.Context, id string) (model.Quota,
 	}
 
 	return model.Quota{}, nil
+}
+
+func (r *QuotaRepository) FindManyByTier(ctx context.Context, tier string) ([]model.Quota, error) {
+	if !r.IsHealthy {
+		return nil, ErrUnhealthyDatasource
+	}
+
+	quotas := []model.Quota{}
+	for _, i := range r.Items {
+		if i.Tier == tier {
+			quotas = append(quotas, i)
+		}
+	}
+
+	return quotas, nil
 }
 
 func (r *QuotaRepository) FindByTierAndKind(ctx context.Context, tier, kind string) (model.Quota, error) {

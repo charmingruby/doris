@@ -3,6 +3,7 @@ package quota
 import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	persistenceLib "github.com/charmingruby/doris/lib/persistence"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/repository"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/usecase"
@@ -13,7 +14,9 @@ import (
 )
 
 type Datasource struct {
-	quotaRepo repository.QuotaRepository
+	quotaRepo      repository.QuotaRepository
+	quotaUsageRepo repository.QuotaUsageRepository
+	txManager      persistenceLib.TransactionManager[repository.TransactionManager]
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
@@ -22,8 +25,20 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	quotaUsageRepo, err := persistence.NewQuotaUsageRepository(db)
+	if err != nil {
+		return nil, err
+	}
+
+	txManager, err := persistence.NewTransactionManager(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Datasource{
-		quotaRepo: quotaRepo,
+		quotaRepo:      quotaRepo,
+		quotaUsageRepo: quotaUsageRepo,
+		txManager:      txManager,
 	}, nil
 }
 
@@ -34,6 +49,8 @@ func NewUseCase(
 	return usecase.New(
 		logger,
 		datasource.quotaRepo,
+		datasource.quotaUsageRepo,
+		datasource.txManager,
 	)
 }
 
