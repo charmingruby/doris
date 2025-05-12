@@ -56,8 +56,8 @@ func (uc *UseCase) DelegateAPIKeyTier(ctx context.Context, in DelegateAPIKeyTier
 	}
 
 	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
-		if err := tx.APIKeyRepo.Update(ctx, apiKey); err != nil {
-			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		if err := tx.APIKeyRepo.Save(ctx, apiKey); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("save api key", err)
 		}
 
 		event := event.APIKeyDelegated{

@@ -11,5 +11,5 @@ type APIKeyRepository interface {
 	FindByEmail(ctx context.Context, email string) (model.APIKey, error)
 	FindByKey(ctx context.Context, key string) (model.APIKey, error)
 	Create(ctx context.Context, apiKey model.APIKey) error
-	Update(ctx context.Context, apiKey model.APIKey) error
+	Save(ctx context.Context, apiKey model.APIKey) error
 }

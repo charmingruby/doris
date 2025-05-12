@@ -51,8 +51,8 @@ func (uc *UseCase) ActivateAPIKey(ctx context.Context, in ActivateAPIKeyInput) (
 
 	if err := uc.txManager.Transact(func(tx repository.TransactionManager) error {
 		ak.Status = model.API_KEY_STATUS_ACTIVE
-		if err := tx.APIKeyRepo.Update(ctx, ak); err != nil {
-			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		if err := tx.APIKeyRepo.Save(ctx, ak); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("save api key", err)
 		}
 
 		event := event.APIKeyActivated{

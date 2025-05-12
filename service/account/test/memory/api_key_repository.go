@@ -70,7 +70,7 @@ func (r *APIKeyRepository) Create(ctx context.Context, apiKey model.APIKey) erro
 	return nil
 }
 
-func (r *APIKeyRepository) Update(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepository) Save(ctx context.Context, apiKey model.APIKey) error {
 	if !r.IsHealthy {
 		return ErrUnhealthyDatasource
 	}

@@ -16,7 +16,7 @@ const (
 	findAPIKeyByKey   = "find api key by key"
 	findAPIKeyByEmail = "find api key by email"
 	createAPIKey      = "create api key"
-	updateAPIKey      = "update api key"
+	saveAPIKey        = "save api key"
 )
 
 func apiKeyQueries() map[string]string {
@@ -25,7 +25,7 @@ func apiKeyQueries() map[string]string {
 		findAPIKeyByKey:   `SELECT * FROM api_keys WHERE key = $1`,
 		findAPIKeyByEmail: `SELECT * FROM api_keys WHERE email = $1`,
 		createAPIKey:      `INSERT INTO api_keys (id, first_name, last_name, email, key, status, tier) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		updateAPIKey:      `UPDATE api_keys SET status = $1, tier = $2 WHERE id = $3`,
+		saveAPIKey:        `UPDATE api_keys SET status = $1, tier = $2 WHERE id = $3`,
 	}
 }
 
@@ -152,11 +152,11 @@ func (r *APIKeyRepo) Create(ctx context.Context, apiKey model.APIKey) error {
 	return nil
 }
 
-func (r *APIKeyRepo) Update(ctx context.Context, apiKey model.APIKey) error {
+func (r *APIKeyRepo) Save(ctx context.Context, apiKey model.APIKey) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	stmt, err := r.statement(updateAPIKey)
+	stmt, err := r.statement(saveAPIKey)
 	if err != nil {
 		return err
 	}

@@ -68,8 +68,8 @@ func (uc *UseCase) GenerateAPIKey(ctx context.Context, in GenerateAPIKeyInput) (
 
 		ak.Status = model.API_KEY_STATUS_PENDING
 
-		if err := tx.APIKeyRepo.Update(ctx, *ak); err != nil {
-			return custom_err.NewErrDatasourceOperationFailed("update api key", err)
+		if err := tx.APIKeyRepo.Save(ctx, *ak); err != nil {
+			return custom_err.NewErrDatasourceOperationFailed("save api key", err)
 		}
 
 		return nil
