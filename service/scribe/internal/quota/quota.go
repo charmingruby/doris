@@ -7,16 +7,20 @@ import (
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/repository"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/usecase"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/delivery/http/rest/endpoint"
-	"github.com/charmingruby/doris/service/scribe/test/memory"
+	"github.com/charmingruby/doris/service/scribe/internal/quota/persistence"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
 type Datasource struct {
 	quotaRepo repository.QuotaRepository
 }
 
-func NewDatasource() (*Datasource, error) {
-	quotaRepo := memory.NewQuotaRepository()
+func NewDatasource(db *sqlx.DB) (*Datasource, error) {
+	quotaRepo, err := persistence.NewQuotaRepository(db)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Datasource{
 		quotaRepo: quotaRepo,

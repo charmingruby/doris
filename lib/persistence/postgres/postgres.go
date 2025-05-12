@@ -26,16 +26,18 @@ type ConnectionInput struct {
 	User         string
 	Password     string
 	Host         string
+	Port         string
 	DatabaseName string
 	SSL          string
 }
 
 func New(logger *instrumentation.Logger, in ConnectionInput) (*Client, error) {
 	connectionString := fmt.Sprintf(
-		"postgresql://%s:%s@%s/%s?sslmode=%s",
+		"postgresql://%s:%s@%s:%s/%s?sslmode=%s",
 		in.User,
 		in.Password,
 		in.Host,
+		in.Port,
 		in.DatabaseName,
 		in.SSL,
 	)

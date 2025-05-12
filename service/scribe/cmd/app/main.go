@@ -11,6 +11,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging/nats"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/lib/security"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/scribe/config"
@@ -45,11 +46,26 @@ func main() {
 
 	logger.Info("nats subscriber created successfully")
 
+	db, err := postgres.New(logger, postgres.ConnectionInput{
+		User:         cfg.Custom.DatabaseUser,
+		Password:     cfg.Custom.DatabasePassword,
+		Host:         cfg.Custom.DatabaseHost,
+		Port:         cfg.Custom.DatabasePort,
+		DatabaseName: cfg.Custom.DatabaseName,
+		SSL:          cfg.Custom.DatabaseSSL,
+	})
+	if err != nil {
+		logger.Error("failed to create postgres connection", "error", err)
+		return
+	}
+
+	logger.Info("postgres connection created successfully")
+
 	val := validation.NewValidator()
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	if err := initModules(logger, cfg, router, sub, val); err != nil {
+	if err := initModules(logger, cfg, router, db, sub, val); err != nil {
 		logger.Error("failed to initialize modules", "error", err)
 		return
 	}
@@ -65,11 +81,11 @@ func main() {
 		}
 	}()
 
-	gracefulShutdown(logger, server, sub)
+	gracefulShutdown(logger, server, sub, db)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, sub *nats.Subscriber, val *validation.Validator) error {
-	quotaDatasource, err := quota.NewDatasource()
+func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, db *postgres.Client, sub *nats.Subscriber, val *validation.Validator) error {
+	quotaDatasource, err := quota.NewDatasource(db.Conn)
 	if err != nil {
 		return err
 	}
@@ -87,7 +103,7 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engin
 	return nil
 }
 
-func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nats.Subscriber) {
+func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nats.Subscriber, db *postgres.Client) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -97,6 +113,10 @@ func gracefulShutdown(logger *instrumentation.Logger, srv *rest.Server, sub *nat
 
 	if err := sub.Close(ctx); err != nil {
 		logger.Error("failed to close nats subscriber", "error", err)
+	}
+
+	if err := db.Close(ctx); err != nil {
+		logger.Error("failed to disconnect from postgres", "error", err)
 	}
 
 	if err := srv.Shutdown(ctx); err != nil {
