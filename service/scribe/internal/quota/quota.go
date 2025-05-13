@@ -11,15 +11,17 @@ import (
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/usecase"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/delivery/event"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/delivery/http/rest/endpoint"
+	"github.com/charmingruby/doris/service/scribe/internal/quota/integration/provider"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/persistence"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
 type Datasource struct {
-	quotaRepo      repository.QuotaRepository
-	quotaUsageRepo repository.QuotaUsageRepository
-	txManager      persistenceLib.TransactionManager[repository.TransactionManager]
+	quotaRepo         repository.QuotaRepository
+	quotaUsageRepo    repository.QuotaUsageRepository
+	quotaSnapshotRepo repository.QuotaSnapshotRepository
+	txManager         persistenceLib.TransactionManager[repository.TransactionManager]
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
@@ -33,15 +35,21 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	quotaSnapshotRepo, err := persistence.NewQuotaSnapshotRepository(db)
+	if err != nil {
+		return nil, err
+	}
+
 	txManager, err := persistence.NewTransactionManager(db)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Datasource{
-		quotaRepo:      quotaRepo,
-		quotaUsageRepo: quotaUsageRepo,
-		txManager:      txManager,
+		quotaRepo:         quotaRepo,
+		quotaUsageRepo:    quotaUsageRepo,
+		quotaSnapshotRepo: quotaSnapshotRepo,
+		txManager:         txManager,
 	}, nil
 }
 
@@ -64,6 +72,18 @@ func NewEventHandler(logger *instrumentation.Logger, sub *nats.Subscriber, cfg c
 	})
 
 	evtHandler.Subscribe()
+}
+
+type Provider struct {
+	QuotaUsageManagement *provider.QuotaUsageManagmentProvider
+}
+
+func NewProvider(logger *instrumentation.Logger, datasource *Datasource) *Provider {
+	quotaUsageManagement := provider.NewQuotaUsageManagmentProvider(datasource.quotaSnapshotRepo)
+
+	return &Provider{
+		QuotaUsageManagement: quotaUsageManagement,
+	}
 }
 
 func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, uc *usecase.UseCase) {

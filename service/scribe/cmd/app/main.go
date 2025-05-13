@@ -104,6 +104,8 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engin
 
 	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
 
+	_ = quota.NewProvider(logger, quotaDatasource)
+
 	platform.NewHTTPHandler(r)
 
 	return quotaUseCase.ResetAllQuotaUsages, nil
