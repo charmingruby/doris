@@ -7,6 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
 )
 
 func (s *Suite) Test_ModifyQuota() {
@@ -15,7 +16,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -91,7 +92,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_PRO,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -124,7 +125,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})

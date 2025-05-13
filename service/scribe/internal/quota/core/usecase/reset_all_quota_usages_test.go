@@ -7,6 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
 )
 
 func (s *Suite) Test_ResetAllQuotaUsages() {
@@ -17,7 +18,7 @@ func (s *Suite) Test_ResetAllQuotaUsages() {
 
 		quota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -25,7 +26,7 @@ func (s *Suite) Test_ResetAllQuotaUsages() {
 
 		quota2, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
-			Kind:     model.QUOTA_LIMIT_KIND_DOCUMENT,
+			Kind:     kind.QUOTA_LIMIT_DOCUMENT,
 			MaxValue: 50,
 			Unit:     "document",
 		})

@@ -7,12 +7,13 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
 )
 
 func (s *Suite) Test_CreateQuota() {
 	s.Run("it should be able to create a quota", func() {
 		tier := privilege.TIER_ROOKIE
-		kind := model.QUOTA_LIMIT_KIND_REQUEST
+		kind := kind.QUOTA_LIMIT_REQUEST
 		maxValue := 100
 		unit := "request"
 
@@ -39,7 +40,7 @@ func (s *Suite) Test_CreateQuota() {
 
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -54,7 +55,7 @@ func (s *Suite) Test_CreateQuota() {
 		ctx := context.Background()
 
 		tier := privilege.TIER_ROOKIE
-		kind := model.QUOTA_LIMIT_KIND_REQUEST
+		kind := kind.QUOTA_LIMIT_REQUEST
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
@@ -83,7 +84,7 @@ func (s *Suite) Test_CreateQuota() {
 	s.Run("it should be not able to create a quota if tier is invalid", func() {
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
 			Tier:     privilege.TIER_ROOKIE + "-invalid",
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})

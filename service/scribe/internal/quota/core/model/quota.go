@@ -7,30 +7,22 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/lib/core/privilege"
+	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
 )
 
 const (
 	QUOTA_STATUS_DRAFT    = "DRAFT"
 	QUOTA_STATUS_DISABLED = "DISABLED"
 	QUOTA_STATUS_ENABLED  = "ENABLED"
-
-	QUOTA_LIMIT_KIND_DOCUMENT = "DOCUMENT"
-	QUOTA_LIMIT_KIND_REQUEST  = "REQUEST"
 )
 
 var (
 	ErrInvalidQuotaStatus = errors.New("invalid quota status")
-	ErrInvalidKind        = errors.New("invalid kind")
 
 	validQuotaStatus = map[string]struct{}{
 		QUOTA_STATUS_DRAFT:    {},
 		QUOTA_STATUS_DISABLED: {},
 		QUOTA_STATUS_ENABLED:  {},
-	}
-
-	validKinds = map[string]struct{}{
-		QUOTA_LIMIT_KIND_DOCUMENT: {},
-		QUOTA_LIMIT_KIND_REQUEST:  {},
 	}
 )
 
@@ -46,8 +38,8 @@ func NewQuota(in QuotaInput) (*Quota, error) {
 		return nil, err
 	}
 
-	if _, ok := validKinds[in.Kind]; !ok {
-		return nil, ErrInvalidKind
+	if err := kind.IsValid(in.Kind); err != nil {
+		return nil, err
 	}
 
 	return &Quota{
@@ -101,8 +93,8 @@ func (q *Quota) Modify(in ModifyQuotaInput) error {
 	}
 
 	if in.Kind != "" && in.Kind != q.Kind {
-		if _, ok := validKinds[in.Kind]; !ok {
-			return ErrInvalidKind
+		if err := kind.IsValid(in.Kind); err != nil {
+			return custom_err.NewErrInvalidEntity(err.Error())
 		}
 
 		hasChange = true

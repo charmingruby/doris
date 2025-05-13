@@ -7,6 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/privilege"
 	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
 )
 
 func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
@@ -18,7 +19,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		oldQuota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     oldTier,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -26,7 +27,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		oldQuota2, err := model.NewQuota(model.QuotaInput{
 			Tier:     oldTier,
-			Kind:     model.QUOTA_LIMIT_KIND_DOCUMENT,
+			Kind:     kind.QUOTA_LIMIT_DOCUMENT,
 			MaxValue: 50,
 			Unit:     "document",
 		})
@@ -39,7 +40,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		newQuota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     newTier,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 200,
 			Unit:     "request",
 		})
@@ -47,7 +48,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		newQuota2, err := model.NewQuota(model.QuotaInput{
 			Tier:     newTier,
-			Kind:     model.QUOTA_LIMIT_KIND_DOCUMENT,
+			Kind:     kind.QUOTA_LIMIT_DOCUMENT,
 			MaxValue: 100,
 			Unit:     "document",
 		})
@@ -111,7 +112,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		oldQuota, err := model.NewQuota(model.QuotaInput{
 			Tier:     oldTier,
-			Kind:     model.QUOTA_LIMIT_KIND_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_REQUEST,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -122,7 +123,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		newQuota, err := model.NewQuota(model.QuotaInput{
 			Tier:     newTier,
-			Kind:     model.QUOTA_LIMIT_KIND_DOCUMENT,
+			Kind:     kind.QUOTA_LIMIT_DOCUMENT,
 			MaxValue: 50,
 			Unit:     "document",
 		})
