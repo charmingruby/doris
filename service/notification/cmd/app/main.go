@@ -16,7 +16,7 @@ import (
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/notification/config"
 	"github.com/charmingruby/doris/service/notification/internal/notification"
-	"github.com/charmingruby/doris/service/notification/internal/notification/provider/notifier"
+	"github.com/charmingruby/doris/service/notification/internal/notification/integration/external/email"
 	"github.com/charmingruby/doris/service/notification/internal/platform"
 	"github.com/gin-gonic/gin"
 )
@@ -87,7 +87,7 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, db *dynamo.C
 		return err
 	}
 
-	notifier, err := notifier.NewSES(cfg.Custom.AWSRegion, cfg.Custom.SourceEmail)
+	notifier, err := email.NewSES(cfg.Custom.AWSRegion, cfg.Custom.SourceEmail)
 	if err != nil {
 		return err
 	}
