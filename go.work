@@ -3,7 +3,7 @@ go 1.23.2
 use (
 	./lib
 
-	./service/scribe
+	./service/codex
 	./service/notification
 	./service/account
 )
