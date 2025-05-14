@@ -29,3 +29,9 @@ variable "recipient_emails" {
   type        = list(string)
   description = "Test recipient emails to be verified"
 }
+
+variable "bucket_name" {
+  description = "The name of the S3 bucket"
+  type        = string
+}
+

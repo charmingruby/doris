@@ -14,3 +14,10 @@ module "email" {
   recipient_emails = var.recipient_emails
   tags             = local.tags
 }
+
+module "storage" {
+  source      = "./modules/aws/storage"
+  bucket_name = var.bucket_name
+  account_arn = data.aws_caller_identity.current.arn
+  tags        = local.tags
+}

@@ -9,3 +9,4 @@ recipient_emails = [
   "recipient_email3@gmail.com",
   "recipient_email4@gmail.com"
 ]
+bucket_name = "embeddings-source-docs"
