@@ -12,12 +12,14 @@ import (
 )
 
 const (
+	findCodexByID                   = "find codex by id"
 	findCodexByCorrelationIDAndName = "find codex by correlation id and name"
 	createCodex                     = "create codex"
 )
 
 func codexQueries() map[string]string {
 	return map[string]string{
+		findCodexByID:                   `SELECT * FROM codex WHERE id = $1`,
 		findCodexByCorrelationIDAndName: `SELECT * FROM codex WHERE correlation_id = $1 AND name = $2`,
 		createCodex:                     `INSERT INTO codex (id, correlation_id, name, description, created_at) VALUES ($1, $2, $3, $4, $5)`,
 	}
@@ -58,20 +60,25 @@ func (r *CodexRepository) statement(queryName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-func (r *CodexRepository) Create(ctx context.Context, codex model.Codex) error {
+func (r *CodexRepository) FindByID(ctx context.Context, id string) (model.Codex, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	stmt, err := r.statement(createCodex)
+	stmt, err := r.statement(findCodexByID)
 	if err != nil {
-		return err
+		return model.Codex{}, err
 	}
 
-	if _, err := stmt.ExecContext(ctx, codex.ID, codex.CorrelationID, codex.Name, codex.Description, codex.CreatedAt); err != nil {
-		return err
+	var codex model.Codex
+	if err := stmt.GetContext(ctx, &codex, id); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Codex{}, nil
+		}
+
+		return model.Codex{}, err
 	}
 
-	return nil
+	return codex, nil
 }
 
 func (r *CodexRepository) FindByCorrelationIDAndName(ctx context.Context, correlationID, name string) (model.Codex, error) {
@@ -93,4 +100,20 @@ func (r *CodexRepository) FindByCorrelationIDAndName(ctx context.Context, correl
 	}
 
 	return codex, nil
+}
+
+func (r *CodexRepository) Create(ctx context.Context, codex model.Codex) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(createCodex)
+	if err != nil {
+		return err
+	}
+
+	if _, err := stmt.ExecContext(ctx, codex.ID, codex.CorrelationID, codex.Name, codex.Description, codex.CreatedAt); err != nil {
+		return err
+	}
+
+	return nil
 }

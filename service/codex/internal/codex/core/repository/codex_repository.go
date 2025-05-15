@@ -7,6 +7,7 @@ import (
 )
 
 type CodexRepository interface {
+	FindByID(ctx context.Context, id string) (model.Codex, error)
 	FindByCorrelationIDAndName(ctx context.Context, correlationID, name string) (model.Codex, error)
 	Create(ctx context.Context, codex model.Codex) error
 }

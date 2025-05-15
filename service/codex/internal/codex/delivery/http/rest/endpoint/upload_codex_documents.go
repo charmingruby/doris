@@ -43,7 +43,7 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 		return
 	}
 
-	uploadedDocs, failedDocs, err := e.uc.UploadCodexDocuments(c, usecase.UploadCodexDocumentsInput{
+	op, err := e.uc.UploadCodexDocuments(c, usecase.UploadCodexDocumentsInput{
 		CodexID:       codexID,
 		CorrelationID: apiKeyID,
 		Documents:     files.ValidFiles,
@@ -56,11 +56,11 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 	rest.NewAcceptedResponse(c, []rest.AcceptedResponseIdentifier{
 		{
 			Key:   "uploaded",
-			Value: uploadedDocs,
+			Value: op.UploadedDocs,
 		},
 		{
 			Key:   "failed",
-			Value: failedDocs,
+			Value: op.FailedDocs,
 		},
 	})
 }

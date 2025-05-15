@@ -14,7 +14,8 @@ import (
 )
 
 type Datasource struct {
-	codexRepo repository.CodexRepository
+	codexRepo         repository.CodexRepository
+	codexDocumentRepo repository.CodexDocumentRepository
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
@@ -23,8 +24,14 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	codexDocumentRepo, err := persistence.NewCodexDocumentRepository(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Datasource{
-		codexRepo: codexRepo,
+		codexRepo:         codexRepo,
+		codexDocumentRepo: codexDocumentRepo,
 	}, nil
 }
 
@@ -37,6 +44,7 @@ func NewUseCase(
 	return usecase.New(
 		logger,
 		datasource.codexRepo,
+		datasource.codexDocumentRepo,
 		storage,
 		embeddingSourceDocsBucket,
 	)

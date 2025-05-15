@@ -9,14 +9,22 @@ import (
 type UseCase struct {
 	logger                    *instrumentation.Logger
 	codexRepo                 repository.CodexRepository
+	codexDocumentRepo         repository.CodexDocumentRepository
 	storage                   storage.Storage
 	embeddingSourceDocsBucket string
 }
 
-func New(logger *instrumentation.Logger, codexRepo repository.CodexRepository, storage storage.Storage, embeddingSourceDocsBucket string) *UseCase {
+func New(
+	logger *instrumentation.Logger,
+	codexRepo repository.CodexRepository,
+	codexDocumentRepo repository.CodexDocumentRepository,
+	storage storage.Storage,
+	embeddingSourceDocsBucket string,
+) *UseCase {
 	return &UseCase{
 		logger:                    logger,
 		codexRepo:                 codexRepo,
+		codexDocumentRepo:         codexDocumentRepo,
 		storage:                   storage,
 		embeddingSourceDocsBucket: embeddingSourceDocsBucket,
 	}

@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/fs"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
 )
 
 type UploadCodexDocumentsInput struct {
@@ -14,7 +16,22 @@ type UploadCodexDocumentsInput struct {
 	Documents     []fs.File
 }
 
-func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocumentsInput) ([]string, []string, error) {
+type UploadCodexDocumentsOutput struct {
+	UploadedDocs []string
+	FailedDocs   []string
+}
+
+func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocumentsInput) (UploadCodexDocumentsOutput, error) {
+	codex, err := u.codexRepo.FindByID(ctx, in.CodexID)
+
+	if err != nil {
+		return UploadCodexDocumentsOutput{}, custom_err.NewErrDatasourceOperationFailed("find codex by id", err)
+	}
+
+	if codex.CorrelationID != in.CorrelationID {
+		return UploadCodexDocumentsOutput{}, custom_err.NewErrResourceNotFound("codex")
+	}
+
 	uploadedDocs := []string{}
 	failedDocs := []string{}
 
@@ -33,18 +50,25 @@ func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocume
 			continue
 		}
 
-		// codexDocument := model.NewCodexDocument(model.CodexDocumentInput{
-		// 	CodexID:  in.CodexID,
-		// 	Title:    doc.Filename,
-		// 	ImageURL: imageURL,
-		// })
+		codexDocument := model.NewCodexDocument(model.CodexDocumentInput{
+			CodexID:  in.CodexID,
+			Title:    doc.Filename,
+			ImageURL: imageURL,
+		})
 
-		fmt.Println(imageURL)
+		if err := u.codexDocumentRepo.Create(ctx, *codexDocument); err != nil {
+			u.logger.Error("failed to create codex document", "error", err)
+			failedDocs = append(failedDocs, doc.Filename)
+			continue
+		}
 
-		uploadedDocs = append(uploadedDocs, key)
+		uploadedDocs = append(uploadedDocs, codexDocument.ID)
 	}
 
-	return uploadedDocs, failedDocs, nil
+	return UploadCodexDocumentsOutput{
+		UploadedDocs: uploadedDocs,
+		FailedDocs:   failedDocs,
+	}, nil
 }
 
 func (u *UseCase) codexDocumentKey(correlationID string, file fs.File) string {
