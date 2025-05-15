@@ -47,9 +47,7 @@ func main() {
 
 	logger.Info("nats subscriber created successfully")
 
-	db, err := dynamo.New(logger, dynamo.ConnectionInput{
-		Region: cfg.Custom.AWSRegion,
-	})
+	db, err := dynamo.New(logger, cfg.Custom.AWSRegion)
 
 	if err != nil {
 		logger.Error("failed to create dynamo connection", "error", err)
