@@ -14,9 +14,9 @@ import (
 	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/lib/security"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/scribe/config"
-	"github.com/charmingruby/doris/service/scribe/internal/platform"
-	"github.com/charmingruby/doris/service/scribe/internal/quota"
+	"github.com/charmingruby/doris/service/codex/config"
+	"github.com/charmingruby/doris/service/codex/internal/platform"
+	"github.com/charmingruby/doris/service/codex/internal/quota"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 )

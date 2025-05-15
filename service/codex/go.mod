@@ -1,4 +1,4 @@
-module github.com/charmingruby/doris/service/scribe
+module github.com/charmingruby/doris/service/codex
 
 go 1.23.2
 

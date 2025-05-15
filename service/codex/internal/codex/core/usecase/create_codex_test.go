@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/service/scribe/internal/codex/core/model"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
 )
 
 func (s *Suite) Test_CreateCodex() {

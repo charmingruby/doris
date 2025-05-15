@@ -5,7 +5,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/validation"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/usecase"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/usecase"
 	"github.com/gin-gonic/gin"
 )
 

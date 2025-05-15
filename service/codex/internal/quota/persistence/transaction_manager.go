@@ -2,7 +2,7 @@ package persistence
 
 import (
 	"github.com/charmingruby/doris/lib/persistence/postgres"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/repository"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/repository"
 	"github.com/jmoiron/sqlx"
 )
 

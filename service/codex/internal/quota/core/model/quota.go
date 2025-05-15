@@ -7,7 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/core/id"
 	"github.com/charmingruby/doris/lib/core/privilege"
-	"github.com/charmingruby/doris/service/scribe/internal/shared/core/kind"
+	"github.com/charmingruby/doris/service/codex/internal/shared/core/kind"
 )
 
 const (

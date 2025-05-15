@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/charmingruby/doris/lib/instrumentation"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
-	"github.com/charmingruby/doris/service/scribe/test/memory"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/codex/test/memory"
 	"github.com/stretchr/testify/suite"
 )
 

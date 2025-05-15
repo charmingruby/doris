@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/delivery/proto/gen/account"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/usecase"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/usecase"
 	"google.golang.org/protobuf/proto"
 )
 

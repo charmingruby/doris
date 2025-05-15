@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/model"
 )
 
 type ModifyQuotaInput struct {

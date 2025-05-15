@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/repository"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/repository"
 )
 
 func (uc *UseCase) ResetAllQuotaUsages(ctx context.Context) error {

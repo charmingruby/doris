@@ -3,7 +3,7 @@ package usecase
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence"
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/repository"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/repository"
 )
 
 type UseCase struct {

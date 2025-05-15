@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/charmingruby/doris/service/scribe/internal/quota/core/model"
+	"github.com/charmingruby/doris/service/codex/internal/quota/core/model"
 )
 
 type QuotaUsageRepository struct {

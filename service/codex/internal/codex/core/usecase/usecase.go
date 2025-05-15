@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
-	"github.com/charmingruby/doris/service/scribe/internal/codex/core/repository"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
 )
 
 type UseCase struct {
