@@ -21,7 +21,7 @@ type Datasource struct {
 }
 
 func NewDatasource(cfg config.Config, db *dynamo.Client) (*Datasource, error) {
-	notificationRepo := persistence.NewNotificationRepository(db.Conn, persistence.NotificationRepositoryInput{
+	notificationRepo := persistence.NewNotificationRepository(db.Client, persistence.NotificationRepositoryInput{
 		TableName:          cfg.Custom.NotificatiosnDynamoTable,
 		CorrelationIDIndex: cfg.Custom.CorrelationIDDynamoIndex,
 	})

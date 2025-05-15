@@ -11,7 +11,7 @@ import (
 )
 
 type Client struct {
-	Conn   *dynamodb.Client
+	Client *dynamodb.Client
 	logger *instrumentation.Logger
 }
 
@@ -30,10 +30,10 @@ func New(logger *instrumentation.Logger, in ConnectionInput) (*Client, error) {
 
 	cfg.Region = in.Region
 
-	conn := dynamodb.NewFromConfig(cfg)
+	client := dynamodb.NewFromConfig(cfg)
 
 	return &Client{
-		Conn:   conn,
+		Client: client,
 		logger: logger,
 	}, nil
 }
