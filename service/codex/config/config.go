@@ -20,6 +20,7 @@ type CustomConfig struct {
 	NatsStream                   string `env:"NATS_STREAM"`
 	APIKeyActivatedTopic         string `env:"API_KEY_ACTIVATED_TOPIC"`
 	APIKeyDelegatedTopic         string `env:"API_KEY_DELEGATED_TOPIC"`
+	CodexDocumentUploadedTopic   string `env:"CODEX_DOCUMENT_UPLOADED_TOPIC"`
 	JWTSecret                    string `env:"JWT_SECRET,required"`
 	JWTIssuer                    string `env:"JWT_ISSUER,required"`
 }

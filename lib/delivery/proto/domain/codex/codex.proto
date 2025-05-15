@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package codex;
+
+option go_package = "github.com/charmingruby/doris/lib/proto/gen/codex";
+
+import "google/protobuf/timestamp.proto";
+
+message CodexDocumentUploadedEvent {
+    string id = 1;
+    string codex_id = 2;
+    string correlation_id = 3;
+    string image_url = 4;
+    google.protobuf.Timestamp sent_at = 5;
+};

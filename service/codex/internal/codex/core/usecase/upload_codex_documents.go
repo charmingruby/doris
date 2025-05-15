@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/lib/fs"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/event"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
 )
 
@@ -58,6 +59,20 @@ func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocume
 
 		if err := u.codexDocumentRepo.Create(ctx, *codexDocument); err != nil {
 			u.logger.Error("failed to create codex document", "error", err)
+			failedDocs = append(failedDocs, doc.Filename)
+			continue
+		}
+
+		event := event.CodexDocumentUploaded{
+			ID:            codexDocument.ID,
+			CodexID:       codexDocument.CodexID,
+			CorrelationID: in.CorrelationID,
+			ImageURL:      codexDocument.ImageURL,
+			SentAt:        time.Now(),
+		}
+
+		if err := u.eventHandler.DispatchCodexDocumentUploaded(ctx, event); err != nil {
+			u.logger.Error("failed to dispatch codex document uploaded event", "error", err)
 			failedDocs = append(failedDocs, doc.Filename)
 			continue
 		}

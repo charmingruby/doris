@@ -41,13 +41,23 @@ func main() {
 		logger,
 		nats.WithStream(cfg.Custom.NatsStream),
 	)
-
 	if err != nil {
 		logger.Error("failed to create nats subscriber", "error", err)
 		return
 	}
 
 	logger.Info("nats subscriber created successfully")
+
+	pub, err := nats.NewPublisher(
+		logger,
+		nats.WithStream(cfg.Custom.NatsStream),
+	)
+	if err != nil {
+		logger.Error("failed to create nats publisher", "error", err)
+		return
+	}
+
+	logger.Info("nats publisher created successfully")
 
 	db, err := postgres.New(logger, postgres.ConnectionInput{
 		User:         cfg.Custom.DatabaseUser,
@@ -68,7 +78,7 @@ func main() {
 
 	server, router := rest.NewServer(cfg.Custom.RestServerHost, cfg.Custom.RestServerPort)
 
-	resetAllQuotaUsagesFn, err := initModules(logger, cfg, router, db, sub, val)
+	resetAllQuotaUsagesFn, err := initModules(logger, cfg, router, db, sub, pub, val)
 	if err != nil {
 		logger.Error("failed to initialize modules", "error", err)
 		return
@@ -90,39 +100,50 @@ func main() {
 	gracefulShutdown(logger, server, sub, db)
 }
 
-func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, db *postgres.Client, sub *nats.Subscriber, val *validation.Validator) (func(context.Context) error, error) {
-	// Datasources
-	quotaDatasource, err := quota.NewDatasource(db.Conn)
-	if err != nil {
-		return nil, err
-	}
-
-	codexDatasource, err := codex.NewDatasource(db.Conn)
-	if err != nil {
-		return nil, err
-	}
-
-	// Dependencies
+func initModules(
+	logger *instrumentation.Logger,
+	cfg config.Config,
+	r *gin.Engine,
+	db *postgres.Client,
+	sub *nats.Subscriber,
+	pub *nats.Publisher,
+	val *validation.Validator,
+) (func(context.Context) error, error) {
 	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
 	mw := rest.NewMiddleware(tokenClient)
-	_ = quota.NewProvider(logger, quotaDatasource)
 
 	storage, err := s3.New(logger, cfg.Custom.AWSRegion)
 	if err != nil {
 		return nil, err
 	}
 
-	// UseCases
-	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
-	codexUseCase := codex.NewUseCase(logger, codexDatasource, storage, cfg.Custom.AWSEmbeddingSourceDocsBucket)
+	platform.NewHTTPHandler(r)
 
-	// Event Handlers
+	// Quota
+	quotaDatasource, err := quota.NewDatasource(db.Conn)
+	if err != nil {
+		return nil, err
+	}
+
+	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
+
+	_ = quota.NewProvider(logger, quotaDatasource)
+
+	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
+
 	quota.NewEventHandler(logger, sub, cfg, quotaUseCase)
 
-	// HTTP Handlers
-	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
+	// Codex
+	codexDatasource, err := codex.NewDatasource(db.Conn)
+	if err != nil {
+		return nil, err
+	}
+
+	codexEventHandler := codex.NewEventHandler(logger, pub, cfg)
+
+	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, cfg.Custom.AWSEmbeddingSourceDocsBucket)
+
 	codex.NewHTTPHandler(logger, r, mw, val, codexUseCase)
-	platform.NewHTTPHandler(r)
 
 	return quotaUseCase.ResetAllQuotaUsages, nil
 }

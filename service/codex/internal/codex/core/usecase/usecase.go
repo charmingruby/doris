@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/storage"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/event"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
 )
 
@@ -11,6 +12,7 @@ type UseCase struct {
 	codexRepo                 repository.CodexRepository
 	codexDocumentRepo         repository.CodexDocumentRepository
 	storage                   storage.Storage
+	eventHandler              event.Handler
 	embeddingSourceDocsBucket string
 }
 
@@ -19,6 +21,7 @@ func New(
 	codexRepo repository.CodexRepository,
 	codexDocumentRepo repository.CodexDocumentRepository,
 	storage storage.Storage,
+	eventHandler event.Handler,
 	embeddingSourceDocsBucket string,
 ) *UseCase {
 	return &UseCase{
@@ -26,6 +29,7 @@ func New(
 		codexRepo:                 codexRepo,
 		codexDocumentRepo:         codexDocumentRepo,
 		storage:                   storage,
+		eventHandler:              eventHandler,
 		embeddingSourceDocsBucket: embeddingSourceDocsBucket,
 	}
 }
