@@ -1,0 +1,10 @@
+package storage
+
+import (
+	"context"
+	"io"
+)
+
+type Storage interface {
+	Upload(ctx context.Context, destination string, key string, file io.Reader) error
+}
