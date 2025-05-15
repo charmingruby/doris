@@ -15,6 +15,7 @@ import (
 
 type Client struct {
 	client *s3.Client
+	region string
 	logger *instrumentation.Logger
 }
 
@@ -31,21 +32,24 @@ func New(logger *instrumentation.Logger, region string) (*Client, error) {
 
 	return &Client{
 		client: client,
+		region: region,
 		logger: logger,
 	}, nil
 }
 
-func (c *Client) Upload(ctx context.Context, destination string, key string, file io.Reader) error {
+func (c *Client) Upload(ctx context.Context, destination string, key string, file io.Reader) (string, error) {
 	src, err := io.ReadAll(file)
 	if err != nil {
-		return fmt.Errorf("failed to read file, %v", err)
+		return "", fmt.Errorf("failed to read file, %v", err)
 	}
 
-	_, err = c.client.PutObject(ctx, &s3.PutObjectInput{
+	if _, err := c.client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(destination),
 		Key:    aws.String(key),
 		Body:   bytes.NewReader(src),
-	})
+	}); err != nil {
+		return "", fmt.Errorf("failed to upload file, %v", err)
+	}
 
-	return err
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", destination, c.region, key), nil
 }

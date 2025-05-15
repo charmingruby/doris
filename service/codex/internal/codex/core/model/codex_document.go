@@ -17,7 +17,6 @@ type CodexDocumentInput struct {
 	CodexID  string
 	Title    string
 	ImageURL string
-	Status   string
 }
 
 func NewCodexDocument(in CodexDocumentInput) *CodexDocument {
@@ -26,7 +25,7 @@ func NewCodexDocument(in CodexDocumentInput) *CodexDocument {
 		CodexID:   in.CodexID,
 		Title:     in.Title,
 		ImageURL:  in.ImageURL,
-		Status:    in.Status,
+		Status:    CodexDocumentStatusPending,
 		CreatedAt: time.Now(),
 		UpdatedAt: nil,
 	}

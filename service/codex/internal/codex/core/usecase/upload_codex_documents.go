@@ -11,32 +11,40 @@ import (
 type UploadCodexDocumentsInput struct {
 	CodexID       string
 	CorrelationID string
-	Files         []fs.File
+	Documents     []fs.File
 }
 
 func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocumentsInput) ([]string, []string, error) {
-	filesUploaded := []string{}
-	filesFailed := []string{}
+	uploadedDocs := []string{}
+	failedDocs := []string{}
 
-	for _, file := range in.Files {
-		key := u.codexDocumentKey(in.CorrelationID, file)
+	for _, doc := range in.Documents {
+		key := u.codexDocumentKey(in.CorrelationID, doc)
 
-		err := u.storage.Upload(
+		imageURL, err := u.storage.Upload(
 			ctx,
 			u.embeddingSourceDocsBucket,
 			key,
-			file.File,
+			doc.File,
 		)
 		if err != nil {
 			u.logger.Error("failed to upload file", "error", err)
-			filesFailed = append(filesFailed, file.Filename)
+			failedDocs = append(failedDocs, doc.Filename)
 			continue
 		}
 
-		filesUploaded = append(filesUploaded, key)
+		// codexDocument := model.NewCodexDocument(model.CodexDocumentInput{
+		// 	CodexID:  in.CodexID,
+		// 	Title:    doc.Filename,
+		// 	ImageURL: imageURL,
+		// })
+
+		fmt.Println(imageURL)
+
+		uploadedDocs = append(uploadedDocs, key)
 	}
 
-	return filesUploaded, filesFailed, nil
+	return uploadedDocs, failedDocs, nil
 }
 
 func (u *UseCase) codexDocumentKey(correlationID string, file fs.File) string {

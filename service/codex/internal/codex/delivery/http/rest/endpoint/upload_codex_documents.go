@@ -43,10 +43,10 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 		return
 	}
 
-	filesUploaded, filesFailed, err := e.uc.UploadCodexDocuments(c, usecase.UploadCodexDocumentsInput{
+	uploadedDocs, failedDocs, err := e.uc.UploadCodexDocuments(c, usecase.UploadCodexDocumentsInput{
 		CodexID:       codexID,
 		CorrelationID: apiKeyID,
-		Files:         files.ValidFiles,
+		Documents:     files.ValidFiles,
 	})
 	if err != nil {
 		rest.HandleHTTPError(c, e.logger, err)
@@ -55,12 +55,12 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 
 	rest.NewAcceptedResponse(c, []rest.AcceptedResponseIdentifier{
 		{
-			Key:   "successfully_uploaded_files",
-			Value: filesUploaded,
+			Key:   "uploaded",
+			Value: uploadedDocs,
 		},
 		{
-			Key:   "failed_to_upload_files",
-			Value: filesFailed,
+			Key:   "failed",
+			Value: failedDocs,
 		},
 	})
 }

@@ -6,5 +6,5 @@ import (
 )
 
 type Storage interface {
-	Upload(ctx context.Context, destination string, key string, file io.Reader) error
+	Upload(ctx context.Context, destination string, key string, file io.Reader) (string, error)
 }
