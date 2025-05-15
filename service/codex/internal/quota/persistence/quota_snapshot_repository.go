@@ -19,9 +19,9 @@ func quotaSnapshotQueries() map[string]string {
 	return map[string]string{
 		findQuotaSnapshotByCorrelationIDAndKind: `
 			SELECT 
-				q.correlation_id,
+				qu.correlation_id,
 				q.kind,
-				q.current_usage,
+				qu.current_usage,
 				q.max_value,
 				q.unit,
 				q.tier,
@@ -33,8 +33,11 @@ func quotaSnapshotQueries() map[string]string {
 		updateCurrentUsage: `
 			UPDATE quota_usages qu
 			SET current_usage = $1 
-			JOIN quotas q ON q.id = qu.quota_id
-			WHERE qu.correlation_id = $2 AND q.kind = $3 AND qu.is_active = true`,
+			FROM quotas q
+			WHERE q.id = qu.quota_id
+			AND qu.correlation_id = $2 
+			AND q.kind = $3 
+			AND qu.is_active = true`,
 	}
 }
 
