@@ -2,10 +2,10 @@ package rest
 
 import (
 	"errors"
-	"mime/multipart"
 	"path/filepath"
 	"strings"
 
+	"github.com/charmingruby/doris/lib/fs"
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +20,7 @@ var (
 	ErrFileSizeExceeded      = errors.New("file size exceeded")
 	ErrMaxFilesExceeded      = errors.New("maximum files exceeded")
 	ErrFileTypeNotAllowed    = errors.New("file type not allowed")
+	ErrFailedToOpenFile      = errors.New("failed to open file")
 )
 
 type HandleMultipartFormFilesInput struct {
@@ -29,12 +30,12 @@ type HandleMultipartFormFilesInput struct {
 }
 
 type InvalidFile struct {
-	Filename string
-	Reason   error
+	File   fs.File
+	Reason error
 }
 
 type HandleMultipartFormFilesOutput struct {
-	ValidFiles   []*multipart.FileHeader
+	ValidFiles   []fs.File
 	InvalidFiles []InvalidFile
 }
 
@@ -61,28 +62,38 @@ func HandleMultipartFormFiles(
 		return nil, ErrMaxFilesExceeded
 	}
 
-	var validFiles []*multipart.FileHeader
+	var validFiles []fs.File
 	var invalidFiles []InvalidFile
 
-	for _, file := range mpFiles {
-		if file.Size > in.MaxFileSize {
+	for _, mpFile := range mpFiles {
+		file, err := mpFile.Open()
+		if err != nil {
+			return nil, ErrFailedToOpenFile
+		}
+		defer file.Close()
+
+		if mpFile.Size > in.MaxFileSize {
 			invalidFiles = append(invalidFiles, InvalidFile{
-				Filename: file.Filename,
-				Reason:   ErrFileSizeExceeded,
+				File:   fs.File{File: file, Filename: mpFile.Filename, Extension: filepath.Ext(mpFile.Filename)},
+				Reason: ErrFileSizeExceeded,
 			})
 			continue
 		}
 
-		ext := strings.ToLower(filepath.Ext(file.Filename))
+		ext := strings.ToLower(filepath.Ext(mpFile.Filename))
 		if !strings.Contains(in.AllowedTypes, ext) {
 			invalidFiles = append(invalidFiles, InvalidFile{
-				Filename: file.Filename,
-				Reason:   ErrFileTypeNotAllowed,
+				File:   fs.File{File: file, Filename: mpFile.Filename, Extension: ext},
+				Reason: ErrFileTypeNotAllowed,
 			})
 			continue
 		}
 
-		validFiles = append(validFiles, file)
+		validFiles = append(validFiles, fs.File{
+			File:      file,
+			Filename:  mpFile.Filename,
+			Extension: ext,
+		})
 	}
 
 	return &HandleMultipartFormFilesOutput{

@@ -3,6 +3,7 @@ package codex
 import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	"github.com/charmingruby/doris/lib/storage"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/usecase"
@@ -30,10 +31,14 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 func NewUseCase(
 	logger *instrumentation.Logger,
 	datasource *Datasource,
+	storage storage.Storage,
+	embeddingSourceDocsBucket string,
 ) *usecase.UseCase {
 	return usecase.New(
 		logger,
 		datasource.codexRepo,
+		storage,
+		embeddingSourceDocsBucket,
 	)
 }
 

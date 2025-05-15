@@ -13,6 +13,7 @@ import (
 	"github.com/charmingruby/doris/lib/instrumentation"
 	"github.com/charmingruby/doris/lib/persistence/postgres"
 	"github.com/charmingruby/doris/lib/security"
+	"github.com/charmingruby/doris/lib/storage/s3"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/config"
 	"github.com/charmingruby/doris/service/codex/internal/codex"
@@ -101,14 +102,19 @@ func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engin
 		return nil, err
 	}
 
-	// UseCases
-	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
-	codexUseCase := codex.NewUseCase(logger, codexDatasource)
-
 	// Dependencies
 	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
 	mw := rest.NewMiddleware(tokenClient)
 	_ = quota.NewProvider(logger, quotaDatasource)
+
+	storage, err := s3.New(logger, cfg.Custom.AWSRegion)
+	if err != nil {
+		return nil, err
+	}
+
+	// UseCases
+	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
+	codexUseCase := codex.NewUseCase(logger, codexDatasource, storage, cfg.Custom.AWSEmbeddingSourceDocsBucket)
 
 	// Event Handlers
 	quota.NewEventHandler(logger, sub, cfg, quotaUseCase)

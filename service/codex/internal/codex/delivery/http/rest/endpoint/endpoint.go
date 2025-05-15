@@ -36,7 +36,7 @@ func (e *Endpoint) Register() {
 	protected := e.r.Group("/api", e.mw.Auth())
 
 	protected.POST("/codex/", e.makeCreateCodex)
+	protected.POST("/codex/:id/documents/upload", e.makeUploadCodexDocuments)
 
-	// protected.POST("/codex/:id/documents/upload", e.makeUploadDocuments)
 	// protected.POST("/codex/:id/chat", e.makeCodexChat)
 }

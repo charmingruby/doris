@@ -97,3 +97,24 @@ func NewBadRequestResponse(c *gin.Context, msg string) {
 		"error": msg,
 	})
 }
+
+type AcceptedResponseIdentifier struct {
+	Key   string   `json:"key,omitempty"`
+	Value []string `json:"value,omitempty"`
+}
+
+func NewAcceptedResponse(c *gin.Context, res []AcceptedResponseIdentifier) {
+	fmtRes := gin.H{}
+
+	for _, r := range res {
+		if len(r.Value) == 0 {
+			continue
+		}
+
+		fmtRes[r.Key] = r.Value
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{
+		"data": fmtRes,
+	})
+}
