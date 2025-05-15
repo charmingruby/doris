@@ -14,7 +14,7 @@ func (s *Suite) Test_CreateCodex() {
 		name := "test"
 		description := "test"
 
-		id, err := s.uc.CreateCodex(context.Background(), &CreateCodexInput{
+		id, err := s.uc.CreateCodex(context.Background(), CreateCodexInput{
 			CorrelationID: correlationID,
 			Name:          name,
 			Description:   description,
@@ -36,7 +36,7 @@ func (s *Suite) Test_CreateCodex() {
 
 		s.codexRepo.IsHealthy = false
 
-		id, err := s.uc.CreateCodex(context.Background(), &CreateCodexInput{
+		id, err := s.uc.CreateCodex(context.Background(), CreateCodexInput{
 			CorrelationID: correlationID,
 			Name:          name,
 			Description:   description,
@@ -64,7 +64,7 @@ func (s *Suite) Test_CreateCodex() {
 		err := s.codexRepo.Create(ctx, *codex)
 		s.NoError(err)
 
-		id, err := s.uc.CreateCodex(ctx, &CreateCodexInput{
+		id, err := s.uc.CreateCodex(ctx, CreateCodexInput{
 			CorrelationID: correlationID,
 			Name:          name,
 			Description:   description,

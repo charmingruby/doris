@@ -15,6 +15,7 @@ import (
 	"github.com/charmingruby/doris/lib/security"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/config"
+	"github.com/charmingruby/doris/service/codex/internal/codex"
 	"github.com/charmingruby/doris/service/codex/internal/platform"
 	"github.com/charmingruby/doris/service/codex/internal/quota"
 	"github.com/gin-gonic/gin"
@@ -89,23 +90,32 @@ func main() {
 }
 
 func initModules(logger *instrumentation.Logger, cfg config.Config, r *gin.Engine, db *postgres.Client, sub *nats.Subscriber, val *validation.Validator) (func(context.Context) error, error) {
+	// Datasources
 	quotaDatasource, err := quota.NewDatasource(db.Conn)
 	if err != nil {
 		return nil, err
 	}
 
+	codexDatasource, err := codex.NewDatasource(db.Conn)
+	if err != nil {
+		return nil, err
+	}
+
+	// UseCases
 	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
+	codexUseCase := codex.NewUseCase(logger, codexDatasource)
 
-	quota.NewEventHandler(logger, sub, cfg, quotaUseCase)
-
+	// Dependencies
 	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
-
 	mw := rest.NewMiddleware(tokenClient)
-
-	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
-
 	_ = quota.NewProvider(logger, quotaDatasource)
 
+	// Event Handlers
+	quota.NewEventHandler(logger, sub, cfg, quotaUseCase)
+
+	// HTTP Handlers
+	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
+	codex.NewHTTPHandler(logger, r, mw, val, codexUseCase)
 	platform.NewHTTPHandler(r)
 
 	return quotaUseCase.ResetAllQuotaUsages, nil

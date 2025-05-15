@@ -13,7 +13,7 @@ type CreateCodexInput struct {
 	Description   string
 }
 
-func (u *UseCase) CreateCodex(ctx context.Context, in *CreateCodexInput) (string, error) {
+func (u *UseCase) CreateCodex(ctx context.Context, in CreateCodexInput) (string, error) {
 	codex, err := u.codexRepo.FindByCorrelationIDAndName(ctx, in.CorrelationID, in.Name)
 
 	if err != nil {
