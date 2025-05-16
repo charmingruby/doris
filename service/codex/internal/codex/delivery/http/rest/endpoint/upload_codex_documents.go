@@ -7,19 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	maxFileSize  = 5 * 1024 * 1024 // 5MB in bytes
-	maxFiles     = 5
-	allowedTypes = ".pdf,.txt"
-	s3BucketName = "embeddings-source-docs" // Replace with your actual bucket name
-)
-
-type UploadResponse struct {
-	Success bool     `json:"success"`
-	Files   []string `json:"files"`
-	Error   string   `json:"error,omitempty"`
-}
-
 func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 	codexID := c.Param("id")
 	if codexID == "" {
@@ -34,9 +21,9 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 	}
 
 	files, err := rest.HandleMultipartFormFiles(c, e.logger, rest.HandleMultipartFormFilesInput{
-		MaxFileSize:  maxFileSize,
-		AllowedTypes: allowedTypes,
-		MaxFiles:     maxFiles,
+		MaxFileSize:  5 * 1024 * 1024, // 5MB in bytes
+		AllowedTypes: ".pdf,.txt",
+		MaxFiles:     5,
 	})
 	if err != nil {
 		rest.NewPayloadErrResponse(c, []string{err.Error()})

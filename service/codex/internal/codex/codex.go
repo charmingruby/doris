@@ -4,6 +4,7 @@ import (
 	"github.com/charmingruby/doris/lib/delivery/http/rest"
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	persistenceLib "github.com/charmingruby/doris/lib/persistence"
 	"github.com/charmingruby/doris/lib/storage"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/config"
@@ -13,6 +14,7 @@ import (
 	"github.com/charmingruby/doris/service/codex/internal/codex/delivery/event"
 	"github.com/charmingruby/doris/service/codex/internal/codex/delivery/http/rest/endpoint"
 	"github.com/charmingruby/doris/service/codex/internal/codex/persistence"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -20,6 +22,7 @@ import (
 type Datasource struct {
 	codexRepo         repository.CodexRepository
 	codexDocumentRepo repository.CodexDocumentRepository
+	txManager         persistenceLib.TransactionManager[repository.TransactionManager]
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
@@ -33,9 +36,15 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	txManager, err := persistence.NewTransactionManager(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Datasource{
 		codexRepo:         codexRepo,
 		codexDocumentRepo: codexDocumentRepo,
+		txManager:         txManager,
 	}, nil
 }
 
@@ -53,6 +62,7 @@ func NewUseCase(
 		datasource.codexDocumentRepo,
 		storage,
 		eventHandler,
+		datasource.txManager,
 		quotaUsageManagementClient,
 		embeddingSourceDocsBucket,
 	)
