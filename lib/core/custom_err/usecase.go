@@ -86,3 +86,14 @@ func (e *ErrOTPGenerationCooldown) Error() string {
 func NewErrOTPGenerationCooldown() error {
 	return &ErrOTPGenerationCooldown{}
 }
+
+// Represents a quota that is exceeded.
+type ErrQuotaExceeded struct{}
+
+func (e *ErrQuotaExceeded) Error() string {
+	return "quota exceeded"
+}
+
+func NewErrQuotaExceeded() error {
+	return &ErrQuotaExceeded{}
+}

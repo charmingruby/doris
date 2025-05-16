@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	findCodexByID                   = "find codex by id"
+	findCodexByIDAndCorrelationID   = "find codex by id and correlation id"
 	findCodexByCorrelationIDAndName = "find codex by correlation id and name"
 	createCodex                     = "create codex"
 )
 
 func codexQueries() map[string]string {
 	return map[string]string{
-		findCodexByID:                   `SELECT * FROM codex WHERE id = $1`,
+		findCodexByIDAndCorrelationID:   `SELECT * FROM codex WHERE id = $1 AND correlation_id = $2`,
 		findCodexByCorrelationIDAndName: `SELECT * FROM codex WHERE correlation_id = $1 AND name = $2`,
 		createCodex:                     `INSERT INTO codex (id, correlation_id, name, description, created_at) VALUES ($1, $2, $3, $4, $5)`,
 	}
@@ -60,17 +60,17 @@ func (r *CodexRepository) statement(queryName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-func (r *CodexRepository) FindByID(ctx context.Context, id string) (model.Codex, error) {
+func (r *CodexRepository) FindByIDAndCorrelationID(ctx context.Context, id, correlationID string) (model.Codex, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	stmt, err := r.statement(findCodexByID)
+	stmt, err := r.statement(findCodexByIDAndCorrelationID)
 	if err != nil {
 		return model.Codex{}, err
 	}
 
 	var codex model.Codex
-	if err := stmt.GetContext(ctx, &codex, id); err != nil {
+	if err := stmt.GetContext(ctx, &codex, id, correlationID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return model.Codex{}, nil
 		}

@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 
+	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/service/codex/internal/quota/core/repository"
 )
 
@@ -20,6 +21,10 @@ func (p *QuotaUsageManagmentProvider) CheckQuotaAvailability(ctx context.Context
 	snapshot, err := p.quotaSnapshotRepository.FindByCorrelationIDAndKind(ctx, correlationID, kind)
 	if err != nil {
 		return false, err
+	}
+
+	if snapshot.CorrelationID == "" {
+		return true, custom_err.NewErrResourceNotFound("quota snapshot")
 	}
 
 	if snapshot.CurrentUsage+usage > snapshot.MaxValue {

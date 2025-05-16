@@ -7,6 +7,7 @@ import (
 	"github.com/charmingruby/doris/lib/storage"
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/config"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/client"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/usecase"
 	"github.com/charmingruby/doris/service/codex/internal/codex/delivery/event"
@@ -43,6 +44,7 @@ func NewUseCase(
 	datasource *Datasource,
 	eventHandler *event.Handler,
 	storage storage.Storage,
+	quotaUsageManagementClient client.QuotaUsageManagement,
 	embeddingSourceDocsBucket string,
 ) *usecase.UseCase {
 	return usecase.New(
@@ -51,6 +53,7 @@ func NewUseCase(
 		datasource.codexDocumentRepo,
 		storage,
 		eventHandler,
+		quotaUsageManagementClient,
 		embeddingSourceDocsBucket,
 	)
 }

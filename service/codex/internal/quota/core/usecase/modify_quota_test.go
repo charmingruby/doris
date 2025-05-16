@@ -16,7 +16,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -92,7 +92,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_PRO,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -125,7 +125,7 @@ func (s *Suite) Test_ModifyQuota() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})

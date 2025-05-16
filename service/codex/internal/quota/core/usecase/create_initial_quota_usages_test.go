@@ -18,7 +18,7 @@ func (s *Suite) Test_CreateInitialQuotaUsages() {
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -78,7 +78,7 @@ func (s *Suite) Test_CreateInitialQuotaUsages() {
 
 		quota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})

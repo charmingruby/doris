@@ -19,7 +19,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		oldQuota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     oldTier,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -40,7 +40,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		newQuota1, err := model.NewQuota(model.QuotaInput{
 			Tier:     newTier,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 200,
 			Unit:     "request",
 		})
@@ -112,7 +112,7 @@ func (s *Suite) Test_RecalculateQuotaUsageOnTierChange() {
 
 		oldQuota, err := model.NewQuota(model.QuotaInput{
 			Tier:     oldTier,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})

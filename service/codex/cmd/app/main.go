@@ -127,7 +127,7 @@ func initModules(
 
 	quotaUseCase := quota.NewUseCase(logger, quotaDatasource)
 
-	_ = quota.NewProvider(logger, quotaDatasource)
+	quotaProvider := quota.NewProvider(logger, quotaDatasource)
 
 	quota.NewHTTPHandler(logger, r, mw, val, quotaUseCase)
 
@@ -141,7 +141,7 @@ func initModules(
 
 	codexEventHandler := codex.NewEventHandler(logger, pub, cfg)
 
-	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, cfg.Custom.AWSEmbeddingSourceDocsBucket)
+	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, quotaProvider.QuotaUsageManagement, cfg.Custom.AWSEmbeddingSourceDocsBucket)
 
 	codex.NewHTTPHandler(logger, r, mw, val, codexUseCase)
 

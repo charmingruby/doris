@@ -26,6 +26,8 @@ func HandleHTTPError(c *gin.Context, logger *instrumentation.Logger, err error) 
 		NewResourceAlreadyExistsResponse(c, e.Error())
 	case *custom_err.ErrOTPGenerationCooldown:
 		NewTooManyRequestsResponse(c, err.Error())
+	case *custom_err.ErrQuotaExceeded:
+		NewLimitExceededResponse(c, e.Error())
 
 	default:
 		logger.Error("uncaught error",

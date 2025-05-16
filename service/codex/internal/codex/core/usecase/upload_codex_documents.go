@@ -9,6 +9,7 @@ import (
 	"github.com/charmingruby/doris/lib/fs"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/event"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
+	"github.com/charmingruby/doris/service/codex/internal/shared/core/kind"
 )
 
 type UploadCodexDocumentsInput struct {
@@ -23,7 +24,19 @@ type UploadCodexDocumentsOutput struct {
 }
 
 func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocumentsInput) (UploadCodexDocumentsOutput, error) {
-	codex, err := u.codexRepo.FindByID(ctx, in.CodexID)
+	docsCount := len(in.Documents)
+
+	availableQuota, err := u.quotaUsageManagementClient.CheckQuotaAvailability(ctx, in.CorrelationID, kind.QUOTA_LIMIT_DOCUMENT, docsCount)
+
+	if err != nil {
+		return UploadCodexDocumentsOutput{}, err
+	}
+
+	if !availableQuota {
+		return UploadCodexDocumentsOutput{}, custom_err.NewErrQuotaExceeded()
+	}
+
+	codex, err := u.codexRepo.FindByIDAndCorrelationID(ctx, in.CodexID, in.CorrelationID)
 
 	if err != nil {
 		return UploadCodexDocumentsOutput{}, custom_err.NewErrDatasourceOperationFailed("find codex by id", err)
@@ -78,6 +91,10 @@ func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocume
 		}
 
 		uploadedDocs = append(uploadedDocs, codexDocument.ID)
+	}
+
+	if err := u.quotaUsageManagementClient.ConsumeQuota(ctx, in.CorrelationID, kind.QUOTA_LIMIT_DOCUMENT, docsCount); err != nil {
+		return UploadCodexDocumentsOutput{}, err
 	}
 
 	return UploadCodexDocumentsOutput{

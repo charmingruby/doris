@@ -13,7 +13,7 @@ import (
 func (s *Suite) Test_CreateQuota() {
 	s.Run("it should be able to create a quota", func() {
 		tier := privilege.TIER_ROOKIE
-		kind := kind.QUOTA_LIMIT_REQUEST
+		kind := kind.QUOTA_LIMIT_PROMPT
 		maxValue := 100
 		unit := "request"
 
@@ -40,7 +40,7 @@ func (s *Suite) Test_CreateQuota() {
 
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
 			Tier:     privilege.TIER_ROOKIE,
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})
@@ -55,7 +55,7 @@ func (s *Suite) Test_CreateQuota() {
 		ctx := context.Background()
 
 		tier := privilege.TIER_ROOKIE
-		kind := kind.QUOTA_LIMIT_REQUEST
+		kind := kind.QUOTA_LIMIT_PROMPT
 
 		quota, err := model.NewQuota(model.QuotaInput{
 			Tier:     tier,
@@ -84,7 +84,7 @@ func (s *Suite) Test_CreateQuota() {
 	s.Run("it should be not able to create a quota if tier is invalid", func() {
 		id, err := s.uc.CreateQuota(context.Background(), CreateQuotaInput{
 			Tier:     privilege.TIER_ROOKIE + "-invalid",
-			Kind:     kind.QUOTA_LIMIT_REQUEST,
+			Kind:     kind.QUOTA_LIMIT_PROMPT,
 			MaxValue: 100,
 			Unit:     "request",
 		})

@@ -3,6 +3,7 @@ package persistence
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
@@ -98,6 +99,10 @@ func (r *QuotaSnapshotRepository) FindByCorrelationIDAndKind(ctx context.Context
 		&snapshot.Status,
 		&lastResetAt,
 	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.QuotaSnapshot{}, nil
+		}
+
 		return model.QuotaSnapshot{}, err
 	}
 

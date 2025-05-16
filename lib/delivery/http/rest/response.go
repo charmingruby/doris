@@ -46,6 +46,12 @@ func NewForbiddenResponse(c *gin.Context) {
 	})
 }
 
+func NewLimitExceededResponse(c *gin.Context, msg string) {
+	c.JSON(http.StatusForbidden, gin.H{
+		"error": msg,
+	})
+}
+
 func NewResourceAlreadyExistsResponse(c *gin.Context, msg string) {
 	c.JSON(http.StatusConflict, gin.H{
 		"error": msg,

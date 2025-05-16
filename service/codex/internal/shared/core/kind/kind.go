@@ -4,7 +4,7 @@ import "errors"
 
 const (
 	QUOTA_LIMIT_DOCUMENT = "DOCUMENT"
-	QUOTA_LIMIT_REQUEST  = "REQUEST"
+	QUOTA_LIMIT_PROMPT   = "PROMPT"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 
 	validKinds = map[string]struct{}{
 		QUOTA_LIMIT_DOCUMENT: {},
-		QUOTA_LIMIT_REQUEST:  {},
+		QUOTA_LIMIT_PROMPT:   {},
 	}
 )
 
