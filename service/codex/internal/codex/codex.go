@@ -68,10 +68,16 @@ func NewUseCase(
 	)
 }
 
-func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, cfg config.Config) *event.Handler {
-	return event.NewHandler(logger, pub, event.TopicInput{
+func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, sub messaging.Subscriber, cfg config.Config) (*event.Handler, error) {
+	eventHander := event.NewHandler(logger, pub, sub, event.TopicInput{
 		CodexDocumentUploaded: cfg.Custom.CodexDocumentUploadedTopic,
 	})
+
+	if err := eventHander.Subscribe(); err != nil {
+		return nil, err
+	}
+
+	return eventHander, nil
 }
 
 func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, uc *usecase.UseCase) {

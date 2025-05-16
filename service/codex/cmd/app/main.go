@@ -109,6 +109,7 @@ func initModules(
 	pub *nats.Publisher,
 	val *validation.Validator,
 ) (func(context.Context) error, error) {
+	// Shared
 	tokenClient := security.NewJWT(cfg.Custom.JWTIssuer, cfg.Custom.JWTSecret)
 	mw := rest.NewMiddleware(tokenClient)
 
@@ -139,7 +140,10 @@ func initModules(
 		return nil, err
 	}
 
-	codexEventHandler := codex.NewEventHandler(logger, pub, cfg)
+	codexEventHandler, err := codex.NewEventHandler(logger, pub, sub, cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, quotaProvider.QuotaUsageManagement, cfg.Custom.AWSEmbeddingSourceDocsBucket)
 
