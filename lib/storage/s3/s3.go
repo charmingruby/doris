@@ -54,8 +54,16 @@ func (c *Client) Upload(ctx context.Context, destination string, key string, fil
 	return c.bucketFileURL(destination, key), nil
 }
 
-func (c *Client) Download(ctx context.Context, destination string, key string) error {
-	return nil
+func (c *Client) Download(ctx context.Context, source string, key string) (io.Reader, error) {
+	result, err := c.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(source),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to download file, %v", err)
+	}
+
+	return result.Body, nil
 }
 
 func (c *Client) bucketFileURL(destination string, key string) string {
