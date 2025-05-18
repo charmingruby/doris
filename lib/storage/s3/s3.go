@@ -51,5 +51,13 @@ func (c *Client) Upload(ctx context.Context, destination string, key string, fil
 		return "", fmt.Errorf("failed to upload file, %v", err)
 	}
 
-	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", destination, c.region, key), nil
+	return c.bucketFileURL(destination, key), nil
+}
+
+func (c *Client) Download(ctx context.Context, destination string, key string) error {
+	return nil
+}
+
+func (c *Client) bucketFileURL(destination string, key string) string {
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", destination, c.region, key)
 }
