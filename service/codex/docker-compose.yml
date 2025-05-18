@@ -1,20 +1,29 @@
 services:  
   postgres:
-    image: bitnami/postgresql:latest
+    image: ankane/pgvector:latest
     container_name: doris-codex-postgres
     ports:
-      - "${DATABASE_PORT}:5432"
+      - "${DATABASE_PORT:-5433}:5432"
     environment:
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER:-postgres}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
+      - POSTGRES_DB=${DATABASE_NAME:-doris-codex}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres}"]
       interval: 5s
       retries: 5
       timeout: 5s
     networks:
       - local-network
+  ollama:
+    image: ollama/ollama
+    container_name: doris-codex-ollama
+    ports:
+      - "11434:11434"
+
+    restart: unless-stopped
+    environment:
+      - OLLAMA_MODELS=mistral
 
 networks:
   local-network:
