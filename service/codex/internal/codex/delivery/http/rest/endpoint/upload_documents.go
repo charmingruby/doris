@@ -30,7 +30,7 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 		return
 	}
 
-	op, err := e.uc.UploadCodexDocuments(c, usecase.UploadCodexDocumentsInput{
+	op, err := e.uc.UploadDocuments(c, usecase.UploadDocumentsInput{
 		CodexID:       codexID,
 		CorrelationID: apiKeyID,
 		Documents:     files.ValidFiles,

@@ -14,13 +14,13 @@ import (
 	"github.com/charmingruby/doris/service/codex/internal/shared/core/kind"
 )
 
-type UploadCodexDocumentsInput struct {
+type UploadDocumentsInput struct {
 	CodexID       string
 	CorrelationID string
 	Documents     []fs.File
 }
 
-type UploadCodexDocumentsOutput struct {
+type UploadDocumentsOutput struct {
 	UploadedDocs []string
 	FailedDocs   []string
 }
@@ -37,25 +37,25 @@ type documentProcessingJob struct {
 	correlationID string
 }
 
-func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocumentsInput) (UploadCodexDocumentsOutput, error) {
+func (u *UseCase) UploadDocuments(ctx context.Context, in UploadDocumentsInput) (UploadDocumentsOutput, error) {
 	docsCount := len(in.Documents)
 
 	availableQuota, err := u.quotaUsageManagementClient.CheckQuotaAvailability(ctx, in.CorrelationID, kind.QUOTA_LIMIT_DOCUMENT, docsCount)
 	if err != nil {
-		return UploadCodexDocumentsOutput{}, err
+		return UploadDocumentsOutput{}, err
 	}
 
 	if !availableQuota {
-		return UploadCodexDocumentsOutput{}, custom_err.NewErrQuotaExceeded()
+		return UploadDocumentsOutput{}, custom_err.NewErrQuotaExceeded()
 	}
 
 	codex, err := u.codexRepo.FindByIDAndCorrelationID(ctx, in.CodexID, in.CorrelationID)
 	if err != nil {
-		return UploadCodexDocumentsOutput{}, custom_err.NewErrDatasourceOperationFailed("find codex by id", err)
+		return UploadDocumentsOutput{}, custom_err.NewErrDatasourceOperationFailed("find codex by id", err)
 	}
 
 	if codex.CorrelationID != in.CorrelationID {
-		return UploadCodexDocumentsOutput{}, custom_err.NewErrResourceNotFound("codex")
+		return UploadDocumentsOutput{}, custom_err.NewErrResourceNotFound("codex")
 	}
 
 	jobs := make(chan documentProcessingJob, docsCount)
@@ -103,7 +103,7 @@ func (u *UseCase) UploadCodexDocuments(ctx context.Context, in UploadCodexDocume
 		}
 	}
 
-	return UploadCodexDocumentsOutput{
+	return UploadDocumentsOutput{
 		UploadedDocs: uploadedDocs,
 		FailedDocs:   failedDocs,
 	}, nil
