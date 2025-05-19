@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmingruby/doris/lib/delivery/messaging"
 	"github.com/charmingruby/doris/lib/instrumentation"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/usecase"
 )
 
 const (
@@ -16,6 +17,7 @@ type Handler struct {
 	pub    messaging.Publisher
 	sub    messaging.Subscriber
 	topics map[int]string
+	uc     *usecase.UseCase
 }
 
 type TopicInput struct {
@@ -35,8 +37,10 @@ func NewHandler(logger *instrumentation.Logger, pub messaging.Publisher, sub mes
 	}
 }
 
-func (h *Handler) Subscribe() error {
+func (h *Handler) Subscribe(uc *usecase.UseCase) error {
 	ctx := context.Background()
+
+	h.uc = uc
 
 	if err := h.onCodexDocumentUploaded(ctx); err != nil {
 		return err

@@ -73,11 +73,15 @@ func NewEventHandler(logger *instrumentation.Logger, pub messaging.Publisher, su
 		CodexDocumentUploaded: cfg.Custom.CodexDocumentUploadedTopic,
 	})
 
-	if err := eventHander.Subscribe(); err != nil {
-		return nil, err
+	return eventHander, nil
+}
+
+func SubscribeEventHandler(eventHandler *event.Handler, uc *usecase.UseCase) error {
+	if err := eventHandler.Subscribe(uc); err != nil {
+		return err
 	}
 
-	return eventHander, nil
+	return nil
 }
 
 func NewHTTPHandler(logger *instrumentation.Logger, r *gin.Engine, mw *rest.Middleware, val *validation.Validator, uc *usecase.UseCase) {
