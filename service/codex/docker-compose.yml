@@ -20,10 +20,15 @@ services:
     container_name: doris-codex-ollama
     ports:
       - "11434:11434"
-
     restart: unless-stopped
     environment:
-      - OLLAMA_MODELS=mistral
+      - OLLAMA_MODELS=nomic-embed-text
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    networks:
+      - local-network
 
 networks:
   local-network:
