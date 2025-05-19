@@ -25,7 +25,10 @@ func NewJWT(issuer, secretKey string) *JWT {
 }
 
 func (s *JWT) Generate(sub string, p Payload) (string, error) {
-	tokenDuration := time.Duration(time.Hour * 1) // 1 hour
+	// TODO: change this to 1 hour, but for development purposes, we use 1 week
+	// tokenDuration := time.Duration(time.Hour * 1) // 1 hour
+
+	tokenDuration := time.Duration(time.Hour * 24 * 7) // 1 week
 
 	claims := &TokenClaim{
 		p,
