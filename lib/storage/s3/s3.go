@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -54,7 +56,14 @@ func (c *Client) Upload(ctx context.Context, destination string, key string, fil
 	return c.bucketFileURL(destination, key), nil
 }
 
-func (c *Client) Download(ctx context.Context, source string, key string) (io.Reader, error) {
+func (c *Client) Download(ctx context.Context, source string, url string) (io.Reader, error) {
+	c.logger.Debug("downloading file", "source", source, "url", url)
+
+	key, err := c.extractKeyFromURL(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract key from URL, %v", err)
+	}
+
 	result, err := c.client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(source),
 		Key:    aws.String(key),
@@ -68,4 +77,13 @@ func (c *Client) Download(ctx context.Context, source string, key string) (io.Re
 
 func (c *Client) bucketFileURL(destination string, key string) string {
 	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", destination, c.region, key)
+}
+
+func (c *Client) extractKeyFromURL(fileURL string) (string, error) {
+	u, err := url.Parse(fileURL)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimPrefix(u.Path, "/"), nil
 }
