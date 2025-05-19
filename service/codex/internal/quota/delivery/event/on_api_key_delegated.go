@@ -28,7 +28,7 @@ func (h *Handler) onAPIKeyDelegated(ctx context.Context) error {
 			OldTier:       a.OldTier.String(),
 			NewTier:       a.NewTier.String(),
 		}); err != nil {
-			h.logger.Error("failed to dispatch notification", "error", err)
+			h.logger.Error("failed to recalculate quota usage on tier change", "error", err)
 
 			return err
 		}

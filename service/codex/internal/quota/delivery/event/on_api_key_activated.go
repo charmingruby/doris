@@ -27,7 +27,7 @@ func (h *Handler) onAPIKeyActivated(ctx context.Context) error {
 			Tier:          a.Tier.String(),
 			CorrelationID: a.GetId(),
 		}); err != nil {
-			h.logger.Error("failed to dispatch notification", "error", err)
+			h.logger.Error("failed to create initial quota usages", "error", err)
 
 			return err
 		}
