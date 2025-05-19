@@ -40,6 +40,7 @@ func main() {
 	sub, err := nats.NewSubscriber(
 		logger,
 		nats.WithStream(cfg.Custom.NatsStream),
+		nats.WithMaxRetries(1),
 	)
 	if err != nil {
 		logger.Error("failed to create nats subscriber", "error", err)
@@ -146,6 +147,10 @@ func initModules(
 	}
 
 	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, quotaProvider.QuotaUsageManagement, cfg.Custom.AWSEmbeddingSourceDocsBucket)
+
+	if err := codex.SubscribeEventHandler(codexEventHandler, codexUseCase); err != nil {
+		return nil, err
+	}
 
 	codex.NewHTTPHandler(logger, r, mw, val, codexUseCase)
 
