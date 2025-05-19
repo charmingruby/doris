@@ -22,7 +22,7 @@ func (e *Endpoint) makeUploadCodexDocuments(c *gin.Context) {
 
 	files, err := rest.HandleMultipartFormFiles(c, e.logger, rest.HandleMultipartFormFilesInput{
 		MaxFileSize:  5 * 1024 * 1024, // 5MB in bytes
-		AllowedTypes: ".pdf,.txt",
+		AllowedTypes: ".md",
 		MaxFiles:     5,
 	})
 	if err != nil {
