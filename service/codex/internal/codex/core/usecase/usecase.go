@@ -13,6 +13,7 @@ type UseCase struct {
 	logger                     *instrumentation.Logger
 	codexRepo                  repository.CodexRepository
 	codexDocumentRepo          repository.CodexDocumentRepository
+	codexDocumentChunkRepo     repository.CodexDocumentChunkRepository
 	txManager                  persistence.TransactionManager[repository.TransactionManager]
 	storage                    storage.Storage
 	eventHandler               event.Handler
@@ -24,6 +25,7 @@ func New(
 	logger *instrumentation.Logger,
 	codexRepo repository.CodexRepository,
 	codexDocumentRepo repository.CodexDocumentRepository,
+	codexDocumentChunkRepo repository.CodexDocumentChunkRepository,
 	storage storage.Storage,
 	eventHandler event.Handler,
 	txManager persistence.TransactionManager[repository.TransactionManager],
@@ -34,6 +36,7 @@ func New(
 		logger:                     logger,
 		codexRepo:                  codexRepo,
 		codexDocumentRepo:          codexDocumentRepo,
+		codexDocumentChunkRepo:     codexDocumentChunkRepo,
 		storage:                    storage,
 		eventHandler:               eventHandler,
 		quotaUsageManagementClient: quotaUsageManagementClient,

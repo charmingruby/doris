@@ -14,12 +14,14 @@ import (
 const (
 	findCodexDocumentByID = "find codex document by id"
 	createCodexDocument   = "create codex document"
+	saveCodexDocument     = "save codex document"
 )
 
 func codexDocumentQueries() map[string]string {
 	return map[string]string{
 		findCodexDocumentByID: `SELECT * FROM codex_documents WHERE id = $1`,
 		createCodexDocument:   `INSERT INTO codex_documents (id, codex_id, title, image_url, status, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
+		saveCodexDocument:     `UPDATE codex_documents SET status = $1, updated_at = $2 WHERE id = $3`,
 	}
 }
 
@@ -93,6 +95,26 @@ func (r *CodexDocumentRepository) Create(ctx context.Context, codexDocument mode
 		codexDocument.ImageURL,
 		codexDocument.Status,
 		codexDocument.CreatedAt,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *CodexDocumentRepository) Save(ctx context.Context, codexDocument model.CodexDocument) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(saveCodexDocument)
+	if err != nil {
+		return err
+	}
+
+	if _, err := stmt.ExecContext(ctx,
+		codexDocument.Status,
+		codexDocument.UpdatedAt,
+		codexDocument.ID,
 	); err != nil {
 		return err
 	}

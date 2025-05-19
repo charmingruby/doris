@@ -20,9 +20,10 @@ import (
 )
 
 type Datasource struct {
-	codexRepo         repository.CodexRepository
-	codexDocumentRepo repository.CodexDocumentRepository
-	txManager         persistenceLib.TransactionManager[repository.TransactionManager]
+	codexRepo              repository.CodexRepository
+	codexDocumentRepo      repository.CodexDocumentRepository
+	codexDocumentChunkRepo repository.CodexDocumentChunkRepository
+	txManager              persistenceLib.TransactionManager[repository.TransactionManager]
 }
 
 func NewDatasource(db *sqlx.DB) (*Datasource, error) {
@@ -36,15 +37,21 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	codexDocumentChunkRepo, err := persistence.NewCodexDocumentChunkRepository(db)
+	if err != nil {
+		return nil, err
+	}
+
 	txManager, err := persistence.NewTransactionManager(db)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Datasource{
-		codexRepo:         codexRepo,
-		codexDocumentRepo: codexDocumentRepo,
-		txManager:         txManager,
+		codexRepo:              codexRepo,
+		codexDocumentRepo:      codexDocumentRepo,
+		codexDocumentChunkRepo: codexDocumentChunkRepo,
+		txManager:              txManager,
 	}, nil
 }
 
@@ -60,6 +67,7 @@ func NewUseCase(
 		logger,
 		datasource.codexRepo,
 		datasource.codexDocumentRepo,
+		datasource.codexDocumentChunkRepo,
 		storage,
 		eventHandler,
 		datasource.txManager,

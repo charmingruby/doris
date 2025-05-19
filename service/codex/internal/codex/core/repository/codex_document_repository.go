@@ -9,4 +9,5 @@ import (
 type CodexDocumentRepository interface {
 	FindByID(ctx context.Context, id string) (model.CodexDocument, error)
 	Create(ctx context.Context, codexDocument model.CodexDocument) error
+	Save(ctx context.Context, codexDocument model.CodexDocument) error
 }

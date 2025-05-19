@@ -7,8 +7,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
+	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
 	"github.com/tmc/langchaingo/textsplitter"
 )
 
@@ -51,6 +54,13 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 		return custom_err.NewErrResourceNotFound("codex document")
 	}
 
+	codexDocument.Status = model.CodexDocumentStatusProcessing
+	now := time.Now()
+	codexDocument.UpdatedAt = &now
+	if err := u.codexDocumentRepo.Save(ctx, codexDocument); err != nil {
+		return err
+	}
+
 	doc, err := u.storage.Download(ctx, u.embeddingSourceDocsBucket, in.ImageURL)
 	if err != nil {
 		return err
@@ -76,6 +86,30 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 		}
 
 		embeddings = append(embeddings, embedding)
+	}
+
+	if err := u.txManager.Transact(func(txManager repository.TransactionManager) error {
+		for _, embedding := range embeddings {
+			chunk := model.NewCodexDocumentChunk(model.CodexDocumentChunkInput{
+				CodexDocumentID: in.DocumentID,
+				Embedding:       embedding,
+			})
+
+			if err := txManager.CodexDocumentChunkRepository.Create(ctx, *chunk); err != nil {
+				return err
+			}
+		}
+
+		codexDocument.Status = model.CodexDocumentStatusReady
+		now := time.Now()
+		codexDocument.UpdatedAt = &now
+		if err := u.codexDocumentRepo.Save(ctx, codexDocument); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil

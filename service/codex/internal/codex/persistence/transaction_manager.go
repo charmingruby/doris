@@ -23,8 +23,14 @@ func (p *TransactionManager) Transact(txFunc func(params repository.TransactionM
 			return err
 		}
 
+		codexDocumentChunkRepo, err := NewCodexDocumentChunkRepository(tx)
+		if err != nil {
+			return err
+		}
+
 		return txFunc(repository.TransactionManager{
-			CodexDocumentRepository: codexDocumentRepo,
+			CodexDocumentRepository:      codexDocumentRepo,
+			CodexDocumentChunkRepository: codexDocumentChunkRepo,
 		})
 	})
 }
