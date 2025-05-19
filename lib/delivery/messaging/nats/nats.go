@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	defaultBrokerURL = "nats://localhost:4222"
+	defaultBrokerURL  = "nats://localhost:4222"
+	defaultMaxRetries = 3
 )
 
 type Config struct {
-	stream    string
-	brokerURL string
+	stream     string
+	brokerURL  string
+	maxRetries int
 }
 
 type ConfigOpt func(*Config)
@@ -23,6 +25,12 @@ type ConfigOpt func(*Config)
 func WithBrokerURL(brokerURL string) ConfigOpt {
 	return func(p *Config) {
 		p.brokerURL = brokerURL
+	}
+}
+
+func WithMaxRetries(maxRetries int) ConfigOpt {
+	return func(p *Config) {
+		p.maxRetries = maxRetries
 	}
 }
 
@@ -39,6 +47,10 @@ func (p *Config) validate() error {
 
 	if p.stream == "" {
 		return errors.New("stream is required")
+	}
+
+	if p.maxRetries <= 0 {
+		p.maxRetries = defaultMaxRetries
 	}
 
 	return nil

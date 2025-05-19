@@ -60,9 +60,10 @@ func (s *Subscriber) Subscribe(ctx context.Context, topic string, handler func(m
 		if err := handler(msg.Data); err != nil {
 			s.logger.Error("failed to handle message", "error", err)
 
-			if msg.Nak() != nil {
+			if err := msg.Nak(); err != nil {
 				s.logger.Error("failed to nack message", "error", err)
 			}
+			return
 		}
 
 		if err := msg.Ack(); err != nil {
@@ -70,10 +71,9 @@ func (s *Subscriber) Subscribe(ctx context.Context, topic string, handler func(m
 		}
 
 		s.logger.Debug("message acknowledged", "topic", topic)
-	})
+	}, nats.MaxDeliver(s.cfg.maxRetries))
 
 	return err
-
 }
 
 func (s *Subscriber) Close(ctx context.Context) error {
