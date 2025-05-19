@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
+	"github.com/tmc/langchaingo/textsplitter"
 )
 
 type GenerateDocumentEmbeddingInput struct {
@@ -18,10 +19,17 @@ type GenerateDocumentEmbeddingOutput struct {
 	Embedding []float64
 }
 
+type OllamaEmbeddingRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+}
+
+type OllamaEmbeddingResponse struct {
+	Embedding []float64 `json:"embedding"`
+}
+
 func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocumentEmbeddingInput) error {
-
 	codex, err := u.codexRepo.FindByIDAndCorrelationID(ctx, in.CodexID, in.CorrelationID)
-
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find codex by id", err)
 	}
@@ -31,7 +39,6 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 	}
 
 	codexDocument, err := u.codexDocumentRepo.FindByID(ctx, in.DocumentID)
-
 	if err != nil {
 		return custom_err.NewErrDatasourceOperationFailed("find codex document by id", err)
 	}
@@ -45,14 +52,31 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 		return err
 	}
 
-	docBytes, err := io.ReadAll(doc)
+	contentBytes, err := io.ReadAll(doc)
 	if err != nil {
-		return custom_err.NewErrDatasourceOperationFailed("read image", err)
+		return err
 	}
 
-	docContent := string(docBytes)
+	rawContent := string(contentBytes)
 
-	println(docContent)
+	_, err = u.chunkText(rawContent)
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func (u *UseCase) chunkText(text string) ([]string, error) {
+	splitter := textsplitter.NewRecursiveCharacter(
+		textsplitter.WithChunkSize(1000),
+		textsplitter.WithChunkOverlap(200),
+	)
+
+	chunks, err := splitter.SplitText(text)
+	if err != nil {
+		return nil, err
+	}
+
+	return chunks, nil
 }
