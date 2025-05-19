@@ -2,6 +2,8 @@ package persistence
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
@@ -10,12 +12,14 @@ import (
 )
 
 const (
-	createCodexDocument = "create codex document"
+	findCodexDocumentByID = "find codex document by id"
+	createCodexDocument   = "create codex document"
 )
 
 func codexDocumentQueries() map[string]string {
 	return map[string]string{
-		createCodexDocument: `INSERT INTO codex_documents (id, codex_id, title, image_url, status, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
+		findCodexDocumentByID: `SELECT * FROM codex_documents WHERE id = $1`,
+		createCodexDocument:   `INSERT INTO codex_documents (id, codex_id, title, image_url, status, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
 	}
 }
 
@@ -50,6 +54,27 @@ func (r *CodexDocumentRepository) statement(queryName string) (*sqlx.Stmt, error
 	}
 
 	return stmt, nil
+}
+
+func (r *CodexDocumentRepository) FindByID(ctx context.Context, id string) (model.CodexDocument, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(findCodexDocumentByID)
+	if err != nil {
+		return model.CodexDocument{}, err
+	}
+
+	var codexDocument model.CodexDocument
+	if err := stmt.GetContext(ctx, &codexDocument, id); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.CodexDocument{}, nil
+		}
+
+		return model.CodexDocument{}, err
+	}
+
+	return codexDocument, nil
 }
 
 func (r *CodexDocumentRepository) Create(ctx context.Context, codexDocument model.CodexDocument) error {
