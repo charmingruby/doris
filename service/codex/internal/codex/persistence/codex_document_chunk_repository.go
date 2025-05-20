@@ -2,8 +2,6 @@ package persistence
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/charmingruby/doris/lib/persistence/postgres"
@@ -13,11 +11,13 @@ import (
 
 const (
 	createCodexDocumentChunk = "create codex document chunk"
+	findSimilarChunks        = "find similar chunks"
 )
 
 func codexDocumentChunkQueries() map[string]string {
 	return map[string]string{
-		createCodexDocumentChunk: `INSERT INTO codex_document_chunks (id, codex_document_id, embedding, created_at) VALUES ($1, $2, $3, $4)`,
+		createCodexDocumentChunk: `INSERT INTO codex_document_chunks (id, codex_document_id, embedding, content, created_at) VALUES ($1, $2, $3, $4, $5)`,
+		findSimilarChunks:        `SELECT cdc.* FROM codex_document_chunks cdc JOIN codex_documents cd ON cdc.codex_document_id = cd.id WHERE cd.codex_id = $1 ORDER BY cdc.embedding <=> $2 LIMIT $3`,
 	}
 }
 
@@ -63,12 +63,13 @@ func (r *CodexDocumentChunkRepository) Create(ctx context.Context, codexDocument
 		return err
 	}
 
-	vector := parseEmbedding(codexDocumentChunk.Embedding)
+	vector := postgres.ParseEmbedding(codexDocumentChunk.Embedding)
 
 	if _, err := stmt.ExecContext(ctx,
 		codexDocumentChunk.ID,
 		codexDocumentChunk.CodexDocumentID,
 		vector,
+		codexDocumentChunk.Content,
 		codexDocumentChunk.CreatedAt,
 	); err != nil {
 		return err
@@ -77,11 +78,50 @@ func (r *CodexDocumentChunkRepository) Create(ctx context.Context, codexDocument
 	return nil
 }
 
-func parseEmbedding(embedding []float64) string {
-	vectorStr := make([]string, len(embedding))
-	for i, v := range embedding {
-		vectorStr[i] = fmt.Sprintf("%f", v)
+func (r *CodexDocumentChunkRepository) FindSimilarChunks(ctx context.Context, codexID string, embedding []float64, limit int) ([]model.CodexDocumentChunk, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	stmt, err := r.statement(findSimilarChunks)
+	if err != nil {
+		return nil, err
 	}
 
-	return fmt.Sprintf("[%s]", strings.Join(vectorStr, ","))
+	vector := postgres.ParseEmbedding(embedding)
+
+	rows, err := stmt.QueryContext(ctx, codexID, vector, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var chunks []model.CodexDocumentChunk
+	for rows.Next() {
+		var chunk model.CodexDocumentChunk
+		var embeddingBytes []uint8
+
+		if err := rows.Scan(
+			&chunk.ID,
+			&chunk.CodexDocumentID,
+			&embeddingBytes,
+			&chunk.Content,
+			&chunk.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		embedding, err := postgres.ParseEmbeddingFromBytes(embeddingBytes)
+		if err != nil {
+			return nil, err
+		}
+		chunk.Embedding = embedding
+
+		chunks = append(chunks, chunk)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return chunks, nil
 }

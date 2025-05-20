@@ -2,17 +2,12 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"io"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/charmingruby/doris/lib/core/custom_err"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/model"
 	"github.com/charmingruby/doris/service/codex/internal/codex/core/repository"
-	"github.com/tmc/langchaingo/textsplitter"
 )
 
 type GenerateDocumentEmbeddingInput struct {
@@ -24,15 +19,6 @@ type GenerateDocumentEmbeddingInput struct {
 
 type GenerateDocumentEmbeddingOutput struct {
 	Embedding []float64
-}
-
-type OllamaEmbeddingRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
-}
-
-type OllamaEmbeddingResponse struct {
-	Embedding []float64 `json:"embedding"`
 }
 
 type chunkWithEmbedding struct {
@@ -78,7 +64,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 
 	rawContent := string(contentBytes)
 
-	chunks, err := u.chunkText(rawContent)
+	chunks, err := u.llm.ChunkText(rawContent)
 	if err != nil {
 		return err
 	}
@@ -86,7 +72,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 	var chunksWithEmbeddings []chunkWithEmbedding
 
 	for _, chunk := range chunks {
-		embedding, err := u.generateEmbeddingFromChunk(ctx, chunk)
+		embedding, err := u.llm.GenerateEmbedding(ctx, chunk)
 		if err != nil {
 			return err
 		}
@@ -123,55 +109,4 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 	}
 
 	return nil
-}
-
-func (u *UseCase) chunkText(text string) ([]string, error) {
-	splitter := textsplitter.NewRecursiveCharacter(
-		textsplitter.WithChunkSize(1000),
-		textsplitter.WithChunkOverlap(200),
-	)
-
-	chunks, err := splitter.SplitText(text)
-	if err != nil {
-		return nil, err
-	}
-
-	return chunks, nil
-}
-
-func (u *UseCase) generateEmbeddingFromChunk(ctx context.Context, text string) ([]float64, error) {
-	reqBody := OllamaEmbeddingRequest{
-		Model:  "nomic-embed-text",
-		Prompt: text,
-	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, custom_err.NewErrDatasourceOperationFailed("marshal embedding request", err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", "http://localhost:11434/api/embeddings", strings.NewReader(string(jsonData)))
-	if err != nil {
-		return nil, custom_err.NewErrDatasourceOperationFailed("create embedding request", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, custom_err.NewErrDatasourceOperationFailed("send embedding request", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, custom_err.NewErrDatasourceOperationFailed("embedding request failed", fmt.Errorf("status code: %d", resp.StatusCode))
-	}
-
-	var embeddingResp OllamaEmbeddingResponse
-	if err := json.NewDecoder(resp.Body).Decode(&embeddingResp); err != nil {
-		return nil, custom_err.NewErrDatasourceOperationFailed("decode embedding response", err)
-	}
-
-	return embeddingResp.Embedding, nil
 }

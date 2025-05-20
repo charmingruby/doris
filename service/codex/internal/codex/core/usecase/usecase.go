@@ -14,11 +14,13 @@ type UseCase struct {
 	codexRepo                  repository.CodexRepository
 	codexDocumentRepo          repository.CodexDocumentRepository
 	codexDocumentChunkRepo     repository.CodexDocumentChunkRepository
+	qaRepo                     repository.QARepository
 	txManager                  persistence.TransactionManager[repository.TransactionManager]
 	storage                    storage.Storage
 	eventHandler               event.Handler
 	quotaUsageManagementClient client.QuotaUsageManagement
 	embeddingSourceDocsBucket  string
+	llm                        client.LLM
 }
 
 func New(
@@ -26,21 +28,25 @@ func New(
 	codexRepo repository.CodexRepository,
 	codexDocumentRepo repository.CodexDocumentRepository,
 	codexDocumentChunkRepo repository.CodexDocumentChunkRepository,
+	qaRepo repository.QARepository,
 	storage storage.Storage,
 	eventHandler event.Handler,
 	txManager persistence.TransactionManager[repository.TransactionManager],
 	quotaUsageManagementClient client.QuotaUsageManagement,
 	embeddingSourceDocsBucket string,
+	llm client.LLM,
 ) *UseCase {
 	return &UseCase{
 		logger:                     logger,
 		codexRepo:                  codexRepo,
 		codexDocumentRepo:          codexDocumentRepo,
 		codexDocumentChunkRepo:     codexDocumentChunkRepo,
+		qaRepo:                     qaRepo,
 		storage:                    storage,
 		eventHandler:               eventHandler,
 		quotaUsageManagementClient: quotaUsageManagementClient,
 		txManager:                  txManager,
 		embeddingSourceDocsBucket:  embeddingSourceDocsBucket,
+		llm:                        llm,
 	}
 }

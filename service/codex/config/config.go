@@ -23,6 +23,9 @@ type CustomConfig struct {
 	CodexDocumentUploadedTopic   string `env:"CODEX_DOCUMENT_UPLOADED_TOPIC"`
 	JWTSecret                    string `env:"JWT_SECRET,required"`
 	JWTIssuer                    string `env:"JWT_ISSUER,required"`
+	OllamaEmbeddingModel         string `env:"OLLAMA_EMBEDDING_MODEL,required"`
+	OllamaCompletionModel        string `env:"OLLAMA_COMPLETION_MODEL,required"`
+	OllamaBaseURL                string `env:"OLLAMA_BASE_URL,required"`
 }
 
 func New() (Config, error) {

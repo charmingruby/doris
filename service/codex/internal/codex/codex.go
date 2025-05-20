@@ -23,6 +23,7 @@ type Datasource struct {
 	codexRepo              repository.CodexRepository
 	codexDocumentRepo      repository.CodexDocumentRepository
 	codexDocumentChunkRepo repository.CodexDocumentChunkRepository
+	qaRepo                 repository.QARepository
 	txManager              persistenceLib.TransactionManager[repository.TransactionManager]
 }
 
@@ -42,6 +43,11 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		return nil, err
 	}
 
+	qaRepo, err := persistence.NewQARepository(db)
+	if err != nil {
+		return nil, err
+	}
+
 	txManager, err := persistence.NewTransactionManager(db)
 	if err != nil {
 		return nil, err
@@ -51,6 +57,7 @@ func NewDatasource(db *sqlx.DB) (*Datasource, error) {
 		codexRepo:              codexRepo,
 		codexDocumentRepo:      codexDocumentRepo,
 		codexDocumentChunkRepo: codexDocumentChunkRepo,
+		qaRepo:                 qaRepo,
 		txManager:              txManager,
 	}, nil
 }
@@ -62,17 +69,20 @@ func NewUseCase(
 	storage storage.Storage,
 	quotaUsageManagementClient client.QuotaUsageManagement,
 	embeddingSourceDocsBucket string,
+	llm client.LLM,
 ) *usecase.UseCase {
 	return usecase.New(
 		logger,
 		datasource.codexRepo,
 		datasource.codexDocumentRepo,
 		datasource.codexDocumentChunkRepo,
+		datasource.qaRepo,
 		storage,
 		eventHandler,
 		datasource.txManager,
 		quotaUsageManagementClient,
 		embeddingSourceDocsBucket,
+		llm,
 	)
 }
 

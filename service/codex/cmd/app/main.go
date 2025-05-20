@@ -17,6 +17,7 @@ import (
 	"github.com/charmingruby/doris/lib/validation"
 	"github.com/charmingruby/doris/service/codex/config"
 	"github.com/charmingruby/doris/service/codex/internal/codex"
+	"github.com/charmingruby/doris/service/codex/internal/codex/integration/external"
 	"github.com/charmingruby/doris/service/codex/internal/platform"
 	"github.com/charmingruby/doris/service/codex/internal/quota"
 	"github.com/gin-gonic/gin"
@@ -146,7 +147,21 @@ func initModules(
 		return nil, err
 	}
 
-	codexUseCase := codex.NewUseCase(logger, codexDatasource, codexEventHandler, storage, quotaProvider.QuotaUsageManagement, cfg.Custom.AWSEmbeddingSourceDocsBucket)
+	ollama := external.NewOllama(logger, external.OllamaInput{
+		EmbeddingModel:  cfg.Custom.OllamaEmbeddingModel,
+		CompletionModel: cfg.Custom.OllamaCompletionModel,
+		BaseURL:         cfg.Custom.OllamaBaseURL,
+	})
+
+	codexUseCase := codex.NewUseCase(
+		logger,
+		codexDatasource,
+		codexEventHandler,
+		storage,
+		quotaProvider.QuotaUsageManagement,
+		cfg.Custom.AWSEmbeddingSourceDocsBucket,
+		ollama,
+	)
 
 	if err := codex.SubscribeEventHandler(codexEventHandler, codexUseCase); err != nil {
 		return nil, err

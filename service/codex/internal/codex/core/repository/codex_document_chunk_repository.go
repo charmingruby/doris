@@ -8,4 +8,5 @@ import (
 
 type CodexDocumentChunkRepository interface {
 	Create(ctx context.Context, chunk model.CodexDocumentChunk) error
+	FindSimilarChunks(ctx context.Context, codexDocumentID string, embedding []float64, limit int) ([]model.CodexDocumentChunk, error)
 }

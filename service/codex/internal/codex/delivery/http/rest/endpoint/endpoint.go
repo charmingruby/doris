@@ -37,6 +37,5 @@ func (e *Endpoint) Register() {
 
 	protected.POST("/codex/", e.makeCreateCodex)
 	protected.POST("/codex/:id/documents/upload", e.makeUploadCodexDocuments)
-
-	// protected.POST("/codex/:id/chat", e.makeCodexChat)
+	protected.POST("/codex/:id/question", e.makeAskQuestionWithContext)
 }
