@@ -41,7 +41,7 @@ func (u *UseCase) AskQuestionWithContext(ctx context.Context, in AskQuestionWith
 
 	if len(chunks) == 0 {
 		return AskQuestionWithContextOutput{
-			Answer: "I couldn't find relevant information to answer your question.",
+			Answer: "Couldn't find relevant information to answer your question.",
 		}, nil
 	}
 
