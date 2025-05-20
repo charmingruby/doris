@@ -77,8 +77,10 @@ func NewUnprocessableEntityResponse(c *gin.Context, msg string) {
 }
 
 func NewOKResponse(c *gin.Context, msg string, data any) {
-	res := gin.H{
-		"message": msg,
+	res := gin.H{}
+
+	if msg != "" {
+		res["message"] = msg
 	}
 
 	if data != nil {
