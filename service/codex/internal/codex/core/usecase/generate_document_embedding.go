@@ -54,7 +54,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 
 	doc, err := u.storage.Download(ctx, u.embeddingSourceDocsBucket, in.ImageURL)
 	if err != nil {
-		return err
+		return custom_err.NewErrExternalService(err)
 	}
 
 	contentBytes, err := io.ReadAll(doc)
@@ -66,7 +66,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 
 	chunks, err := u.llm.ChunkText(rawContent)
 	if err != nil {
-		return err
+		return custom_err.NewErrExternalService(err)
 	}
 
 	var chunksWithEmbeddings []chunkWithEmbedding
@@ -74,7 +74,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 	for _, chunk := range chunks {
 		embedding, err := u.llm.GenerateEmbedding(ctx, chunk)
 		if err != nil {
-			return err
+			return custom_err.NewErrExternalService(err)
 		}
 
 		chunksWithEmbeddings = append(chunksWithEmbeddings, chunkWithEmbedding{
@@ -92,7 +92,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 			})
 
 			if err := txManager.CodexDocumentChunkRepository.Create(ctx, *chunk); err != nil {
-				return err
+				return custom_err.NewErrDatasourceOperationFailed("create codex document chunk", err)
 			}
 		}
 
@@ -100,7 +100,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 		now := time.Now()
 		codexDocument.UpdatedAt = &now
 		if err := u.codexDocumentRepo.Save(ctx, codexDocument); err != nil {
-			return err
+			return custom_err.NewErrDatasourceOperationFailed("save codex document", err)
 		}
 
 		return nil

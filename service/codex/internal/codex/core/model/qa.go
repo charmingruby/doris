@@ -6,14 +6,6 @@ import (
 	"github.com/charmingruby/doris/lib/core/id"
 )
 
-type QA struct {
-	ID        string    `json:"id"`
-	CodexID   string    `json:"codex_id"`
-	Question  string    `json:"question"`
-	Answer    string    `json:"answer"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type QAInput struct {
 	CodexID  string `json:"codex_id"`
 	Question string `json:"question"`
@@ -28,4 +20,12 @@ func NewQA(in QAInput) *QA {
 		Answer:    in.Answer,
 		CreatedAt: time.Now(),
 	}
+}
+
+type QA struct {
+	ID        string    `json:"id"`
+	CodexID   string    `json:"codex_id"`
+	Question  string    `json:"question"`
+	Answer    string    `json:"answer"`
+	CreatedAt time.Time `json:"created_at"`
 }

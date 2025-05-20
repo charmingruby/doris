@@ -31,7 +31,7 @@ func (u *UseCase) AskQuestionWithContext(ctx context.Context, in AskQuestionWith
 
 	embedding, err := u.llm.GenerateEmbedding(ctx, in.Question)
 	if err != nil {
-		return AskQuestionWithContextOutput{}, err
+		return AskQuestionWithContextOutput{}, custom_err.NewErrExternalService(err)
 	}
 
 	chunks, err := u.codexDocumentChunkRepo.FindSimilarChunks(ctx, codex.ID, embedding, 5)
@@ -56,7 +56,7 @@ func (u *UseCase) AskQuestionWithContext(ctx context.Context, in AskQuestionWith
 		llm.LIMIT_ASSISTANT,
 	})
 	if err != nil {
-		return AskQuestionWithContextOutput{}, err
+		return AskQuestionWithContextOutput{}, custom_err.NewErrExternalService(err)
 	}
 
 	qa := model.NewQA(model.QAInput{

@@ -13,11 +13,11 @@ import (
 
 type Ollama struct {
 	logger *instrumentation.Logger
+	client *http.Client
 
 	EmbeddingModel  string
 	CompletionModel string
 	BaseURL         string
-	Client          *http.Client
 }
 
 type OllamaInput struct {
@@ -32,7 +32,7 @@ func NewOllama(logger *instrumentation.Logger, in OllamaInput) *Ollama {
 		EmbeddingModel:  in.EmbeddingModel,
 		CompletionModel: in.CompletionModel,
 		BaseURL:         in.BaseURL,
-		Client:          &http.Client{},
+		client:          &http.Client{},
 	}
 }
 
@@ -61,7 +61,7 @@ type OllamaGenerateEmbeddingResponse struct {
 
 func (o *Ollama) GenerateEmbedding(ctx context.Context, text string) ([]float64, error) {
 	req := OllamaGenerateEmbeddingRequest{
-		Model:  o.EmbeddingModel, // "nomic-embed-text"
+		Model:  o.EmbeddingModel,
 		Prompt: text,
 	}
 
@@ -78,8 +78,7 @@ func (o *Ollama) GenerateEmbedding(ctx context.Context, text string) ([]float64,
 
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	res, err := client.Do(httpReq)
+	res, err := o.client.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}
@@ -146,19 +145,18 @@ func (o *Ollama) GenerateCompletion(
 
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(httpReq)
+	res, err := o.client.Do(httpReq)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK {
 		return "", err
 	}
 
 	var completionRes OllamaCompletionResponse
-	if err := json.NewDecoder(resp.Body).Decode(&completionRes); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&completionRes); err != nil {
 		return "", err
 	}
 

@@ -3,6 +3,7 @@ package s3
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -13,6 +14,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/charmingruby/doris/lib/instrumentation"
+)
+
+var (
+	ErrUploadFailed   = errors.New("upload failed")
+	ErrDownloadFailed = errors.New("download failed")
+	ErrInvalidConfig  = errors.New("invalid configuration")
+	ErrInvalidFile    = errors.New("invalid file")
 )
 
 type Client struct {
@@ -27,7 +35,9 @@ func New(logger *instrumentation.Logger, region string) (*Client, error) {
 
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
-		return nil, fmt.Errorf("failed to load configuration, %v", err)
+		logger.Error("failed to load configuration", "error", err)
+
+		return nil, ErrInvalidConfig
 	}
 
 	client := s3.NewFromConfig(cfg)
@@ -40,9 +50,13 @@ func New(logger *instrumentation.Logger, region string) (*Client, error) {
 }
 
 func (c *Client) Upload(ctx context.Context, destination string, key string, file io.Reader) (string, error) {
+	c.logger.Debug("uploading file", "destination", destination, "key", key)
+
 	src, err := io.ReadAll(file)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file, %v", err)
+		c.logger.Error("failed to read file", "error", err)
+
+		return "", ErrInvalidFile
 	}
 
 	if _, err := c.client.PutObject(ctx, &s3.PutObjectInput{
@@ -50,8 +64,12 @@ func (c *Client) Upload(ctx context.Context, destination string, key string, fil
 		Key:    aws.String(key),
 		Body:   bytes.NewReader(src),
 	}); err != nil {
-		return "", fmt.Errorf("failed to upload file, %v", err)
+		c.logger.Error("failed to upload file", "error", err)
+
+		return "", ErrUploadFailed
 	}
+
+	c.logger.Debug("file uploaded", "destination", destination, "key", key)
 
 	return c.bucketFileURL(destination, key), nil
 }
@@ -61,7 +79,9 @@ func (c *Client) Download(ctx context.Context, source string, url string) (io.Re
 
 	key, err := c.extractKeyFromURL(url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract key from URL, %v", err)
+		c.logger.Error("failed to extract key from URL", "error", err)
+
+		return nil, ErrInvalidFile
 	}
 
 	result, err := c.client.GetObject(ctx, &s3.GetObjectInput{
@@ -69,8 +89,12 @@ func (c *Client) Download(ctx context.Context, source string, url string) (io.Re
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to download file, %v", err)
+		c.logger.Error("failed to download file", "error", err)
+
+		return nil, ErrDownloadFailed
 	}
+
+	c.logger.Debug("file downloaded", "source", source, "url", url)
 
 	return result.Body, nil
 }
@@ -82,7 +106,9 @@ func (c *Client) bucketFileURL(destination string, key string) string {
 func (c *Client) extractKeyFromURL(fileURL string) (string, error) {
 	u, err := url.Parse(fileURL)
 	if err != nil {
-		return "", err
+		c.logger.Error("failed to parse URL", "error", err)
+
+		return "", ErrInvalidFile
 	}
 
 	return strings.TrimPrefix(u.Path, "/"), nil
