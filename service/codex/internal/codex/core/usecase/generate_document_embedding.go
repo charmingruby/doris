@@ -35,6 +35,11 @@ type OllamaEmbeddingResponse struct {
 	Embedding []float64 `json:"embedding"`
 }
 
+type chunkWithEmbedding struct {
+	content   string
+	embedding []float64
+}
+
 func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocumentEmbeddingInput) error {
 	codex, err := u.codexRepo.FindByIDAndCorrelationID(ctx, in.CodexID, in.CorrelationID)
 	if err != nil {
@@ -78,21 +83,26 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 		return err
 	}
 
-	var embeddings [][]float64
+	var chunksWithEmbeddings []chunkWithEmbedding
+
 	for _, chunk := range chunks {
 		embedding, err := u.generateEmbeddingFromChunk(ctx, chunk)
 		if err != nil {
 			return err
 		}
 
-		embeddings = append(embeddings, embedding)
+		chunksWithEmbeddings = append(chunksWithEmbeddings, chunkWithEmbedding{
+			content:   chunk,
+			embedding: embedding,
+		})
 	}
 
 	if err := u.txManager.Transact(func(txManager repository.TransactionManager) error {
-		for _, embedding := range embeddings {
+		for _, chunkWithEmbedding := range chunksWithEmbeddings {
 			chunk := model.NewCodexDocumentChunk(model.CodexDocumentChunkInput{
 				CodexDocumentID: in.DocumentID,
-				Embedding:       embedding,
+				Embedding:       chunkWithEmbedding.embedding,
+				Content:         chunkWithEmbedding.content,
 			})
 
 			if err := txManager.CodexDocumentChunkRepository.Create(ctx, *chunk); err != nil {
