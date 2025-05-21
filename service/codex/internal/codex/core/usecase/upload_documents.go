@@ -143,7 +143,7 @@ func (u *UseCase) documentProcessor(
 				ImageURL: imageURL,
 			})
 
-			if err := txManager.CodexDocumentRepository.Create(ctx, *codexDocument); err != nil {
+			if err := txManager.CodexDocumentRepo.Create(ctx, *codexDocument); err != nil {
 				u.logger.Error("failed to create codex document", "error", err)
 				return err
 			}

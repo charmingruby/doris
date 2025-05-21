@@ -1,6 +1,8 @@
 package repository
 
 type TransactionManager struct {
-	CodexDocumentRepository      CodexDocumentRepository
-	CodexDocumentChunkRepository CodexDocumentChunkRepository
+	CodexRepo              CodexRepository
+	CodexDocumentRepo      CodexDocumentRepository
+	CodexDocumentChunkRepo CodexDocumentChunkRepository
+	QARepo                 QARepository
 }

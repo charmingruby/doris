@@ -28,9 +28,21 @@ func (p *TransactionManager) Transact(txFunc func(params repository.TransactionM
 			return err
 		}
 
+		qaRepo, err := NewQARepository(tx)
+		if err != nil {
+			return err
+		}
+
+		codexRepo, err := NewCodexRepository(tx)
+		if err != nil {
+			return err
+		}
+
 		return txFunc(repository.TransactionManager{
-			CodexDocumentRepository:      codexDocumentRepo,
-			CodexDocumentChunkRepository: codexDocumentChunkRepo,
+			CodexRepo:              codexRepo,
+			CodexDocumentRepo:      codexDocumentRepo,
+			CodexDocumentChunkRepo: codexDocumentChunkRepo,
+			QARepo:                 qaRepo,
 		})
 	})
 }

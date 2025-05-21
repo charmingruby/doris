@@ -91,7 +91,7 @@ func (u *UseCase) GenerateDocumentEmbedding(ctx context.Context, in GenerateDocu
 				Content:         chunkWithEmbedding.content,
 			})
 
-			if err := txManager.CodexDocumentChunkRepository.Create(ctx, *chunk); err != nil {
+			if err := txManager.CodexDocumentChunkRepo.Create(ctx, *chunk); err != nil {
 				return custom_err.NewErrDatasourceOperationFailed("create codex document chunk", err)
 			}
 		}
